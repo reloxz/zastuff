@@ -1,0 +1,104 @@
+-- Sand Tool by OneLegend (converted to modern Tool by ChatGPT)
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local mouse = player:GetMouse()
+
+local Color = BrickColor.new("Pastel brown")
+local Mode = 1
+local Sand = true
+local Up = false
+
+-- Create Tool
+local Tool = Instance.new("Tool")
+Tool.Name = "Sand Tool"
+Tool.RequiresHandle = false
+Tool.Parent = player:WaitForChild("Backpack")
+
+-- Create Gourd Model
+local Gourd = Instance.new("Model", char)
+Gourd.Name = "Gourd"
+
+-- Sand Particle Generator (visual effect)
+coroutine.wrap(function()
+	while Sand do
+		wait(0.05)
+		local p = Instance.new("Part")
+		p.Size = Vector3.new(1,1,1)
+		p.BrickColor = Color
+		p.Anchored = true
+		p.CanCollide = false
+		p.CFrame = char.Torso.CFrame * CFrame.new(math.random(-7,7), math.random(-2,5), math.random(-7,7))
+		local m = Instance.new("BlockMesh", p)
+		m.Scale = Vector3.new(0.15,0.15,0.15)
+		p.Parent = Gourd
+		game:GetService("Debris"):AddItem(p, 0.25)
+	end
+end)()
+
+-- Simple example attack (you can add all others here)
+local function Stream(mouse)
+	local b = Instance.new("Part")
+	b.BrickColor = Color
+	b.Transparency = 0.3
+	b.Shape = Enum.PartType.Ball
+	b.Size = Vector3.new(2,2,2)
+	b.CanCollide = false
+	b.CFrame = char.Head.CFrame
+	b.Anchored = false
+	b.Parent = Gourd
+
+	local bv = Instance.new("BodyVelocity", b)
+	bv.Velocity = (mouse.Hit.p - b.Position).Unit * 100
+	bv.MaxForce = Vector3.new(9999,9999,9999)
+
+	game:GetService("Debris"):AddItem(b, 2)
+end
+
+-- Add more functions here (Def, Spike, Coffin, etc.)
+local wep = {
+	Stream,
+	-- Add more here
+}
+
+local names = {
+	"Sand Stream",
+	-- Add names matching order above
+}
+
+-- Switch modes
+local function KeyDown(key)
+	if key == "c" then
+		Mode += 1
+		if Mode > #wep then Mode = 1 end
+		Tool.Name = names[Mode].." ("..Mode..")"
+	elseif key == "z" then
+		Mode -= 1
+		if Mode < 1 then Mode = #wep end
+		Tool.Name = names[Mode].." ("..Mode..")"
+	elseif key == "x" then
+		Mode = 1
+		Tool.Name = names[Mode].." ("..Mode..")"
+	end
+end
+
+-- Activate ability
+local function onActivated()
+	if not wep[Mode] then return end
+	Up = false
+	coroutine.wrap(function()
+		wep[Mode](mouse)
+	end)()
+end
+
+-- Deselect
+Tool.Unequipped:Connect(function()
+	Sand = false
+end)
+
+-- Setup tool when equipped
+Tool.Equipped:Connect(function()
+	mouse.Icon = "rbxasset://textures\\GunCursor.png"
+	player:GetMouse().KeyDown:Connect(KeyDown)
+	Tool.Activated:Connect(onActivated)
+end)
