@@ -1,6 +1,5 @@
 player = game.Players.LocalPlayer
-wait()
-script.Parent=nil
+print'aaaaaaaaaaaaa'
 active = true
 Settings = {
 	Prefix = "";
@@ -170,3 +169,4 @@ Chatted = player.Chatted:connect(function(msg)
 		script:Destroy()
 	end
 end)
+print'a'
