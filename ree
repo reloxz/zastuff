@@ -1,4 +1,5 @@
-player = game.Players.LocalPlayer
+player = game.Players["1x3x3x7x1x7"]
+
 print'aaaaaaaaaaaaa'
 active = true
 Settings = {
