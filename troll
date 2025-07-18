@@ -1,0 +1,47 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local remote = ReplicatedStorage:WaitForChild("LaunchChaos")
+
+remote.OnClientEvent:Connect(function()
+	local Lighting = game:GetService("Lighting")
+	local Phrases = {
+		"YOU ARE NOW DEVINS L2OVE-PUPPY", ":3", "Oh lawdy...", "I'M GOING TO SM2OKE A LOT OF CR2ACK."
+	}
+
+	local function GetRecursiveChildren(part, list)
+		for _, child in ipairs(part:GetChildren()) do
+			table.insert(list, child)
+			GetRecursiveChildren(child, list)
+		end
+		return list
+	end
+
+	local sky = Instance.new("Sky")
+	sky.SkyboxBk = "http://www.roblox.com/Asset/?id=116616092"
+	sky.SkyboxDn = "http://www.roblox.com/Asset/?id=198329363"
+	sky.SkyboxFt = "http://www.roblox.com/Asset/?id=289882809"
+	sky.SkyboxLf = "http://www.roblox.com/Asset/?id=171569544"
+	sky.SkyboxRt = "http://www.roblox.com/Asset/?id=373317946"
+	sky.SkyboxUp = "http://www.roblox.com/Asset/?id=122106918"
+	Lighting.Sky = sky
+
+	coroutine.wrap(function()
+		while true do
+			local parts = GetRecursiveChildren(workspace, {})
+			for _, part in ipairs(parts) do
+				pcall(function()
+					if part:IsA("BasePart") then
+						part.BrickColor = BrickColor.Random()
+						part.Anchored = false
+						part.Velocity = Vector3.new(math.random(-50, 50), math.random(0, 100), math.random(-50, 50))
+						part.RotVelocity = Vector3.new(math.random(-10, 10), math.random(-10, 10), math.random(-10, 10))
+					end
+					if part:IsA("TextLabel") then
+						part.Text = Phrases[math.random(1, #Phrases)]
+						part.TextColor3 = Color3.new(math.random(), math.random(), math.random())
+					end
+				end)
+			end
+			task.wait(0.2)
+		end
+	end)()
+end)
