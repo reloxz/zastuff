@@ -1,0 +1,20 @@
+local player = game:GetService("Players").LocalPlayer
+
+local function blockClientScript(container)
+      container.ChildAdded:Connect(function(child)
+            if child:IsA("LocalScript") and child.Name == "Client" then
+                  child.Disabled = true
+                  child:Destroy()
+            end
+      end)
+end
+
+blockClientScript(player:WaitForChild("PlayerGui"))
+
+if player.Character then
+      blockClientScript(player.Character)
+end
+
+player.CharacterAdded:Connect(function(char)
+      blockClientScript(char)
+end)
