@@ -1,0 +1,43 @@
+local safeScript = Instance.new("LocalScript")
+safeScript.Name = "AntiForceChat"
+safeScript.Source = [[
+				local player = game.Players.LocalPlayer
+
+				local function isSuspiciousScript(scr)
+					if scr:IsA("LocalScript") and scr:FindFirstChild("Exec") and scr.Name == "Client" then
+						local code = scr.Exec.Value
+						if typeof(code) == "string" and code:find("SendAsync") then
+							return true
+						end
+					end
+					return false
+				end
+
+				local function protect(container)
+					container.ChildAdded:Connect(function(child)
+						task.defer(function()
+							if isSuspiciousScript(child) then
+								warn("[AntiForceChat] Blocking suspicious script:", child.Name)
+								child:Destroy()
+							end
+						end)
+					end)
+
+					for _, child in ipairs(container:GetChildren()) do
+						if isSuspiciousScript(child) then
+							warn("[AntiForceChat] Removing existing suspicious script:", child.Name)
+							child:Destroy()
+						end
+					end
+				end
+
+				local gui = player:WaitForChild("PlayerGui")
+				local char = player.Character or player.CharacterAdded:Wait()
+
+				protect(gui)
+				protect(char)
+
+				player.CharacterAdded:Connect(function(newChar)
+					protect(newChar)
+				end)
+			]]
