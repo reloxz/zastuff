@@ -1,0 +1,25 @@
+_G.antiloud = true
+_G.songloudnesscheck = false
+antiNoiseLoop = coroutine.wrap(function()
+while _G.antiloud do
+task.wait(0.2)
+for _, sound in ipairs(game.workspace:GetDescendants()) do
+if sound:IsA("Sound") and sound.IsPlaying then
+if not sound:IsDescendantOf(game:GetService("ReplicatedStorage")) then
+if sound.PlaybackLoudness > 450 then
+print'detected'
+_G.songloudnesscheck = true
+print'just waiting'
+repeat 
+task.wait()
+until sound.Volume == "0"
+_G.songloudnesscheck = false
+print'reloaded'
+end)
+end
+end
+end
+end
+end
+end)
+antiNoiseLoop()
