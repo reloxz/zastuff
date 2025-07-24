@@ -1,0 +1,25 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local remote = ReplicatedStorage:WaitForChild("LoudSoundDetected")
+
+_G.antiloud = true
+
+local antiNoiseLoop = coroutine.wrap(function()
+	while _G.antiloud do
+		task.wait(0.2)
+
+		for _, sound in ipairs(workspace:GetDescendants()) do
+			if sound:IsA("Sound") and sound.IsPlaying and sound.PlaybackLoudness > 450 then
+				if not sound:IsDescendantOf(game:GetService("ReplicatedStorage")) then
+					print("[AntiLoud] Detected loud sound:", sound.Name, sound.SoundId)
+					-- FIRE TO SERVER
+					remote:FireServer(sound.SoundId)
+					
+					-- Wait until sound is gone or muted (optional delay here if needed)
+					repeat task.wait() until not sound:IsDescendantOf(game) or sound.Volume == 0
+				end
+			end
+		end
+	end
+end)
+
+antiNoiseLoop()
