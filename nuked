@@ -1,0 +1,15 @@
+local xpos = 500
+local zpos = 500
+		for _, tool in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+        task.wait()
+				tool.Parent = game.Players.LocalPlayer.Character
+				local args = {
+					[1] = Vector3.new(xpos, 0.7, zpos)
+				}
+				tool.OnMouseClick:FireServer(unpack(args))
+				xpos = xpos - 50
+				if xpos <= -600 then
+					xpos = 500
+					zpos = zpos - 50
+			end
+		end
