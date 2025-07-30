@@ -1,6 +1,6 @@
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
-local COMMAND_URL = "https://7b6c2b03847e.ngrok-free.app/latest-command"--//constantly changing server
+local COMMAND_URL = "https://7a60170ddd93.ngrok-free.app/latest-command"--//constantly changing server
 
 local banned = {}
 
