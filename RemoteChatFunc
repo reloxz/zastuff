@@ -1,0 +1,8 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local event = ReplicatedStorage:WaitForChild("SystemMessageEvent")
+
+local channel = game:GetService("TextChatService"):WaitForChild("TextChannels"):WaitForChild("RBXGeneral")
+
+event.OnClientEvent:Connect(function(msg)
+	channel:DisplaySystemMessage(msg)
+end)
