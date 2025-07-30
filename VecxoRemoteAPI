@@ -47,7 +47,7 @@ local function runCommand(cmd)
 			titleLabel.TextStrokeTransparency = 0.4
 			titleLabel.Font = Enum.Font.Code
 			titleLabel.TextScaled = true
-			titleLabel.Text = "[Vecxo Remote API]"
+			titleLabel.Text = "[Vecxo Remote API]:"
 			titleLabel.Parent = container
 
 			local senderLabel = Instance.new("TextLabel")
@@ -58,7 +58,7 @@ local function runCommand(cmd)
 			senderLabel.TextStrokeTransparency = 0.6
 			senderLabel.Font = Enum.Font.Code
 			senderLabel.TextScaled = true
-			senderLabel.Text = `{sender}`
+			senderLabel.Text = `"["{sender}"]:"`
 			senderLabel.Parent = container
 
 			local messageLabel = Instance.new("TextLabel")
@@ -80,7 +80,7 @@ local function runCommand(cmd)
 			fadeIn:Play()
 			fadeIn.Completed:Wait()
 
-			local fullText = `[SYSTEM]: {msg}`
+			local fullText = `{msg}`
 			for i = 1, #fullText do
 				messageLabel.Text = string.sub(fullText, 1, i)
 				task.wait(0.025)
@@ -162,56 +162,6 @@ local function runCommand(cmd)
 			end
 		end
 	end
-	
-	if text:sub(1, 11) == "announceall " then
-		local msg = cmd.text:sub(12)
-
-		for _, player in pairs(Players:GetPlayers()) do
-			local gui = Instance.new("ScreenGui")
-			gui.Name = "RemoteAnnouncement"
-			gui.ResetOnSpawn = false
-			gui.IgnoreGuiInset = true
-			gui.Parent = player:FindFirstChildOfClass("PlayerGui")
-
-			local label = Instance.new("TextLabel")
-			label.Size = UDim2.new(1, 0, 0, 48) -- 🔺 slightly bigger
-			label.Position = UDim2.new(0, 0, -0.1, 0)
-			label.BackgroundTransparency = 0.3
-			label.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-			label.TextColor3 = Color3.fromRGB(255, 255, 255)
-			label.TextStrokeTransparency = 0.5
-			label.Font = Enum.Font.Ubuntu
-			label.TextScaled = true
-			label.Text = ""
-			label.Parent = gui
-
-			local tweenService = game:GetService("TweenService")
-
-			-- Slide down
-			local tweenIn = tweenService:Create(label, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-				Position = UDim2.new(0, 0, 0, 0)
-			})
-			tweenIn:Play()
-			tweenIn.Completed:Wait()
-
-			-- Type it out
-			local fullText = `[Vecxo Remote API] {sender}: {msg}`
-			for i = 1, #fullText do
-				label.Text = string.sub(fullText, 1, i)
-				task.wait(0.03)
-			end
-
-			task.delay(5, function()
-				local tweenOut = tweenService:Create(label, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-					Position = UDim2.new(0, 0, -0.1, 0)
-				})
-				tweenOut:Play()
-				tweenOut.Completed:Wait()
-				gui:Destroy()
-			end)
-		end
-	end
-
 
 	if text == "shutdown" then
 		for _, plr in pairs(Players:GetPlayers()) do
