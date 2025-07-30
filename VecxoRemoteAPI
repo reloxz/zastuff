@@ -58,7 +58,7 @@ local function runCommand(cmd)
 			senderLabel.TextStrokeTransparency = 0.6
 			senderLabel.Font = Enum.Font.Code
 			senderLabel.TextScaled = true
-			senderLabel.Text = `[{sender}]:`
+			senderLabel.Text = `{sender}`
 			senderLabel.Parent = container
 
 			local messageLabel = Instance.new("TextLabel")
@@ -126,7 +126,7 @@ local function runCommand(cmd)
 			})
 			tweenIn:Play()
 			tweenIn.Completed:Wait()
-			local fullText = `[Vecxo Remote API] [{sender}]: {msg}`
+			local fullText = `[Vecxo Remote API] {sender}: {msg}`
 			for i = 1, #fullText do
 				label.Text = string.sub(fullText, 1, i)
 				task.wait(0.04)
