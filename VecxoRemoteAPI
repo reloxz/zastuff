@@ -189,7 +189,9 @@ while true do
 	task.wait(1.5)
 
 	local success, response = pcall(function()
-		return HttpService:GetAsync(COMMAND_URL)
+		-- Add serverId query param here, using game.JobId:
+		local url = COMMAND_URL .. "?serverId=" .. HttpService:UrlEncode(game.JobId)
+		return HttpService:GetAsync(url)
 	end)
 
 	if success then
