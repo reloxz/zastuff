@@ -23,6 +23,14 @@ local function runCommand(cmd)
 		wait(5)
 		m:Destroy()
 	end
+	
+	if text:sub(1, 2) == "h " then
+		local msg = cmd.text:sub(3)
+		m=Instance.new("Hint",game.workspace)
+		m.Text = `[Vecxo Remote API]: {sender}: {msg}`
+		wait(5)
+		m:Destroy()
+	end
 
 	if text:sub(1, 5) == "kick " then
 		local targetName = text:sub(6):lower()
@@ -61,10 +69,10 @@ Players.PlayerAdded:Connect(function(player)
 end)
 
 pcall(function()
-h=Instance.new('Hint', game.workspace)
-h.Text = '[Vecxo Remote API]: Successfully loaded!'
-wait(3)
-h:Destroy()
+	h=Instance.new('Hint', game.workspace)
+	h.Text = '[Vecxo Remote API]: Successfully loaded!'
+	wait(3)
+	h:Destroy()
 end)
 
 while true do
@@ -81,5 +89,5 @@ while true do
 		end
 	else
 		warn("Failed to fetch Discord command:", response)
-		end
 	end
+end
