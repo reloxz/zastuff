@@ -68,7 +68,7 @@ h:Destroy()
 end)
 
 while true do
-	task.wait(2)
+	task.wait(1.5)
 
 	local success, response = pcall(function()
 		return HttpService:GetAsync(COMMAND_URL)
