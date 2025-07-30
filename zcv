@@ -1,0 +1,32 @@
+local MessagingService = game:GetService("MessagingService")
+		local MessagingTopic = "GlobalCustomCommand"
+
+		local function RunCustomCommand(commandStr)
+			if commandStr == "explodeall" then
+				for _, plr in pairs(game.Players:GetPlayers()) do
+					if plr.Character and plr.Character:FindFirstChild("Humanoid") then
+						plr.Character.Humanoid.Health = 0
+					end
+				end
+			elseif commandStr == "disco" then
+				while true do
+					wait(0.5)
+					game.Lighting.Ambient = Color3.new(math.random(), math.random(), math.random())
+				end
+			else
+				warn("Unknown command: " .. commandStr)
+			end
+		end
+
+		local success, connection = pcall(function()
+			return MessagingService:SubscribeAsync(MessagingTopic, function(message)
+				local data = message.Data
+				if typeof(data) == "string" then
+					RunCustomCommand(data)
+				end
+			end)
+		end)
+
+		if not success then
+			warn("Failed to subscribe to MessagingService:", connection)
+		end
