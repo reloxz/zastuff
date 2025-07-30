@@ -1,0 +1,16 @@
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+
+local URL = "http://localhost:3000/log-chat" 
+
+Players.PlayerAdded:Connect(function(player)
+	player.Chatted:Connect(function(message)
+		local data = HttpService:JSONEncode({
+			player = player.Name,
+			message = message
+		})
+		pcall(function()
+			HttpService:PostAsync(URL, data, Enum.HttpContentType.ApplicationJson)
+		end)
+	end)
+end)
