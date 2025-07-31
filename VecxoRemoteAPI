@@ -1,15 +1,15 @@
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 
-local COMMAND_URL = "https://b55bfdb39f82.ngrok-free.app/latest-command"
-local REGISTER_URL = "https://b55bfdb39f82.ngrok-free.app/register-server"
-local API_URL = "https://b55bfdb39f82.ngrok-free.app/players"
+local COMMAND_URL = "https://04dbf704e22e.ngrok-free.app/latest-command"
+local REGISTER_URL = "https://04dbf704e22e.ngrok-free.app/register-server"
+local API_URL = "https://04dbf704e22e.ngrok-free.app/players"
 
 local banned = {}
 local serverId = game.JobId
 local serverLabel = "unknown"
 
--- Register this server
+
 task.spawn(function()
 	while true do
 		local success, res = pcall(function()
@@ -29,7 +29,7 @@ task.spawn(function()
 	end
 end)
 
--- Fetch and run commands
+
 local function runCommand(cmd)
 	if not cmd or not cmd.text then return end
 
@@ -250,11 +250,8 @@ end)
 
 local function updatePlayers()
 	local playerNames = {}
-	for _, plr in ipairs(game.Players:GetPlayers()) do
+	for _, plr in ipairs(Players:GetPlayers()) do
 		table.insert(playerNames, plr.Name)
-		if not plr then
-			table.remove(playerNames, plr.Name)
-		end
 	end
 
 	local data = HttpService:JSONEncode({
@@ -262,18 +259,26 @@ local function updatePlayers()
 		players = playerNames
 	})
 
-	HttpService:PostAsync(API_URL, data, Enum.HttpContentType.ApplicationJson)
+	local success, res = pcall(function()
+		return HttpService:PostAsync(API_URL, data, Enum.HttpContentType.ApplicationJson)
+	end)
+
+	if success then
+		print("[Vecxo] Player list sent successfully:", data)
+	else
+		warn("[Vecxo] Failed to send player list:", res)
+	end
 end
 
 Players.PlayerAdded:Connect(updatePlayers)
 Players.PlayerRemoving:Connect(updatePlayers)
 
-coroutine.wrap(function()
+task.spawn(function()
 	while true do
 		updatePlayers()
 		task.wait(30)
 	end
-end)()
+end)
 
 pcall(function()
 	local h = Instance.new('Hint', workspace)
