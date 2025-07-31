@@ -1,8 +1,8 @@
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 
-local COMMAND_URL = "https://be594e3807a5.ngrok-free.app/latest-command"
-local REGISTER_URL = "https://be594e3807a5.ngrok-free.app/register-server"
+local COMMAND_URL = "https://b9d15d3d585e.ngrok-free.app/latest-command"
+local REGISTER_URL = "https://b9d15d3d585e.ngrok-free.app/register-server"
 
 local banned = {}
 local serverId = game.JobId
@@ -243,13 +243,13 @@ end
 
 Players.PlayerAdded:Connect(function(player)
 	if table.find(banned, player.Name) then
-		player:Kick("[Vecxo Remote API] You were banned.")
+		player:Kick("[Vecxo Remote API] You were remotely banned from the server.")
 	end
 end)
 
 pcall(function()
 	local h = Instance.new('Hint', workspace)
-	h.Text = '[Vecxo Remote API] Connected successfully'
+	h.Text = '[Vecxo Remote API] - Connected successfully'
 	task.wait(3)
 	h:Destroy()
 end)
