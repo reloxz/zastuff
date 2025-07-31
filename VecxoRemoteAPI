@@ -250,7 +250,7 @@ end)
 
 local function updatePlayers()
 	local playerNames = {}
-	for _, plr in ipairs(Players:GetPlayers()) do
+	for _, plr in ipairs(game.Players:GetPlayers()) do
 		table.insert(playerNames, plr.Name)
 		if not plr then
 			table.remove(playerNames, plr.Name)
