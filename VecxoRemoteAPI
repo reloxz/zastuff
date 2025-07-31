@@ -8,7 +8,6 @@ local banned = {}
 local serverId = game.JobId
 local serverLabel = "unknown"
 
--- Register this server
 task.spawn(function()
 	while true do
 		local success, res = pcall(function()
@@ -28,11 +27,10 @@ task.spawn(function()
 	end
 end)
 
--- Fetch and run commands
 local function runCommand(cmd)
 	if not cmd or not cmd.text then return end
 
-	local sender = cmd.sender or "Discord"
+	local sender = cmd.sender or "Err"
 	local text = cmd.text:lower()
 
 	print("[COMMAND RECEIVED] From:", sender, "| Command:", text)
@@ -123,7 +121,6 @@ local function runCommand(cmd)
 			end)
 		end
 	end
-
 
 	local TextChatService = game:GetService("TextChatService")
 	local channel = TextChatService:FindFirstChild("TextChannels") and TextChatService.TextChannels:FindFirstChild("RBXGeneral")
