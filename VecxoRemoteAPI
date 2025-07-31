@@ -42,22 +42,84 @@ local function runCommand(cmd)
 		for _, player in pairs(Players:GetPlayers()) do
 			task.spawn(function()
 				local gui = Instance.new("ScreenGui")
+				gui.Name = "FullScreenAnnouncement"
 				gui.ResetOnSpawn = false
 				gui.IgnoreGuiInset = true
 				gui.Parent = player:FindFirstChildOfClass("PlayerGui")
 
-				local lbl = Instance.new("TextLabel")
-				lbl.Size = UDim2.new(1, 0, 0, 40)
-				lbl.Position = UDim2.new(0, 0, 0, 0)
-				lbl.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-				lbl.BackgroundTransparency = 0.4
-				lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-				lbl.Font = Enum.Font.SourceSansBold
-				lbl.TextScaled = true
-				lbl.Text = `[Vecxo Remote API] {sender}: {msg}`
-				lbl.Parent = gui
+				local bg = Instance.new("Frame")
+				bg.Size = UDim2.new(1, 0, 1, 0)
+				bg.Position = UDim2.new(0, 0, 0, 0)
+				bg.BackgroundColor3 = Color3.new(0, 0, 0)
+				bg.BackgroundTransparency = 1 -- starts invisible
+				bg.Parent = gui
 
-				task.delay(5, function() gui:Destroy() end)
+				local container = Instance.new("Frame")
+				container.Size = UDim2.new(1, -100, 0, 180) -- increased height for 3 lines
+				container.Position = UDim2.new(0.5, 0, 0.5, 0)
+				container.AnchorPoint = Vector2.new(0.5, 0.5)
+				container.BackgroundTransparency = 1
+				container.Parent = bg
+
+				local titleLabel = Instance.new("TextLabel")
+				titleLabel.Size = UDim2.new(1, 0, 0, 40)
+				titleLabel.Position = UDim2.new(0, 0, 0, 0)
+				titleLabel.BackgroundTransparency = 1
+				titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+				titleLabel.TextStrokeTransparency = 0.4
+				titleLabel.Font = Enum.Font.Code
+				titleLabel.TextScaled = true
+				titleLabel.Text = "[Vecxo Remote API]:"
+				titleLabel.Parent = container
+
+				local senderLabel = Instance.new("TextLabel")
+				senderLabel.Size = UDim2.new(1, 0, 0, 40)
+				senderLabel.Position = UDim2.new(0, 0, 0, 40)
+				senderLabel.BackgroundTransparency = 1
+				senderLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+				senderLabel.TextStrokeTransparency = 0.6
+				senderLabel.Font = Enum.Font.Code
+				senderLabel.TextScaled = true
+				senderLabel.Text = `{sender}`
+				senderLabel.Parent = container
+
+				local messageLabel = Instance.new("TextLabel")
+				messageLabel.Size = UDim2.new(1, 0, 0, 90)
+				messageLabel.Position = UDim2.new(0, 0, 0, 80)
+				messageLabel.BackgroundTransparency = 1
+				messageLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+				messageLabel.TextStrokeTransparency = 0.4
+				messageLabel.Text = ""
+				messageLabel.Font = Enum.Font.Code
+				messageLabel.TextScaled = true
+				messageLabel.TextWrapped = true
+				messageLabel.Parent = container
+
+				local tweenService = game:GetService("TweenService")
+
+
+				local fadeIn = tweenService:Create(bg, TweenInfo.new(0.5), { BackgroundTransparency = 0.4 })
+				fadeIn:Play()
+				fadeIn.Completed:Wait()
+
+				local fullText = `{msg}`
+				for i = 1, #fullText do
+					messageLabel.Text = string.sub(fullText, 1, i)
+					task.wait(0.025)
+				end
+
+				task.delay(5, function()
+					local fadeOutBg = tweenService:Create(bg, TweenInfo.new(0.5), { BackgroundTransparency = 1 })
+					local fadeOutMessage = tweenService:Create(messageLabel, TweenInfo.new(0.5), { TextTransparency = 1, TextStrokeTransparency = 1 })
+					local fadeOutTitle = tweenService:Create(titleLabel, TweenInfo.new(0.5), { TextTransparency = 1, TextStrokeTransparency = 1 })
+					local fadeOutSender = tweenService:Create(senderLabel, TweenInfo.new(0.5), { TextTransparency = 1, TextStrokeTransparency = 1 })
+					fadeOutBg:Play()
+					fadeOutMessage:Play()
+					fadeOutTitle:Play()
+					fadeOutSender:Play()
+					fadeOutBg.Completed:Wait()
+					gui:Destroy()
+				end)
 			end)
 		end
 	end
@@ -67,22 +129,40 @@ local function runCommand(cmd)
 		for _, player in pairs(Players:GetPlayers()) do
 			task.spawn(function()
 				local gui = Instance.new("ScreenGui")
+				gui.Name = "RemoteAnnouncement"
 				gui.ResetOnSpawn = false
 				gui.IgnoreGuiInset = true
 				gui.Parent = player:FindFirstChildOfClass("PlayerGui")
-
-				local lbl = Instance.new("TextLabel")
-				lbl.Size = UDim2.new(1, 0, 0, 30)
-				lbl.Position = UDim2.new(0, 0, -0.1, 0)
-				lbl.BackgroundTransparency = 0.2
-				lbl.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-				lbl.TextColor3 = Color3.new(1, 1, 1)
-				lbl.Font = Enum.Font.Code
-				lbl.TextScaled = true
-				lbl.Text = `[Hint] {sender}: {msg}`
-				lbl.Parent = gui
-
-				task.delay(5, function() gui:Destroy() end)
+				local label = Instance.new("TextLabel")
+				label.Size = UDim2.new(1, 0, 0, 40)
+				label.Position = UDim2.new(0, 0, -0.1, 0)
+				label.BackgroundTransparency = 0.3
+				label.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+				label.TextColor3 = Color3.fromRGB(255, 255, 255)
+				label.TextStrokeTransparency = 0.5
+				label.Font = Enum.Font.Ubuntu
+				label.TextScaled = true
+				label.Text = ""
+				label.Parent = gui
+				local tweenService = game:GetService("TweenService")
+				local tweenIn = tweenService:Create(label, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+					Position = UDim2.new(0, 0, 0, 0)
+				})
+				tweenIn:Play()
+				tweenIn.Completed:Wait()
+				local fullText = `[Vecxo Remote API] {sender}: {msg}`
+				for i = 1, #fullText do
+					label.Text = string.sub(fullText, 1, i)
+					task.wait(0.04)
+				end
+				task.delay(5, function()
+					local tweenOut = tweenService:Create(label, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+						Position = UDim2.new(0, 0, -0.1, 0)
+					})
+					tweenOut:Play()
+					tweenOut.Completed:Wait()
+					gui:Destroy()
+				end)
 			end)
 		end
 	end
