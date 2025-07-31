@@ -250,7 +250,7 @@ pcall(function()
 	task.wait(3)
 	h:Destroy()
 end)
-
+task.spawn(function()
 while true do
 	task.wait(1.5)
 	local success, response = pcall(function()
@@ -264,5 +264,6 @@ while true do
 		end
 	else
 		warn("Command fetch failed:", response)
+		end
 	end
-end
+end)
