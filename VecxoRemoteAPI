@@ -191,7 +191,7 @@ local function runCommand(cmd)
 				})
 				tweenIn:Play()
 				tweenIn.Completed:Wait()
-				local fullText = `[Vecxo Remote API] {sender}: {msg}`
+				local fullText = `[Vecxo Remote API] - {sender}: {msg}`
 				for i = 1, #fullText do
 					label.Text = string.sub(fullText, 1, i)
 					task.wait(0.04)
@@ -229,7 +229,7 @@ local function runCommand(cmd)
 		end
 	end
 
-	if text == "shutdown" then
+	if text:sub(1, 9) == "shutdown " then
 		for _, p in pairs(Players:GetPlayers()) do
 			p:Kick(`[Vecxo Remote API] Shutdown by {sender}`)
 		end
@@ -253,12 +253,10 @@ end)
 
 while true do
 	task.wait(1.5)
-
 	local success, response = pcall(function()
 		local url = COMMAND_URL .. "?serverId=" .. HttpService:UrlEncode(serverId)
 		return HttpService:GetAsync(url)
 	end)
-
 	if success then
 		local data = HttpService:JSONDecode(response)
 		if data and data.command then
