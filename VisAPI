@@ -8,7 +8,7 @@ if not remote then
 	remote.Parent = ReplicatedStorage
 end
 
-local sound = workspace:WaitForChild("Music", 5)
+local sound = workspace:WaitForChild("Sound", 5)
 if not sound or not sound:IsA("Sound") then
 	warn("No 'Music' Sound object found in workspace!")
 	return
