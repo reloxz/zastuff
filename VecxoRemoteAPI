@@ -123,6 +123,27 @@ local function runCommand(cmd)
 			end)
 		end
 	end
+	
+	local TextChatService = game:GetService("TextChatService")
+
+	local function handleSayCommand(args, sender)
+		local fakeSender = sender
+		local message = table.concat(args, " ")
+
+		local chatMessage = string.format("[%s]: %s", fakeSender, message)
+		local channel = TextChatService:FindFirstChild("TextChannels") and TextChatService.TextChannels:FindFirstChild("RBXGeneral")
+
+		if channel then
+			channel:DisplaySystemMessage(chatMessage)
+		else
+			warn("Could not find RBXGeneral channel")
+		end
+	end
+
+	if text:sub(1, 5) == "chat " then
+		local msg = cmd.text:sub(6)
+		handleSayCommand({msg}, {sender})
+	end
 
 	if text:sub(1, 2) == "h " then
 		local msg = cmd.text:sub(3)
@@ -195,6 +216,7 @@ local function runCommand(cmd)
 		game:Shutdown()
 	end
 end
+
 
 Players.PlayerAdded:Connect(function(player)
 	if table.find(banned, player.Name) then
