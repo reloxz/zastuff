@@ -1,8 +1,9 @@
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 
-local COMMAND_URL = "https://b9d15d3d585e.ngrok-free.app/latest-command"
-local REGISTER_URL = "https://b9d15d3d585e.ngrok-free.app/register-server"
+local COMMAND_URL = "https://b55bfdb39f82.ngrok-free.app/latest-command"
+local REGISTER_URL = "https://b55bfdb39f82.ngrok-free.app/register-server"
+local API_URL = "https://b55bfdb39f82.ngrok-free.app/players"
 
 local banned = {}
 local serverId = game.JobId
@@ -123,7 +124,7 @@ local function runCommand(cmd)
 			end)
 		end
 	end
-	
+
 
 	local TextChatService = game:GetService("TextChatService")
 	local channel = TextChatService:FindFirstChild("TextChannels") and TextChatService.TextChannels:FindFirstChild("RBXGeneral")
@@ -247,6 +248,33 @@ Players.PlayerAdded:Connect(function(player)
 	end
 end)
 
+local function updatePlayers()
+	local playerNames = {}
+	for _, plr in ipairs(Players:GetPlayers()) do
+		table.insert(playerNames, plr.Name)
+		if not plr then
+			table.remove(playerNames, plr.Name)
+		end
+	end
+
+	local data = HttpService:JSONEncode({
+		serverId = serverId,
+		players = playerNames
+	})
+
+	HttpService:PostAsync(API_URL, data, Enum.HttpContentType.ApplicationJson)
+end
+
+Players.PlayerAdded:Connect(updatePlayers)
+Players.PlayerRemoving:Connect(updatePlayers)
+
+coroutine.wrap(function()
+	while true do
+		updatePlayers()
+		task.wait(30)
+	end
+end)()
+
 pcall(function()
 	local h = Instance.new('Hint', workspace)
 	h.Text = '[Vecxo Remote API] - Connected successfully'
@@ -256,7 +284,6 @@ end)
 
 while true do
 	task.wait(1.5)
-
 	local success, response = pcall(function()
 		local url = COMMAND_URL .. "?serverId=" .. HttpService:UrlEncode(serverId)
 		return HttpService:GetAsync(url)
