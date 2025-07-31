@@ -124,26 +124,22 @@ local function runCommand(cmd)
 		end
 	end
 	
+
 	local TextChatService = game:GetService("TextChatService")
+	local channel = TextChatService:FindFirstChild("TextChannels") and TextChatService.TextChannels:FindFirstChild("RBXGeneral")
 
-	local function handleSayCommand(args, sender)
-		local fakeSender = sender
-		local message = table.concat(args, " ")
-
-		local chatMessage = string.format("[%s]: %s", fakeSender, message)
-		local channel = TextChatService:FindFirstChild("TextChannels") and TextChatService.TextChannels:FindFirstChild("RBXGeneral")
+	if text:sub(1, 5) == "chat " then
+		local msg = text:sub(6)
+		local fakeSender = sender or "Test"
+		local chatMsg = string.format("[%s]: %s", fakeSender, msg)
 
 		if channel then
-			channel:DisplaySystemMessage(chatMessage)
+			channel:DisplaySystemMessage(chatMsg)
 		else
-			warn("Could not find RBXGeneral channel")
+			warn("RBXGeneral channel not found")
 		end
 	end
 
-	if text:sub(1, 5) == "chat " then
-		local msg = cmd.text:sub(6)
-		handleSayCommand({msg}, {sender})
-	end
 
 	if text:sub(1, 2) == "h " then
 		local msg = cmd.text:sub(3)
