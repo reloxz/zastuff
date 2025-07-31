@@ -1,0 +1,22 @@
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local remote = ReplicatedStorage:FindFirstChild("MusicLoudness")
+if not remote then
+	remote = Instance.new("RemoteEvent")
+	remote.Name = "MusicLoudness"
+	remote.Parent = ReplicatedStorage
+end
+
+local sound = workspace:WaitForChild("Music", 5)
+if not sound or not sound:IsA("Sound") then
+	warn("No 'Music' Sound object found in workspace!")
+	return
+end
+
+RunService.RenderStepped:Connect(function()
+	if sound.IsPlaying then
+		local loudness = sound.PlaybackLoudness
+		remote:FireServer(loudness)
+	end
+end)
