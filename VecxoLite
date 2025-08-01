@@ -1,0 +1,109 @@
+local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
+
+local whitelisted = {
+	["Reloxz"] = true,
+}
+
+local bannedPlayers = {}
+
+local function notify(player, title, message)
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "VecxoNotification"
+	gui.ResetOnSpawn = false
+	gui.IgnoreGuiInset = true
+	gui.Parent = player:FindFirstChildOfClass("PlayerGui")
+
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(0.4, 0, 0.2, 0)
+	frame.Position = UDim2.new(0.5, 0, 0.1, 0)
+	frame.AnchorPoint = Vector2.new(0.5, 0)
+	frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	frame.BackgroundTransparency = 0.2
+	frame.BorderSizePixel = 0
+	frame.Parent = gui
+
+	local titleLabel = Instance.new("TextLabel")
+	titleLabel.Size = UDim2.new(1, 0, 0.3, 0)
+	titleLabel.Position = UDim2.new(0, 0, 0, 0)
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	titleLabel.Font = Enum.Font.Code
+	titleLabel.TextScaled = true
+	titleLabel.Text = title
+	titleLabel.Parent = frame
+
+	local messageLabel = Instance.new("TextLabel")
+	messageLabel.Size = UDim2.new(1, 0, 0.7, 0)
+	messageLabel.Position = UDim2.new(0, 0, 0.3, 0)
+	messageLabel.BackgroundTransparency = 1
+	messageLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+	messageLabel.Font = Enum.Font.Code
+	messageLabel.TextScaled = true
+	messageLabel.TextWrapped = true
+	messageLabel.Text = message
+	messageLabel.Parent = frame
+
+	task.delay(5, function()
+		gui:Destroy()
+	end)
+end
+
+local function processCommand(sender, msg)
+	if not whitelisted[sender.Name] then return end
+	local args = msg:split(" ")
+	local cmd = args[1]:lower()
+
+	if cmd == "!cmds" then
+		notify(sender, "[Vecxo Lite]", "!kick <plr> [reason]\n!ban <plr> [reason]\n!h <message>")
+	elseif cmd == "!kick" and args[2] then
+		local targetName = args[2]:lower()
+		local reason = msg:match("^!kick%s+%S+%s+(.+)$") or "No reason"
+		for _, plr in ipairs(Players:GetPlayers()) do
+			if plr.Name:lower():sub(1, #targetName) == targetName then
+				plr:Kick("[Vecxo Lite]: Kicked by " .. sender.Name .. ": " .. reason)
+				notify(sender, "Kick", "Kicked " .. plr.Name)
+				return
+			end
+		end
+	elseif cmd == "!ban" and args[2] then
+		local targetName = args[2]:lower()
+		local reason = msg:match("^!ban%s+%S+%s+(.+)$") or "No reason"
+		for _, plr in ipairs(Players:GetPlayers()) do
+			if plr.Name:lower():sub(1, #targetName) == targetName then
+				bannedPlayers[plr.UserId] = true
+				plr:Kick("[Vecxo Lite]: Banned by " .. sender.Name .. ": " .. reason)
+				notify(sender, "Ban", "Banned " .. plr.Name)
+				return
+			end
+		end
+	elseif cmd == "!h" then
+		local announcement = msg:sub(4)
+		for _, plr in ipairs(Players:GetPlayers()) do
+			notify(plr, "[Vecxo Lite]", announcement)
+		end
+	end
+end
+
+for _, player in ipairs(Players:GetPlayers()) do
+	if whitelisted[player.Name] then
+		notify(player, "You're whitelisted!", "Usage: !cmds")
+	end
+	player.Chatted:Connect(function(message)
+		processCommand(player, message)
+	end)
+end
+
+Players.PlayerAdded:Connect(function(player)
+	if bannedPlayers[player.UserId] then
+		player:Kick("[Admin] You are banned from this server.")
+		return
+	end
+	if whitelisted[player.Name] then
+		notify(player, "You're whitelisted!", "Usage: !cmds")
+	end
+	player.Chatted:Connect(function(message)
+		processCommand(player, message)
+	end)
+end)
+
