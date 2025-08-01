@@ -511,7 +511,7 @@ end
 
 
 local function processCommand(sender, msg)
-	if not (table.find(whitelisted, tostring(sender.UserId)) or table.find(tempWhitelist, tostring(sender.UserId))) then
+	if not (table.find(whitelisted, tostring(sender.UserId)) or not table.find(tempWhitelist, tostring(sender.UserId))) then
 		return
 	end
 	local args = msg:split(" ")
