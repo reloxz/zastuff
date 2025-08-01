@@ -947,6 +947,20 @@ local function processCommand(sender, msg)
 		local bannedList = {}
 		local ReplicatedStorage = game:GetService("ReplicatedStorage")
 		local Players = game:GetService("Players")
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+		local function createRemote(name)
+			if not ReplicatedStorage:FindFirstChild(name) then
+				local remote = Instance.new("RemoteEvent")
+				remote.Name = name
+				remote.Parent = ReplicatedStorage
+			end
+		end
+
+		createRemote("BansGuiEvent")
+		createRemote("UnbanRequest")
+		
+		task.wait(0.5)
 
 		local BansGuiEvent = ReplicatedStorage:WaitForChild("BansGuiEvent")
 		local UnbanRequest = ReplicatedStorage:WaitForChild("UnbanRequest")
