@@ -310,7 +310,7 @@ local function showCommandGui(player)
 		"7 - !re <plr|all|others|random|friends>",
 		"8 - !clr",
 		"9 - !shutdown",
-		"10 - !restart"
+		--"10 - !restart"
 	}
 
 	for _, text in ipairs(commands) do
@@ -328,6 +328,19 @@ local function showCommandGui(player)
 	task.defer(function()
 		scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
 	end)
+end
+
+local mutedPlayers = {}
+local TextChatService = game:GetService("TextChatService")
+TextChatService.OnIncomingMessage = function(message)
+	local speaker = message.TextSource
+	if speaker then
+		local player = Players:GetPlayerByUserId(speaker.UserId)
+		if player and mutedPlayers[player.UserId] then
+			return nil -- Block message
+		end
+	end
+	return message -- Let others go through
 end
 
 
@@ -358,13 +371,35 @@ local function processCommand(sender, msg)
 			whitelisted[targetPlayer.Name] = nil
 			notify(sender, "[Vecxo Lite]", "Removed " .. targetPlayer.Name .. " from whitelist")
 		end
-		
+	elseif cmd == "!mute" and args[2] then
+		local targets = GetPlayers(args[2], sender)
+		if #targets == 0 then
+			notifyv2(sender, "[Vecxo Lite]", "Player(s) '" .. args[2] .. "' not found.")
+			return
+		end
+		for _, plr in ipairs(targets) do
+			mutedPlayers[plr.UserId] = true
+			notifyv2(plr, "[Vecxo Lite]", "You have been muted.")
+		end
+		notifyv2(sender, "[Vecxo Lite]", "Muted " .. args[2])
+
+	elseif cmd == "!unmute" and args[2] then
+		local targets = GetPlayers(args[2], sender)
+		if #targets == 0 then
+			notifyv2(sender, "[Vecxo Lite]", "Player(s) '" .. args[2] .. "' not found.")
+			return
+		end
+		for _, plr in ipairs(targets) do
+			mutedPlayers[plr.UserId] = nil
+			notifyv2(plr, "[Vecxo Lite]", "You have been unmuted.")
+		end
+		notifyv2(sender, "[Vecxo Lite]", "Unmuted " .. args[2])
 	elseif cmd == "!shutdown" then
 		for i, v in pairs(game.Players:GetPlayers()) do
 			v:Kick("[Vecxo Lite]: This server has been shutdown.")
 		end
 		game:Shutdown()
-	elseif cmd == "!restart" then
+	--[[elseif cmd == "!restart" then
 		local message = Instance.new("Message", workspace)
 		local dots = 0
 		local running = true
@@ -391,7 +426,7 @@ local function processCommand(sender, msg)
 		message:Destroy()
 		for _, v in ipairs(game.Players:GetPlayers()) do
 			v:Kick("[Vecxo Lite]: Failed to teleport you to the restarted server. Please rejoin manually, sorry :-(")
-		end
+		end]]
 	elseif cmd == "!clr" then
 		for _, v in pairs(game.Workspace:GetChildren()) do
 			if (v:IsA("Part") or v:IsA("TrussPart") or v:IsA("WedgePart")) and v.Parent == game.Workspace then
