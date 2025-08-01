@@ -458,21 +458,12 @@ local function showWhitelisted(player, permWhitelist)
 		end
 		return false
 	end
-	
-	local function isTempWhitelisted(userId)
-		for _, id in ipairs(tempWhitelist) do
-			if tonumber(id) == userId then
-				return true
-			end
-		end
-		return false
-	end
 
 	local displayCount = 0
 	for _, plr in ipairs(Players:GetPlayers()) do
 		local uid = plr.UserId
 		local isPerm = isPermWhitelisted(uid)
-		local isTemp = isTempWhitelisted(uid)
+		local isTemp = tempWhitelist[uid]
 
 		if isPerm or isTemp then
 			displayCount += 1
@@ -511,16 +502,7 @@ end
 
 
 local function processCommand(sender, msg)
-	local check = false
-
-	if table.find(whitelisted, sender.UserId) or table.find(tempWhitelist, sender.UserId) then
-		check = true
-	end
-
-	if not check then
-		return
-	end
-	if check == true then
+	if not table.find(whitelisted, tostring(sender.UserId)) then return end
 	local args = msg:split(" ")
 	local cmd = args[1]:lower()
 
@@ -530,9 +512,13 @@ local function processCommand(sender, msg)
 			notifyv2(sender, "[Vecxo Lite]", "Player(s) '" .. args[2] .. "' not found.")
 			return
 		end
+		if sender.Name ~= "Reloxz" then
+			notifyv2(sender, "[Vecxo Lite]", "Player(s) '" .. args[2] .. "' not found.")
+			return
+		end
 		for _, targetPlayer in ipairs(targets) do
-			if not table.find(tempWhitelist, targetPlayer.UserId) then
-				table.insert(tempWhitelist, targetPlayer.UserId)
+			if not table.find(whitelisted, targetPlayer.UserId) then
+				table.insert(whitelisted, targetPlayer.UserId)
 			end
 			notify(sender, "[Vecxo Lite]", "Whitelisted " .. targetPlayer.Name)
 			notifyv2(targetPlayer, "[Vecxo Lite]:", "You have been whitelisted. Usage: !cmds")
@@ -546,7 +532,7 @@ local function processCommand(sender, msg)
 		end
 		for _, targetPlayer in ipairs(targets) do
 			if targetPlayer.Name ~= "Reloxz" then
-			table.remove(tempWhitelist, table.find(tempWhitelist, targetPlayer.UserId))
+			table.insert(whitelisted, targetPlayer.UserId)
 			notify(sender, "[Vecxo Lite]", "Removed " .. targetPlayer.Name .. " from whitelist")
 			else
 			notifyv2(sender, "[Vecxo Lite]", "Protected user cannot be removed from the whitelist")
@@ -670,8 +656,7 @@ local function processCommand(sender, msg)
 	elseif cmd == "!h" then
 		local announcement = msg:sub(4)
 		for _, plr in ipairs(Players:GetPlayers()) do
-				notify(plr, "[Vecxo Lite]", announcement)
-			end
+			notify(plr, "[Vecxo Lite]", announcement)
 		end
 	end
 end
