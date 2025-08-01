@@ -210,6 +210,30 @@ local function runCommand(cmd)
 			end)
 		end
 	end
+	
+	if text:sub(1, 11) == "getplayers " then
+		local playerNames = {}
+		for _, player in pairs(Players:GetPlayers()) do
+			table.insert(playerNames, player.Name)
+		end
+
+		local success, err = pcall(function()
+			HttpService:PostAsync(
+				REPORT_URL,
+				HttpService:JSONEncode({
+					serverId = serverId,
+					players = playerNames
+				}),
+				Enum.HttpContentType.ApplicationJson
+			)
+		end)
+
+		if not success then
+			warn("[Vecxo Remote API] Failed to report players on getplayers command:", err)
+		end
+		return
+	end
+
 
 	if text:sub(1, 5) == "kick " then
 		local target = text:sub(6):lower()
@@ -247,7 +271,7 @@ Players.PlayerAdded:Connect(function(player)
 	end
 end)
 
-task.spawn(function()
+--[[task.spawn(function()
 	while true do
 		task.wait(20)
 		local playerNames = {}
@@ -268,7 +292,7 @@ task.spawn(function()
 			warn("[Vecxo Remote API] Failed to auto-report players:", err)
 		end
 	end
-end)
+end)]]
 
 task.spawn(function()
 	while true do
@@ -289,10 +313,12 @@ task.spawn(function()
 end)
 
 coroutine.wrap(function()
+	pcall(function()
 	local h = Instance.new('Hint', workspace)
 	h.Text = '[Vecxo Remote API] - Connected successfully'
 	task.wait(3)
 	h:Destroy()
+	end)
 end)
 
 --//VECXO LITE STARTS HERE
