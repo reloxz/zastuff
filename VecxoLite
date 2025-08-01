@@ -725,7 +725,11 @@ local function processCommand(sender, msg)
 					if x.Name == "Jump" or x.Name == "Jump1" or x.Name == "Jump2" or x.Name == "Jump3" or x.Name == "Jump4" or x.Name == "Jump5" or x.Name == "Jump6" or x.Name == "Jump7" or x.Name == "Jump8" or x.Name == "Jump9" or x.Name == "Barrier" and x:IsA("Part") then
 						x.CanCollide = true
 						x.CanTouch = true
-						x.Transparency = 0.6
+					if x.Name == "Barrier then" then
+							x.Transparency = 0.6 
+						else
+							x.Transparency = 0
+						end
 					end
 				end
 			end
