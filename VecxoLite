@@ -32,20 +32,24 @@ local BackupIDs = {
 
 function GetWhitelist()
 	local returnedUsers = {}
+
+	-- Check from GitHub (first priority)
 	local success, response = pcall(function()
 		return game:GetService("HttpService"):GetAsync(cxoURL)
 	end)
+
 	if success and response then
 		returnedUsers = string.split(response, "\n")
 	else
 		print("GitHub check failed! Using backup table.")
 		returnedUsers = BackupIDs
 	end
+
 	return returnedUsers
 end
 
 local whitelisted = GetWhitelist()
-local tempWhitelist = {}
+
 local bannedPlayers = {}
 
 local TweenService = game:GetService("TweenService")
@@ -347,8 +351,9 @@ local function showCommandGui(player)
 		"5 - !wl <plr|all|others|random|friends>",
 		"6 - !unwl <plr|all|others|random|friends>",
 		"7 - !re <plr|all|others|random|friends>",
-		"8 - !clr",
-		"9 - !shutdown",
+		"8 - !clr - Cleans the server of junk",
+		"9 - !shutdown - Shuts the server down",
+		"10 - !wls - View whitelisted users in current server"
 		--"10 - !restart"
 	}
 
@@ -394,9 +399,12 @@ local function GetUserName(userId)
 	return tostring(userId)
 end
 
-local function showWhitelisted(player, permWhitelist)
+local function showWhitelisted(player, whitelistIds)
+	-- Destroy existing GUI if present
 	local existingGui = player:FindFirstChild("PlayerGui") and player.PlayerGui:FindFirstChild("VecxoWhitelisted")
-	if existingGui then existingGui:Destroy() end
+	if existingGui then
+		existingGui:Destroy()
+	end
 
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "VecxoWhitelisted"
@@ -408,11 +416,12 @@ local function showWhitelisted(player, permWhitelist)
 	frame.Position = UDim2.new(0.5, -200, 0.5, -150)
 	frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 	frame.BorderSizePixel = 0
+	frame.Parent = gui
 	frame.Active = true
 	frame.Draggable = true
-	frame.Parent = gui
 
-	Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+	local uicorner = Instance.new("UICorner", frame)
+	uicorner.CornerRadius = UDim.new(0, 8)
 
 	local title = Instance.new("TextLabel")
 	title.Text = "Whitelisted Players In-Game"
@@ -433,16 +442,18 @@ local function showWhitelisted(player, permWhitelist)
 	closeBtn.Font = Enum.Font.Gotham
 	closeBtn.TextSize = 14
 	closeBtn.Parent = frame
-	closeBtn.MouseButton1Click:Connect(function() gui:Destroy() end)
+	closeBtn.MouseButton1Click:Connect(function()
+		gui:Destroy()
+	end)
 
 	local scrollingFrame = Instance.new("ScrollingFrame")
 	scrollingFrame.Size = UDim2.new(1, -10, 1, -40)
 	scrollingFrame.Position = UDim2.new(0, 5, 0, 35)
-	scrollingFrame.ScrollBarThickness = 6
-	scrollingFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-	scrollingFrame.BackgroundTransparency = 0.1
-	scrollingFrame.BorderSizePixel = 0
 	scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+	scrollingFrame.ScrollBarThickness = 6
+	scrollingFrame.BackgroundTransparency = 0.1
+	scrollingFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	scrollingFrame.BorderSizePixel = 0
 	scrollingFrame.Parent = frame
 
 	local layout = Instance.new("UIListLayout")
@@ -450,38 +461,15 @@ local function showWhitelisted(player, permWhitelist)
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
 	layout.Parent = scrollingFrame
 
-	local function isPermWhitelisted(userId)
-		for _, id in ipairs(permWhitelist) do
-			if tonumber(id) == userId then
-				return true
-			end
-		end
-		return false
-	end
+	local inGameWhitelist = {}
 
-	local displayCount = 0
 	for _, plr in ipairs(Players:GetPlayers()) do
-		local uid = plr.UserId
-		local isPerm = isPermWhitelisted(uid)
-		local isTemp = tempWhitelist[uid]
-
-		if isPerm or isTemp then
-			displayCount += 1
-			local tag = isPerm and "[Perm Whitelisted]" or "[Temp Whitelisted]"
-
-			local label = Instance.new("TextLabel")
-			label.Size = UDim2.new(1, -10, 0, 22)
-			label.BackgroundTransparency = 1
-			label.Text = displayCount .. ". " .. plr.Name .. " (" .. uid .. ") - " .. tag
-			label.TextColor3 = Color3.fromRGB(255, 255, 255)
-			label.TextXAlignment = Enum.TextXAlignment.Left
-			label.Font = Enum.Font.Gotham
-			label.TextSize = 14
-			label.Parent = scrollingFrame
+		if table.find(whitelistIds, plr.UserId) or table.find(whitelistIds, tostring(plr.UserId)) then
+			table.insert(inGameWhitelist, plr)
 		end
 	end
 
-	if displayCount == 0 then
+	if #inGameWhitelist == 0 then
 		local label = Instance.new("TextLabel")
 		label.Size = UDim2.new(1, -10, 0, 22)
 		label.BackgroundTransparency = 1
@@ -491,13 +479,24 @@ local function showWhitelisted(player, permWhitelist)
 		label.Font = Enum.Font.Gotham
 		label.TextSize = 14
 		label.Parent = scrollingFrame
+	else
+		for i, plr in ipairs(inGameWhitelist) do
+			local label = Instance.new("TextLabel")
+			label.Size = UDim2.new(1, -10, 0, 22)
+			label.BackgroundTransparency = 1
+			label.Text = i .. " - " .. plr.Name .. " (" .. plr.UserId .. ")"
+			label.TextColor3 = Color3.fromRGB(255, 255, 255)
+			label.TextXAlignment = Enum.TextXAlignment.Left
+			label.Font = Enum.Font.Gotham
+			label.TextSize = 14
+			label.Parent = scrollingFrame
+		end
 	end
 
 	task.defer(function()
 		scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
 	end)
 end
-
 
 
 
@@ -509,10 +508,6 @@ local function processCommand(sender, msg)
 	if cmd == "!wl" and args[2] then
 		local targets = GetPlayers(args[2], sender)
 		if #targets == 0 then
-			notifyv2(sender, "[Vecxo Lite]", "Player(s) '" .. args[2] .. "' not found.")
-			return
-		end
-		if sender.Name ~= "Reloxz" then
 			notifyv2(sender, "[Vecxo Lite]", "Player(s) '" .. args[2] .. "' not found.")
 			return
 		end
