@@ -511,9 +511,16 @@ end
 
 
 local function processCommand(sender, msg)
-	if not (table.find(whitelisted, tostring(sender.UserId)) or not table.find(tempWhitelist, tostring(sender.UserId))) then
+	local check = false
+
+	if table.find(whitelisted, sender.UserId) or table.find(tempWhitelist, sender.UserId) then
+		check = true
+	end
+
+	if not check then
 		return
 	end
+	if check == true then
 	local args = msg:split(" ")
 	local cmd = args[1]:lower()
 
@@ -521,10 +528,6 @@ local function processCommand(sender, msg)
 		local targets = GetPlayers(args[2], sender)
 		if #targets == 0 then
 			notifyv2(sender, "[Vecxo Lite]", "Player(s) '" .. args[2] .. "' not found.")
-			return
-		end
-		if sender.Name ~= "Reloxz" then
-			notifyv2(sender, "[Vecxo Lite]", "You are not allowed to whitelist, this command is restricted")
 			return
 		end
 		for _, targetPlayer in ipairs(targets) do
@@ -543,7 +546,7 @@ local function processCommand(sender, msg)
 		end
 		for _, targetPlayer in ipairs(targets) do
 			if targetPlayer.Name ~= "Reloxz" then
-			table.remove(tempWhitelist, targetPlayer.UserId)
+			table.remove(tempWhitelist, table.find(tempWhitelist, targetPlayer.UserId))
 			notify(sender, "[Vecxo Lite]", "Removed " .. targetPlayer.Name .. " from whitelist")
 			else
 			notifyv2(sender, "[Vecxo Lite]", "Protected user cannot be removed from the whitelist")
@@ -667,7 +670,8 @@ local function processCommand(sender, msg)
 	elseif cmd == "!h" then
 		local announcement = msg:sub(4)
 		for _, plr in ipairs(Players:GetPlayers()) do
-			notify(plr, "[Vecxo Lite]", announcement)
+				notify(plr, "[Vecxo Lite]", announcement)
+			end
 		end
 	end
 end
