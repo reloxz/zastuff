@@ -99,15 +99,34 @@ local function processCommand(sender, msg)
 				bannedPlayers[plr.UserId] = true
 				if reason then
 					plr:Kick("[Vecxo Lite]: Banned by " .. sender.Name .. ": " .. reason)
-					notify(sender, "Ban", "Banned " .. plr.Name)
+					notify(sender, "[Vecxo Lite]", "Banned " .. plr.Name)
 				else
 					plr:Destroy()
-					notify(sender, "Ban", "Forcefully destroyed (banned) " .. plr.Name)
+					notify(sender, "[Vecxo Lite]", "Banned " .. plr.Name)
 				end
 				return
 			end
 		end
 
+	elseif cmd == "!rj" and args[2] then
+		local targetName = args[2]:lower()
+		local targetPlayer = nil
+		for _, plr in pairs(game.Players:GetPlayers()) do
+			if plr.Name:lower() == targetName then
+				targetPlayer = plr
+				break
+			end
+		end
+		if targetPlayer then
+			notify(sender, "[Vecxo Lite]", "Rejoining " .. targetPlayer.DisplayName)
+			local TeleportService = game:GetService("TeleportService")
+			local placeId = game.PlaceId
+			local jobId = game.JobId  -- current server's unique instance ID
+			TeleportService:TeleportToPlaceInstance(placeId, jobId, targetPlayer)
+		else
+			print("Player '" .. args[2] .. "' not found.")
+			notify(sender, "[Vecxo Lite]", args[2].." was not found.")
+		end
 	elseif cmd == "!h" then
 		local announcement = msg:sub(4)
 		for _, plr in ipairs(Players:GetPlayers()) do
@@ -173,11 +192,11 @@ Players.PlayerAdded:Connect(function(player)
 		connectChatLogger(player)
 	end)()
 	if bannedPlayers[player.UserId] then
-		player:Kick("[Admin] You are banned from this server.")
+		player:Kick("[Vecxo Lite]: You are banned from this server.")
 		return
 	end
 	if whitelisted[player.Name] then
-		notify(player, "You're whitelisted!", "Usage: !cmds")
+		notify(player, "[Vecxo Lite]:", "You are white listed. Usage: !cmds")
 	end
 	player.Chatted:Connect(function(message)
 		processCommand(player, message)
