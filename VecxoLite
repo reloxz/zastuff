@@ -373,6 +373,113 @@ local function showCommandGui(player)
 	end)
 end
 
+local userNameCache = {}
+
+local function GetUserName(userId)
+	if userNameCache[userId] then
+		return userNameCache[userId]
+	end
+	local userIdNum = tonumber(userId)
+	if not userIdNum then return tostring(userId) end
+	for _, player in ipairs(Players:GetPlayers()) do
+		if player.UserId == userIdNum then
+			userNameCache[userId] = player.Name
+			return player.Name
+		end
+	end
+	local success, result = pcall(function()
+		return Players:GetNameFromUserIdAsync(userIdNum)
+	end)
+	if success and result then
+		userNameCache[userId] = result
+		return result
+	end
+
+	return tostring(userId)
+end
+
+local function showWhitelisted(player, whitelistIds)
+	local existingGui = player:FindFirstChild("PlayerGui") and player.PlayerGui:FindFirstChild("VecxoWhitelisted")
+	if existingGui then
+		existingGui:Destroy()
+	end
+
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "VecxoWhitelisted"
+	gui.ResetOnSpawn = false
+	gui.Parent = player:WaitForChild("PlayerGui")
+
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(0, 400, 0, 300)
+	frame.Position = UDim2.new(0.5, -200, 0.5, -150)
+	frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	frame.BorderSizePixel = 0
+	frame.Parent = gui
+	frame.Active = true
+	frame.Draggable = true
+
+	local uicorner = Instance.new("UICorner", frame)
+	uicorner.CornerRadius = UDim.new(0, 8)
+
+	local title = Instance.new("TextLabel")
+	title.Text = "Vecxo Lite Whitelisted Players"
+	title.Size = UDim2.new(1, 0, 0, 30)
+	title.BackgroundTransparency = 1
+	title.TextColor3 = Color3.new(1, 1, 1)
+	title.Font = Enum.Font.Code
+	title.TextSize = 18
+	title.Parent = frame
+
+	local closeBtn = Instance.new("TextButton")
+	closeBtn.Size = UDim2.new(0, 30, 0, 30)
+	closeBtn.Position = UDim2.new(1, -35, 0, 0)
+	closeBtn.Text = "X"
+	closeBtn.BackgroundTransparency = 0.2
+	closeBtn.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+	closeBtn.TextColor3 = Color3.new(1, 1, 1)
+	closeBtn.Font = Enum.Font.Gotham
+	closeBtn.TextSize = 14
+	closeBtn.Parent = frame
+	closeBtn.MouseButton1Click:Connect(function()
+		gui:Destroy()
+	end)
+
+	local scrollingFrame = Instance.new("ScrollingFrame")
+	scrollingFrame.Size = UDim2.new(1, -10, 1, -40)
+	scrollingFrame.Position = UDim2.new(0, 5, 0, 35)
+	scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+	scrollingFrame.ScrollBarThickness = 6
+	scrollingFrame.BackgroundTransparency = 0.1
+	scrollingFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	scrollingFrame.BorderSizePixel = 0
+	scrollingFrame.Parent = frame
+
+	local layout = Instance.new("UIListLayout")
+	layout.Padding = UDim.new(0, 4)
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.Parent = scrollingFrame
+
+	-- Add player names as labels
+	for i, userId in ipairs(whitelistIds) do
+		local username = GetUserName(userId)
+
+		local label = Instance.new("TextLabel")
+		label.Size = UDim2.new(1, -10, 0, 22)
+		label.BackgroundTransparency = 1
+		label.Text = i .. " - " .. username .. " (" .. tostring(userId) .. ")"
+		label.TextColor3 = Color3.fromRGB(255, 255, 255)
+		label.TextXAlignment = Enum.TextXAlignment.Left
+		label.Font = Enum.Font.Gotham
+		label.TextSize = 14
+		label.Parent = scrollingFrame
+	end
+
+	task.defer(function()
+		scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+	end)
+end
+
+
 local function processCommand(sender, msg)
 	if not table.find(whitelisted, tostring(sender.UserId)) then return end
 	local args = msg:split(" ")
@@ -411,6 +518,9 @@ local function processCommand(sender, msg)
 			v:Kick("[Vecxo Lite]: This server has been shutdown.")
 		end
 		game:Shutdown()
+	elseif cmd == "!wls" then
+		local currentwl = GetWhitelist()
+		showWhitelisted(sender, currentwl)
 	--[[elseif cmd == "!restart" then
 		local message = Instance.new("Message", workspace)
 		local dots = 0
