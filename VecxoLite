@@ -115,7 +115,8 @@ end
 local TweenService = game:GetService("TweenService")
 
 function notifyv2(player, title, message)
-coroutine.wrap(function()
+	coroutine.wrap(function()
+	pcall(function()
 	local playerGui = player:WaitForChild("PlayerGui")
 
 	local screenGui = Instance.new("ScreenGui")
@@ -199,7 +200,8 @@ coroutine.wrap(function()
 
 	fadeOutTween.Completed:Wait()
 
-		screenGui:Destroy()
+			screenGui:Destroy()
+		end)
 	end)()
 end
 
