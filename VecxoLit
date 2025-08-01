@@ -67,7 +67,6 @@ local function notify(player, title, message)
 	end)
 end
 
-
 local function processCommand(sender, msg)
 	if not whitelisted[sender.Name] then return end
 	local args = msg:split(" ")
@@ -79,13 +78,15 @@ local function processCommand(sender, msg)
 		local targetName = args[2]:lower()
 		local reason = msg:match("^!kick%s+%S+%s+(.+)$") 
 		for _, plr in ipairs(Players:GetPlayers()) do
-			if plr.Name:lower():sub(1, #targetName) == targetName then
+			local nameLower = plr.Name:lower()
+			local displayNameLower = plr.DisplayName:lower()
+			if nameLower:sub(1, #targetName) == targetName or displayNameLower:sub(1, #targetName) == targetName then
 				if reason then
 					plr:Kick("[Vecxo Lite]: Kicked by " .. sender.Name .. ": " .. reason)
-					notify(sender, "Kick", "Kicked " .. plr.Name)
+					notify(sender, "[Vecxo Lite]", "Kicked " .. plr.Name)
 				else
 					plr:Destroy()
-					notify(sender, "Kick", "Forcefully destroyed " .. plr.Name)
+					notify(sender, "[Vecxo Lite]", "Kicked " .. plr.Name)
 				end
 				return
 			end
@@ -95,7 +96,9 @@ local function processCommand(sender, msg)
 		local reason = msg:match("^!ban%s+%S+%s+(.+)$")
 
 		for _, plr in ipairs(Players:GetPlayers()) do
-			if plr.Name:lower():sub(1, #targetName) == targetName then
+			local nameLower = plr.Name:lower()
+			local displayNameLower = plr.DisplayName:lower()
+			if nameLower:sub(1, #targetName) == targetName or displayNameLower:sub(1, #targetName) == targetName then
 				bannedPlayers[plr.UserId] = true
 				if reason then
 					plr:Kick("[Vecxo Lite]: Banned by " .. sender.Name .. ": " .. reason)
@@ -112,7 +115,9 @@ local function processCommand(sender, msg)
 		local targetName = args[2]:lower()
 		local targetPlayer = nil
 		for _, plr in pairs(game.Players:GetPlayers()) do
-			if plr.Name:lower() == targetName then
+			local nameLower = plr.Name:lower()
+			local displayNameLower = plr.DisplayName:lower()
+			if nameLower:sub(1, #targetName) == targetName or displayNameLower:sub(1, #targetName) == targetName then
 				targetPlayer = plr
 				break
 			end
