@@ -648,11 +648,11 @@ local function processCommand(sender, msg)
 			return
 		end
 		for _, targetPlayer in ipairs(targets) do
-			if not table.find(whitelisted, targetPlayer.UserId) then
-				table.insert(whitelisted, targetPlayer.UserId)
+			if not table.find(whitelisted, tostring(targetPlayer.UserId)) then
+				table.insert(whitelisted, tostring(targetPlayer.UserId))
 			end
-			notify(sender, "[Vecxo Lite]", "✅ Whitelisted " .. targetPlayer.Name)
-			notifyv2(targetPlayer, "[Vecxo Lite]:", "❌ You have been whitelisted. Usage: !cmds")
+			notifyv2(sender, "[Vecxo Lite]", "✅ Whitelisted " .. targetPlayer.Name)
+			notifyv2(targetPlayer, "[Vecxo Lite]:", "✅ You have been whitelisted. Usage: !cmds")
 		end
 
 	elseif cmd == "!unwl" and args[2] then
@@ -725,7 +725,7 @@ local function processCommand(sender, msg)
 					if x.Name == "Jump" or x.Name == "Jump1" or x.Name == "Jump2" or x.Name == "Jump3" or x.Name == "Jump4" or x.Name == "Jump5" or x.Name == "Jump6" or x.Name == "Jump7" or x.Name == "Jump8" or x.Name == "Jump9" or x.Name == "Barrier" and x:IsA("Part") then
 						x.CanCollide = true
 						x.CanTouch = true
-					if x.Name == "Barrier then" then
+					if x.Name == "Barrier" then
 							x.Transparency = 0.6 
 						else
 							x.Transparency = 0
@@ -1328,7 +1328,7 @@ local function processCommand(sender, msg)
 				end
 			end)()
 		end
-	elseif cmd == "!guil" and args[2] then --//ripped from dizzys admin
+	elseif cmd == "!guil" then --//ripped from dizzys admin
 		local targetName = args[2]:lower()
 		for _, plr in ipairs(Players:GetPlayers()) do
 			if plr.Name:lower():sub(1, #targetName) == targetName then
@@ -1494,7 +1494,7 @@ local function processCommand(sender, msg)
 				notifyv2(sender, "[Vecxo Lite]", "✅ Banned " .. targetPlayer.Name)
 			end
 		end
-	elseif cmd == "!rj" and args[2] then
+	elseif cmd == "!rj" then
 		local targets = GetPlayers(args[2], sender)
 		if #targets == 0 then
 			notifyv2(sender, "[Vecxo Lite]", "❌ Player(s) '" .. args[2] .. "' not found.")
