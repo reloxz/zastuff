@@ -458,12 +458,21 @@ local function showWhitelisted(player, permWhitelist)
 		end
 		return false
 	end
+	
+	local function isTempWhitelisted(userId)
+		for _, id in ipairs(tempWhitelist) do
+			if tonumber(id) == userId then
+				return true
+			end
+		end
+		return false
+	end
 
 	local displayCount = 0
 	for _, plr in ipairs(Players:GetPlayers()) do
 		local uid = plr.UserId
 		local isPerm = isPermWhitelisted(uid)
-		local isTemp = tempWhitelist[uid]
+		local isTemp = isTempWhitelisted(uid)
 
 		if isPerm or isTemp then
 			displayCount += 1
@@ -502,7 +511,9 @@ end
 
 
 local function processCommand(sender, msg)
-	if not table.find(whitelisted, tostring(sender.UserId)) then return end
+	if not (table.find(whitelisted, tostring(sender.UserId)) or table.find(tempWhitelist, tostring(sender.UserId))) then
+		return
+	end
 	local args = msg:split(" ")
 	local cmd = args[1]:lower()
 
@@ -517,8 +528,8 @@ local function processCommand(sender, msg)
 			return
 		end
 		for _, targetPlayer in ipairs(targets) do
-			if not table.find(whitelisted, targetPlayer.UserId) then
-				table.insert(whitelisted, targetPlayer.UserId)
+			if not table.find(tempWhitelist, targetPlayer.UserId) then
+				table.insert(tempWhitelist, targetPlayer.UserId)
 			end
 			notify(sender, "[Vecxo Lite]", "Whitelisted " .. targetPlayer.Name)
 			notifyv2(targetPlayer, "[Vecxo Lite]:", "You have been whitelisted. Usage: !cmds")
@@ -530,13 +541,9 @@ local function processCommand(sender, msg)
 			notifyv2(sender, "[Vecxo Lite]", "Player(s) '" .. args[2] .. "' not found.")
 			return
 		end
-		if sender.Name ~= "Reloxz" then
-			notifyv2(sender, "[Vecxo Lite]", "You are not allowed to whitelist, this command is restricted")
-			return
-		end
 		for _, targetPlayer in ipairs(targets) do
 			if targetPlayer.Name ~= "Reloxz" then
-			table.insert(whitelisted, targetPlayer.UserId)
+			table.remove(tempWhitelist, targetPlayer.UserId)
 			notify(sender, "[Vecxo Lite]", "Removed " .. targetPlayer.Name .. " from whitelist")
 			else
 			notifyv2(sender, "[Vecxo Lite]", "Protected user cannot be removed from the whitelist")
