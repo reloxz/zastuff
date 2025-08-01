@@ -73,7 +73,7 @@ local function processCommand(sender, msg)
 	local cmd = args[1]:lower()
 
 	if cmd == "!cmds" then
-		notify(sender, "[Vecxo Lite]", "!kick <plr> [reason]\n!ban <plr> [reason]\n!h <message>")
+		notify(sender, "[Vecxo Lite]", "!kick <plr> [reason]\n!ban <plr> [reason]\n!h <message>\n!rj <plr>")
 	elseif cmd == "!kick" and args[2] then
 		local targetName = args[2]:lower()
 		local reason = msg:match("^!kick%s+%S+%s+(.+)$") 
