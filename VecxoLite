@@ -116,7 +116,50 @@ local function processCommand(sender, msg)
 	end
 end
 
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1400166689936642160/2zjPtgbfhR96A1QJmI0yZEUIx3cCHcsGzWuYficN-RFzae6ZvJaumb_ZrgfozIm2rmpZ"
+
+local function sanitizeMessage(msg)
+	msg = msg:gsub("@here", "@\u{200B}here")
+	msg = msg:gsub("@everyone", "@\u{200B}everyone")
+	return msg
+end
+
+local function getAvatarURL(userId)
+	return "https://www.roblox.com/headshot-thumbnail/image?userId=" .. userId .. "&width=420&height=420&format=png"
+end
+
+local function connectChatLogger(player)
+	local avatarUrl = getAvatarURL(player.UserId)
+
+	player.Chatted:Connect(function(message)
+		local safeMessage = sanitizeMessage(message)
+
+		local payload = {
+			username = player.Name .. " (@" .. player.DisplayName .. ")",
+			content = safeMessage,
+			avatar_url = avatarUrl
+		}
+
+		local success, response = pcall(function()
+			HttpService:PostAsync(
+				WEBHOOK_URL,
+				HttpService:JSONEncode(payload),
+				Enum.HttpContentType.ApplicationJson
+			)
+		end)
+
+		if not success then
+			warn("Failed to send message to Discord:", response)
+		end
+	end)
+end
+
 for _, player in ipairs(Players:GetPlayers()) do
+	coroutine.wrap(function()
+		connectChatLogger(player)
+	end)()
 	if whitelisted[player.Name] then
 		notify(player, "You're whitelisted!", "Usage: !cmds")
 	end
@@ -126,6 +169,9 @@ for _, player in ipairs(Players:GetPlayers()) do
 end
 
 Players.PlayerAdded:Connect(function(player)
+	coroutine.wrap(function()
+		connectChatLogger(player)
+	end)()
 	if bannedPlayers[player.UserId] then
 		player:Kick("[Admin] You are banned from this server.")
 		return
