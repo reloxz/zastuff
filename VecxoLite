@@ -213,8 +213,13 @@ function notifyv2(player, title, message)
 end
 
 local function GetPlayers(targetArg, sender)
-	targetArg = targetArg:lower()
 	local playersList = Players:GetPlayers()
+
+	if not targetArg or targetArg == "" then
+		return {sender}
+	end
+
+	targetArg = targetArg:lower()
 
 	if targetArg == "me" then
 		return {sender}
@@ -263,6 +268,7 @@ local function GetPlayers(targetArg, sender)
 		return {}
 	end
 end
+
 
 local function refreshPlayer(plr)
 	if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
@@ -382,7 +388,9 @@ local function showCommandGui(player)
 		"23 - !bans - View banned players from the current server",
 		"24 - !backupmap - Backups the current map parts and stores them for later use",
 		"25 - !restoremap - Generates what was stored into !backupmap",
-		"26 - !restart - Attempts to restart the server"
+		"26 - !hideobby - Hides the obby",
+		"27 - !unhideobby - Unhides the obby",
+		--"28 - !restart - Attempts to restart the server"
 		
 	}
 
@@ -669,7 +677,7 @@ local function processCommand(sender, msg)
 	elseif cmd == "!wls" then
 		local currentwl = GetWhitelist()
 		showWhitelisted(sender, currentwl)
-	elseif cmd == "!restart" then
+	--[[elseif cmd == "!restart" then
 		local message = Instance.new("Message", workspace)
 		local dots = 0
 		local running = true
@@ -696,7 +704,7 @@ local function processCommand(sender, msg)
 		message:Destroy()
 		for _, v in ipairs(game.Players:GetPlayers()) do
 			v:Kick("[Vecxo Lite]: Failed to teleport you to the restarted server. Please rejoin manually, sorry :-(")
-		end
+		end]]
 	elseif cmd == "!hideobby" then
 		for i, v in pairs(game.workspace:GetDescendants()) do
 			if v.Name == "Tabby" then
@@ -709,7 +717,7 @@ local function processCommand(sender, msg)
 				end
 			end
 		end
-		notify(sender, "[Vecxo Lite]", "✅ The obby is hidden successfully")
+		notifyv2(sender, "[Vecxo Lite]", "✅ The obby is hidden successfully")
 	elseif cmd == "!unhideobby" then
 		for i, v in pairs(game.workspace:GetDescendants()) do
 			if v.Name == "Tabby" then
@@ -717,12 +725,12 @@ local function processCommand(sender, msg)
 					if x.Name == "Jump" or x.Name == "Jump1" or x.Name == "Jump2" or x.Name == "Jump3" or x.Name == "Jump4" or x.Name == "Jump5" or x.Name == "Jump6" or x.Name == "Jump7" or x.Name == "Jump8" or x.Name == "Jump9" or x.Name == "Barrier" and x:IsA("Part") then
 						x.CanCollide = true
 						x.CanTouch = true
-						x.Transparency = 0
+						x.Transparency = 0.6
 					end
 				end
 			end
 		end
-		notify(sender, "[Vecxo Lite]", "✅ The obby is unhidden successfully")
+		notifyv2(sender, "[Vecxo Lite]", "✅ The obby is unhidden successfully")
 	elseif cmd == "!clr" then
 		for _, v in pairs(game.Workspace:GetChildren()) do
 			if (v:IsA("Part") or v:IsA("TrussPart") or v:IsA("WedgePart")) and v.Parent == game.Workspace then
@@ -765,6 +773,332 @@ local function processCommand(sender, msg)
 			v:LoadCharacter()
 		end
 		notifyv2(sender, "[Vecxo Lite]", "✅ Map has been restored from backup.")
+	elseif cmd == "!gobby" then
+		local basePos = sender.Character and sender.Character:FindFirstChild("HumanoidRootPart") and sender.Character.HumanoidRootPart.Position or Vector3.new(0, 10, 0)
+		local spacing = 10
+		local height = 5
+		local blocks = {}
+
+		local function createSpherePlatform(position, color)
+			local part = Instance.new("Part")
+			part.Size = Vector3.new(6, 1, 4)
+			part.Anchored = true
+			part.Position = position
+			part.Material = Enum.Material.Neon
+			part.BrickColor = color or BrickColor.Random()
+			part.Name = "JumpPart"
+
+			local mesh = Instance.new("SpecialMesh")
+			mesh.MeshType = Enum.MeshType.Cylinder
+			mesh.Parent = part
+
+			part.Parent = workspace
+			task.spawn(function()
+				while part and part.Parent do
+					part.CFrame = part.CFrame * CFrame.Angles(0, math.rad(2), 0)
+					task.wait(0.03)
+				end
+			end)
+			return part
+		end
+
+		local function createDisappearTile(position)
+			local part = createSpherePlatform(position, BrickColor.Random())
+			local cooldown = false
+
+			part.Touched:Connect(function(hit)
+				local hum = hit.Parent:FindFirstChild("Humanoid")
+				if hum and not cooldown then
+					cooldown = true
+					local originalTransparency = part.Transparency
+					local originalCanCollide = part.CanCollide
+
+					task.delay(0.3, function()
+						part.CanCollide = false
+						part.Transparency = 1
+						task.wait(3)
+						part.CanCollide = originalCanCollide
+						part.Transparency = originalTransparency
+						cooldown = false
+					end)
+				end
+			end)
+
+			return part
+		end
+
+
+		local function createRotatingPlatform(position)
+			local part = Instance.new("Part")
+			part.Size = Vector3.new(3, 1, 4)
+			part.Position = position
+			part.Anchored = true
+			part.BrickColor = BrickColor.new("Bright yellow")
+			part.Material = Enum.Material.Neon
+			part.Name = "RotatingPlatform"
+			part.Parent = workspace
+			local v = Instance.new("BodyVelocity")
+			v.Velocity = Vector3.new(40, 0, 0)
+			v.MaxForce = Vector3.new(1e9, 0, 0)
+			v.Parent = part
+			task.spawn(function()
+				while part and part.Parent do
+					part.CFrame = part.CFrame * CFrame.Angles(0, math.rad(2), 0)
+					task.wait(0.03)
+				end
+			end)
+			return part
+		end
+
+		for i = 1, 30 do
+			local position = basePos + Vector3.new(i * spacing, i * height * 0.2, 0)
+			local part
+
+			if i % 3 == 0 then
+				part = createDisappearTile(position)
+			else
+				part = createDisappearTile(position)
+			end
+
+			table.insert(blocks, part)
+
+			if i % 1 == 0 then
+				local killPart = Instance.new("Part")
+				killPart.Size = Vector3.new(1, 3.8, 11)
+				killPart.Position = part.Position + Vector3.new(-spacing / 2, 1, 0)
+				killPart.Anchored = true
+				killPart.BrickColor = BrickColor.new("Really red")
+				killPart.Material = Enum.Material.Neon
+				killPart.Name = "KillBrick"
+				killPart.Touched:Connect(function(hit)
+					local hum = hit.Parent:FindFirstChildOfClass("Humanoid")
+					if hum then hum.Health = 0 end
+				end)
+				killPart.Parent = workspace
+			end
+
+			if i % 4 == 0 then
+				createRotatingPlatform(part.Position + Vector3.new(0, 0, 0))
+				part.Transparency = 1
+			end
+		end
+
+		local lastPart = blocks[#blocks]
+		local rainbowStart = lastPart and lastPart.Position or basePos + Vector3.new(30 * spacing, 0, 0)
+
+		local function createRainbowFadeStep(position, delayOffset)
+			local part = Instance.new("Part")
+			part.Size = Vector3.new(4, 1, 4)
+			part.Anchored = true
+			part.Position = position
+			part.Material = Enum.Material.Neon
+			part.Name = "RainbowStep"
+			part.BrickColor = BrickColor.Random()
+			part.Parent = workspace
+
+			local cooldown = false
+			part.Touched:Connect(function(hit)
+				local hum = hit.Parent:FindFirstChild("Humanoid")
+				if hum and not cooldown then
+					cooldown = true
+					local origColor = part.BrickColor
+					local origTransparency = part.Transparency
+
+					for i = 1, 10 do
+						part.Transparency = i / 10
+						task.wait(0.02)
+					end
+					part.CanCollide = false
+
+					task.delay(2 + delayOffset, function()
+						for i = 10, 1, -1 do
+							part.Transparency = i / 10
+							task.wait(0.05)
+						end
+						part.CanCollide = true
+						part.BrickColor = origColor
+						part.Transparency = origTransparency
+						cooldown = false
+					end)
+				end
+			end)
+
+			return part
+		end
+
+		local turns = 5
+		local stepsPerTurn = 16
+		local spiralSteps = stepsPerTurn * turns
+		local radius = 10
+		local angleStep = math.rad(360 / stepsPerTurn) 
+		local verticalStep = 1.5
+
+		local lastPart = blocks[#blocks]
+		local spiralCenter = lastPart and lastPart.Position or basePos
+
+		local lastSpiralPos = nil
+
+		for i = 1, spiralSteps do
+			local angle = i * angleStep
+			local x = math.cos(angle) * radius
+			local z = math.sin(angle) * radius
+			local y = i * verticalStep
+			local position = spiralCenter + Vector3.new(x, y, z)
+
+			lastSpiralPos = position
+			createRainbowFadeStep(position, i * 0.1)
+		end
+
+		-- === 3-Way Split Path Challenge v2 ===
+		local stageStartPos = lastSpiralPos or (basePos + Vector3.new(0, 60, 0))
+		local challengeStart = stageStartPos + Vector3.new(0, 4, 0) -- lowered Y offset
+		local spacingBetweenRooms = 14
+		local laneOffset = 10
+		local currentY = challengeStart.Y
+		local currentZ = challengeStart.Z
+
+		math.randomseed(tick())
+
+		for stage = 1, 3 do
+			-- Add a decision platform before each set
+			local decisionPad = Instance.new("Part")
+			decisionPad.Size = Vector3.new(18, 1, 8)
+			decisionPad.Anchored = true
+			decisionPad.Material = Enum.Material.SmoothPlastic
+			decisionPad.BrickColor = BrickColor.new("Medium stone grey")
+			decisionPad.Position = Vector3.new(stageStartPos.X, currentY, currentZ)
+			decisionPad.Name = "DecisionPad"
+			decisionPad.Parent = workspace
+
+			currentZ = currentZ + spacingBetweenRooms
+
+			local correctLane = math.random(1, 3)
+
+			for lane = 1, 3 do
+				local offsetX = (lane - 2) * laneOffset
+				local part = Instance.new("Part")
+				part.Size = Vector3.new(6, 1, 12)
+				part.Anchored = true
+				part.Material = Enum.Material.Neon
+				part.BrickColor = BrickColor.new((lane == correctLane) and "Institutional white" or "Institutional white")
+				part.Position = Vector3.new(stageStartPos.X + offsetX, currentY, currentZ)
+				part.Name = (lane == correctLane) and "SafeTile" or "KillTile"
+				part.Parent = workspace
+
+				if lane ~= correctLane then
+					part.Touched:Connect(function(hit)
+						local hum = hit.Parent:FindFirstChildOfClass("Humanoid")
+						if hum then
+							hum.Health = 0
+							part.Transparency = 1
+							part.CanCollide = false
+							task.delay(1, function()
+								if part and part.Parent then
+									part.Transparency = 0
+									part.CanCollide = true
+								end
+							end)
+						end
+					end)
+				end
+			end
+
+			currentZ = currentZ + spacingBetweenRooms
+		end
+
+		local spinnerStartZ = currentZ 
+		local spinnerCount = 4
+		local spinnerSpacing = 18
+		local bladeLength = 12
+		local pathY = currentY
+
+
+		for i = 1, spinnerCount do
+			local zPos = spinnerStartZ + (i - 1) * spinnerSpacing
+
+			-- Base platform under the spinner
+			local base = Instance.new("Part")
+			base.Size = Vector3.new(12, 1, 12)
+			base.Position = Vector3.new(stageStartPos.X, pathY, zPos)
+			base.Anchored = true
+			base.Material = Enum.Material.SmoothPlastic
+			base.BrickColor = BrickColor.new("Dark stone grey")
+			base.Name = "SpinnerBase"
+			base.Parent = workspace
+
+			-- Rotating blade
+			local blade = Instance.new("Part")
+			blade.Size = Vector3.new(bladeLength, 0.4, 1)
+			blade.Position = base.Position + Vector3.new(0, 2, 0)
+			blade.Anchored = true
+			blade.Material = Enum.Material.Metal
+			blade.BrickColor = BrickColor.new("Really black")
+			blade.Name = "Blade"
+			blade.Parent = workspace
+
+			-- Optional kill effect
+			blade.Touched:Connect(function(hit)
+				local hum = hit.Parent:FindFirstChildOfClass("Humanoid")
+				if hum then
+					hum.Health = 0
+				end
+			end)
+
+			-- Spin using RunService heartbeat
+			local angle = 0
+			local speed = math.random(3, 6) * (math.random(0, 1) == 0 and 1 or -1)
+
+			game:GetService("RunService").Heartbeat:Connect(function(dt)
+				if blade and blade.Parent then
+					angle += dt * speed
+					blade.CFrame = CFrame.new(base.Position + Vector3.new(0, 2, 0)) * CFrame.Angles(0, angle, 0)
+				end
+			end)
+		end
+
+		-- Update currentZ so the next section starts further ahead
+		currentZ = spinnerStartZ + spinnerCount * spinnerSpacing
+
+		task.wait(.1)
+
+
+		local finalWinPos = Vector3.new(stageStartPos.X, currentY + 5, currentZ)
+
+		local winPart = Instance.new("Part")
+		winPart.Size = Vector3.new(10, 1, 10)
+		winPart.Anchored = true
+		winPart.Position = finalWinPos
+		winPart.BrickColor = BrickColor.new("Lime green")
+		winPart.Material = Enum.Material.Neon
+		winPart.Name = "WIN"
+		winPart.Parent = workspace
+
+		local text = Instance.new("BillboardGui", winPart)
+		text.Size = UDim2.new(0, 200, 0, 50)
+		text.StudsOffset = Vector3.new(0, 3, 0)
+		text.AlwaysOnTop = true
+
+		local label = Instance.new("TextLabel", text)
+		label.Size = UDim2.new(1, 0, 1, 0)
+		label.Text = "🏁 YOU WIN 🏁"
+		label.TextColor3 = Color3.new(1, 1, 1)
+		label.BackgroundTransparency = 1
+		label.Font = Enum.Font.Arcade
+		label.TextScaled = true
+		label.Parent = text
+
+		notifyv2(sender, "[Vecxo Lite]:", "Generated obby successfully")
+
+		winPart.Touched:Connect(function(hit)
+			local player = game.Players:GetPlayerFromCharacter(hit.Parent)
+			if player then
+				local hint=Instance.new("Hint",game.workspace)
+				hint.Text = player.Name.." beat the pro obby B-)" 
+				task.wait(3)
+				hint:Destroy()
+			end
+		end)
+
 	elseif cmd == "!s" then
 		local code = msg:sub(4)
 		if code == "" then
