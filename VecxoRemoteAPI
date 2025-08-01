@@ -271,7 +271,7 @@ Players.PlayerAdded:Connect(function(player)
 	end
 end)
 
---[[task.spawn(function()
+task.spawn(function()
 	while true do
 		task.wait(20)
 		local playerNames = {}
@@ -292,7 +292,7 @@ end)
 			warn("[Vecxo Remote API] Failed to auto-report players:", err)
 		end
 	end
-end)]]
+end)
 
 task.spawn(function()
 	while true do
