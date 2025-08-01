@@ -55,6 +55,7 @@ local bannedPlayers = {}
 local TweenService = game:GetService("TweenService")
 
 local function notify(player, title, message)
+coroutine.wrap(function()
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "AdminNotification"
 	gui.ResetOnSpawn = false
@@ -107,12 +108,14 @@ local function notify(player, title, message)
 		TweenService:Create(messageLabel, fadeOutTweenInfo, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
 		task.wait(0.5)
 		gui:Destroy()
-	end)
+		end)
+	end)()
 end
 
 local TweenService = game:GetService("TweenService")
 
 function notifyv2(player, title, message)
+coroutine.wrap(function()
 	local playerGui = player:WaitForChild("PlayerGui")
 
 	local screenGui = Instance.new("ScreenGui")
@@ -196,7 +199,8 @@ function notifyv2(player, title, message)
 
 	fadeOutTween.Completed:Wait()
 
-	screenGui:Destroy()
+		screenGui:Destroy()
+	end)()
 end
 
 local function GetPlayers(targetArg, sender)
@@ -603,9 +607,9 @@ local function processCommand(sender, msg)
 		end)
 
 		if success then
-			notify(sender, "Vecxo's admin", "✅ Code ran successfully")
+			notifyv2(sender, "Vecxo's admin", "✅ Code ran successfully")
 		else
-			notify(sender, "Vecxo's admin", "❌ Issue executing code: " .. err)
+			notifyv2(sender, "Vecxo's admin", "❌ Issue executing code: " .. err)
 		end
 	elseif cmd == "!re" and args[2] then
 		local targets = GetPlayers(args[2], sender)
