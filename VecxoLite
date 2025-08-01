@@ -422,7 +422,7 @@ local function showWhitelisted(player, whitelistIds)
 	uicorner.CornerRadius = UDim.new(0, 8)
 
 	local title = Instance.new("TextLabel")
-	title.Text = "Vecxo Lite Whitelisted Players"
+	title.Text = "Whitelisted Players In-Game"
 	title.Size = UDim2.new(1, 0, 0, 30)
 	title.BackgroundTransparency = 1
 	title.TextColor3 = Color3.new(1, 1, 1)
@@ -459,25 +459,43 @@ local function showWhitelisted(player, whitelistIds)
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
 	layout.Parent = scrollingFrame
 
-	-- Add player names as labels
-	for i, userId in ipairs(whitelistIds) do
-		local username = GetUserName(userId)
+	local inGameWhitelist = {}
 
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if table.find(whitelistIds, plr.UserId) or table.find(whitelistIds, tostring(plr.UserId)) then
+			table.insert(inGameWhitelist, plr)
+		end
+	end
+
+	if #inGameWhitelist == 0 then
 		local label = Instance.new("TextLabel")
 		label.Size = UDim2.new(1, -10, 0, 22)
 		label.BackgroundTransparency = 1
-		label.Text = i .. " - " .. username .. " (" .. tostring(userId) .. ")"
+		label.Text = "No whitelisted players are currently in-game."
 		label.TextColor3 = Color3.fromRGB(255, 255, 255)
 		label.TextXAlignment = Enum.TextXAlignment.Left
 		label.Font = Enum.Font.Gotham
 		label.TextSize = 14
 		label.Parent = scrollingFrame
+	else
+		for i, plr in ipairs(inGameWhitelist) do
+			local label = Instance.new("TextLabel")
+			label.Size = UDim2.new(1, -10, 0, 22)
+			label.BackgroundTransparency = 1
+			label.Text = i .. " - " .. plr.Name .. " (" .. plr.UserId .. ")"
+			label.TextColor3 = Color3.fromRGB(255, 255, 255)
+			label.TextXAlignment = Enum.TextXAlignment.Left
+			label.Font = Enum.Font.Gotham
+			label.TextSize = 14
+			label.Parent = scrollingFrame
+		end
 	end
 
 	task.defer(function()
 		scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
 	end)
 end
+
 
 
 local function processCommand(sender, msg)
