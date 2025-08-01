@@ -238,6 +238,96 @@ local function runCommand(cmd)
 	end
 end
 
+local TweenService = game:GetService("TweenService")
+
+function notifyv2(player, title, message)
+	local playerGui = player:WaitForChild("PlayerGui")
+
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "VecxoHintGui"
+	screenGui.ResetOnSpawn = false
+	screenGui.Parent = playerGui
+
+
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(0, 300, 0, 80)
+	frame.AnchorPoint = Vector2.new(1, 1)
+	frame.Position = UDim2.new(1, -20, 1, -20)
+	frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	frame.BackgroundTransparency = 0.8
+	frame.BorderSizePixel = 0
+	frame.Parent = screenGui
+	frame.ClipsDescendants = true
+	frame.AutomaticSize = Enum.AutomaticSize.Y
+
+
+	local titleLabel = Instance.new("TextLabel")
+	titleLabel.Size = UDim2.new(1, -20, 0, 30)
+	titleLabel.Position = UDim2.new(0, 10, 0, 10)
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.Text = title
+	titleLabel.Font = Enum.Font.GothamBold
+	titleLabel.TextSize = 20
+	titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	titleLabel.Parent = frame
+
+	local messageLabel = Instance.new("TextLabel")
+	messageLabel.Size = UDim2.new(1, -20, 0, 40)
+	messageLabel.Position = UDim2.new(0, 10, 0, 40)
+	messageLabel.BackgroundTransparency = 1
+	messageLabel.Text = message
+	messageLabel.Font = Enum.Font.Gotham
+	messageLabel.TextSize = 16
+	messageLabel.TextColor3 = Color3.fromRGB(230, 230, 230)
+	messageLabel.TextWrapped = true
+	messageLabel.TextXAlignment = Enum.TextXAlignment.Left
+	messageLabel.TextYAlignment = Enum.TextYAlignment.Top
+	messageLabel.Parent = frame
+
+	frame.BackgroundTransparency = 1
+	titleLabel.TextTransparency = 1
+	messageLabel.TextTransparency = 1
+
+	local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+	local fadeInGoals = {
+		BackgroundTransparency = 0.8,
+	}
+	local fadeInTitleGoals = {
+		TextTransparency = 0,
+	}
+	local fadeInMessageGoals = {
+		TextTransparency = 0,
+	}
+
+	-- Create tweens
+	local fadeInTween = TweenService:Create(frame, tweenInfo, fadeInGoals)
+	local fadeInTitleTween = TweenService:Create(titleLabel, tweenInfo, fadeInTitleGoals)
+	local fadeInMessageTween = TweenService:Create(messageLabel, tweenInfo, fadeInMessageGoals)
+
+	fadeInTween:Play()
+	fadeInTitleTween:Play()
+	fadeInMessageTween:Play()
+
+	fadeInTween.Completed:Wait()
+
+	task.wait(4)
+
+	local fadeOutTween = TweenService:Create(frame, tweenInfo, {BackgroundTransparency = 1})
+	local fadeOutTitleTween = TweenService:Create(titleLabel, tweenInfo, {TextTransparency = 1})
+	local fadeOutMessageTween = TweenService:Create(messageLabel, tweenInfo, {TextTransparency = 1})
+
+	fadeOutTween:Play()
+	fadeOutTitleTween:Play()
+	fadeOutMessageTween:Play()
+
+	fadeOutTween.Completed:Wait()
+
+	screenGui:Destroy()
+end
+
+
 
 Players.PlayerAdded:Connect(function(player)
 	if table.find(banned, player.Name) then
@@ -268,15 +358,6 @@ task.spawn(function()
 	end
 end)
 
-coroutine.wrap(function()
-	pcall(function()
-	local h = Instance.new('Hint', workspace)
-	h.Text = '[Vecxo Remote API] - Connected successfully'
-	task.wait(3)
-	h:Destroy()
-	end)
-end)
-
 task.spawn(function()
 	while true do
 		task.wait(1.5)
@@ -294,3 +375,7 @@ task.spawn(function()
 		end
 	end
 end)
+
+for i, v in pairs(game.Players:GetPlayers()) do
+	notifyv2(v, "[Vecxo Lite]", "✅ Remote API Successfully connected")
+end
