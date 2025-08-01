@@ -7,9 +7,11 @@ local whitelisted = {
 
 local bannedPlayers = {}
 
+local TweenService = game:GetService("TweenService")
+
 local function notify(player, title, message)
 	local gui = Instance.new("ScreenGui")
-	gui.Name = "VecxoNotification"
+	gui.Name = "AdminNotification"
 	gui.ResetOnSpawn = false
 	gui.IgnoreGuiInset = true
 	gui.Parent = player:FindFirstChildOfClass("PlayerGui")
@@ -19,7 +21,7 @@ local function notify(player, title, message)
 	frame.Position = UDim2.new(0.5, 0, 0.1, 0)
 	frame.AnchorPoint = Vector2.new(0.5, 0)
 	frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-	frame.BackgroundTransparency = 0.2
+	frame.BackgroundTransparency = 1
 	frame.BorderSizePixel = 0
 	frame.Parent = gui
 
@@ -27,6 +29,8 @@ local function notify(player, title, message)
 	titleLabel.Size = UDim2.new(1, 0, 0.3, 0)
 	titleLabel.Position = UDim2.new(0, 0, 0, 0)
 	titleLabel.BackgroundTransparency = 1
+	titleLabel.TextTransparency = 1
+	titleLabel.TextStrokeTransparency = 1
 	titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 	titleLabel.Font = Enum.Font.Code
 	titleLabel.TextScaled = true
@@ -37,6 +41,8 @@ local function notify(player, title, message)
 	messageLabel.Size = UDim2.new(1, 0, 0.7, 0)
 	messageLabel.Position = UDim2.new(0, 0, 0.3, 0)
 	messageLabel.BackgroundTransparency = 1
+	messageLabel.TextTransparency = 1
+	messageLabel.TextStrokeTransparency = 1
 	messageLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
 	messageLabel.Font = Enum.Font.Code
 	messageLabel.TextScaled = true
@@ -44,10 +50,21 @@ local function notify(player, title, message)
 	messageLabel.Text = message
 	messageLabel.Parent = frame
 
+	local fadeInTweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	TweenService:Create(frame, fadeInTweenInfo, { BackgroundTransparency = 0.2 }):Play()
+	TweenService:Create(titleLabel, fadeInTweenInfo, { TextTransparency = 0, TextStrokeTransparency = 0.3 }):Play()
+	TweenService:Create(messageLabel, fadeInTweenInfo, { TextTransparency = 0, TextStrokeTransparency = 0.3 }):Play()
+
 	task.delay(5, function()
+		local fadeOutTweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+		TweenService:Create(frame, fadeOutTweenInfo, { BackgroundTransparency = 1 }):Play()
+		TweenService:Create(titleLabel, fadeOutTweenInfo, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+		TweenService:Create(messageLabel, fadeOutTweenInfo, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+		task.wait(0.5)
 		gui:Destroy()
 	end)
 end
+
 
 local function processCommand(sender, msg)
 	if not whitelisted[sender.Name] then return end
