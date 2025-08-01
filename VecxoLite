@@ -943,7 +943,76 @@ local function processCommand(sender, msg)
 				notifyv2(sender, "[Vecxo Lite]", "✅ Banned " .. targetPlayer.Name)
 			end
 		end
+	elseif cmd == "!bans" then
+		local bannedList = {}
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local Players = game:GetService("Players")
 
+		local BansGuiEvent = ReplicatedStorage:WaitForChild("BansGuiEvent")
+		local UnbanRequest = ReplicatedStorage:WaitForChild("UnbanRequest")
+
+		BansGuiEvent.OnClientEvent:Connect(function(bannedList)
+			local player = sender
+			local guiName = "VecxoBans"
+
+			local existing = player:FindFirstChild("PlayerGui") and player.PlayerGui:FindFirstChild(guiName)
+			if existing then existing:Destroy() end
+
+			local gui = Instance.new("ScreenGui")
+			gui.Name = guiName
+			gui.ResetOnSpawn = false
+			gui.Parent = player:WaitForChild("PlayerGui")
+
+			local frame = Instance.new("Frame")
+			frame.Size = UDim2.new(0, 400, 0, 300)
+			frame.Position = UDim2.new(0.5, -200, 0.5, -150)
+			frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+			frame.BorderSizePixel = 0
+			frame.Parent = gui
+
+			local uiList = Instance.new("UIListLayout")
+			uiList.Padding = UDim.new(0, 4)
+			uiList.SortOrder = Enum.SortOrder.LayoutOrder
+			uiList.Parent = frame
+
+			for _, data in ipairs(bannedList) do
+				local entry = Instance.new("Frame")
+				entry.Size = UDim2.new(1, -10, 0, 30)
+				entry.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+				entry.BorderSizePixel = 0
+				entry.Parent = frame
+
+				local unbanBtn = Instance.new("TextButton")
+				unbanBtn.Size = UDim2.new(0, 60, 1, 0)
+				unbanBtn.Text = "Unban"
+				unbanBtn.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+				unbanBtn.TextColor3 = Color3.new(1, 1, 1)
+				unbanBtn.Font = Enum.Font.SourceSansBold
+				unbanBtn.TextSize = 16
+				unbanBtn.Parent = entry
+
+				local label = Instance.new("TextLabel")
+				label.Size = UDim2.new(1, -70, 1, 0)
+				label.Position = UDim2.new(0, 70, 0, 0)
+				label.Text = data.Username .. " (" .. data.UserId .. ")"
+				label.TextColor3 = Color3.new(1, 1, 1)
+				label.TextXAlignment = Enum.TextXAlignment.Left
+				label.Font = Enum.Font.SourceSans
+				label.TextSize = 18
+				label.BackgroundTransparency = 1
+				label.Parent = entry
+
+				unbanBtn.MouseButton1Click:Connect(function()
+					UnbanRequest:FireServer(data.UserId)
+					entry:Destroy()
+				end)
+			end
+		end)
+		for userId, data in pairs(bannedPlayers) do
+			local username = data.username or "(unknown)"
+			table.insert(bannedList, {Name = username, UserId = userId})
+		end
+	BansGuiEvent:FireClient(sender, bannedList)
 	elseif cmd == "!rj" and args[2] then
 		local targets = GetPlayers(args[2], sender)
 		if #targets == 0 then
