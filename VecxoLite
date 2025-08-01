@@ -156,6 +156,87 @@ function notifyv2(player, title, message)
 	screenGui:Destroy()
 end
 
+local function GetPlayers(targetArg, sender)
+	targetArg = targetArg:lower()
+	local playersList = Players:GetPlayers()
+
+	if targetArg == "all" then
+		return playersList
+
+	elseif targetArg == "others" then
+		local others = {}
+		for _, plr in ipairs(playersList) do
+			if plr ~= sender then
+				table.insert(others, plr)
+			end
+		end
+		return others
+
+	elseif targetArg == "random" then
+		local candidates = {}
+		for _, plr in ipairs(playersList) do
+			if plr ~= sender then
+				table.insert(candidates, plr)
+			end
+		end
+		if #candidates > 0 then
+			return { candidates[math.random(1, #candidates)] }
+		else
+			return {}
+		end
+
+	elseif targetArg == "friends" then
+		local friends = {}
+		for _, plr in ipairs(playersList) do
+			if plr ~= sender and plr:IsFriendsWith(sender.UserId) then
+				table.insert(friends, plr)
+			end
+		end
+		return friends
+
+	else
+		for _, plr in ipairs(playersList) do
+			local nameLower = plr.Name:lower()
+			local displayNameLower = plr.DisplayName:lower()
+			if nameLower:sub(1, #targetArg) == targetArg or displayNameLower:sub(1, #targetArg) == targetArg then
+				return { plr }
+			end
+		end
+		return {}
+	end
+end
+
+local function refreshPlayer(plr)
+	if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+		local rnpos = plr.Character.HumanoidRootPart.CFrame
+
+		for _, v in ipairs(plr.Character:GetChildren()) do
+			if v:IsA("Accessory") then
+				pcall(function()
+					v:Destroy()
+				end)
+			end
+		end
+
+		for _, item in ipairs(workspace:GetDescendants()) do
+			if (item:IsA("Accessory") or item:IsA("Hat")) and item:FindFirstChild("Handle") and item.Handle:IsDescendantOf(workspace) then
+				if item.Name == plr.Name or item.Handle.Name == plr.Name then
+					pcall(function()
+						item:Destroy()
+					end)
+				end
+			end
+		end
+
+		plr:LoadCharacter()
+		task.wait()
+		if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+			plr.Character.HumanoidRootPart.CFrame = rnpos
+		end
+	else
+		plr:LoadCharacter()
+	end
+end
 
 local function processCommand(sender, msg)
 	if not whitelisted[sender.Name] then return end
@@ -163,50 +244,31 @@ local function processCommand(sender, msg)
 	local cmd = args[1]:lower()
 
 	if cmd == "!wl" and args[2] then
-		local targetName = args[2]:lower()
-		local targetPlayer = nil
-		for _, plr in ipairs(Players:GetPlayers()) do
-			local nameLower = plr.Name:lower()
-			local displayNameLower = plr.DisplayName:lower()
-			if nameLower:sub(1, #targetName) == targetName or displayNameLower:sub(1, #targetName) == targetName then
-				targetPlayer = plr
-				break
-			end
+		local targets = GetPlayers(args[2], sender)
+		if #targets == 0 then
+			notifyv2(sender, "[Vecxo Lite]", "Player(s) '" .. args[2] .. "' not found.")
+			return
 		end
-		if targetPlayer then
+		for _, targetPlayer in ipairs(targets) do
 			whitelisted[targetPlayer.Name] = true
 			notify(sender, "[Vecxo Lite]", "Whitelisted " .. targetPlayer.Name)
 			notifyv2(targetPlayer, "[Vecxo Lite]:", "You have been whitelisted. Usage: !cmds")
-		else
-			notifyv2(sender, "[Vecxo Lite]", "Player '" .. args[2] .. "' not found.")
 		end
 
 	elseif cmd == "!unwl" and args[2] then
-		local targetName = args[2]:lower()
-		local targetPlayer = nil
-		for _, plr in ipairs(Players:GetPlayers()) do
-			local nameLower = plr.Name:lower()
-			local displayNameLower = plr.DisplayName:lower()
-			if nameLower:sub(1, #targetName) == targetName or displayNameLower:sub(1, #targetName) == targetName then
-				targetPlayer = plr
-				break
-			end
+		local targets = GetPlayers(args[2], sender)
+		if #targets == 0 then
+			notifyv2(sender, "[Vecxo Lite]", "Player(s) '" .. args[2] .. "' not found.")
+			return
 		end
-		if targetPlayer then
+		for _, targetPlayer in ipairs(targets) do
 			whitelisted[targetPlayer.Name] = nil
 			notify(sender, "[Vecxo Lite]", "Removed " .. targetPlayer.Name .. " from whitelist")
-		else
-			notifyv2(sender, "[Vecxo Lite]", "Player '" .. args[2] .. "' not found.")
 		end
-		
-		
+
 	elseif cmd == "!clr" then
 		for _, v in pairs(game.Workspace:GetChildren()) do
-			if v:IsA("Part") and v.Parent == game.Workspace then
-				v:Destroy()
-			elseif v:IsA("TrussPart") and v.Parent == game.Workspace then
-				v:Destroy()
-			elseif v:IsA("WedgePart") and v.Parent == game.Workspace then
+			if (v:IsA("Part") or v:IsA("TrussPart") or v:IsA("WedgePart")) and v.Parent == game.Workspace then
 				v:Destroy()
 			end
 		end
@@ -221,68 +283,68 @@ local function processCommand(sender, msg)
 			end
 		end
 		notifyv2(sender, "[Vecxo Lite]", "Workspace cleared")
-	
+
+	elseif cmd == "!re" and args[2] then
+		local targets = GetPlayers(args[2], sender)
+		if #targets == 0 then
+			notifyv2(sender, "[Vecxo Lite]", "Player(s) '" .. args[2] .. "' not found.")
+			return
+		end
+		for _, targetPlayer in ipairs(targets) do
+			refreshPlayer(targetPlayer)
+		end
+		notifyv2(sender, "[Vecxo Lite]", "Refreshed " .. (#targets == 1 and targets[1].Name or tostring(#targets) .. " players"))
+
 	elseif cmd == "!cmds" then
-		notify(sender, "[Vecxo Lite]", "!kick <plr> [reason]\n!ban <plr> [reason]\n!h <message>\n!rj <plr>\n!wl <plr>\n!unwl <plr>\n!clr")
+		notify(sender, "[Vecxo Lite]", "!kick <plr|all|others|random|friends> [reason]\n!ban <plr|all|others|random|friends> [reason]\n!h <message>\n!rj <plr|all|others|random|friends>\n!wl <plr|all|others|random|friends>\n!unwl <plr|all|others|random|friends>\n!clr\n!re <plr|all|others|random|friends>")
 
 	elseif cmd == "!kick" and args[2] then
-		local targetName = args[2]:lower()
-		local reason = msg:match("^!kick%s+%S+%s+(.+)$") 
-		for _, plr in ipairs(Players:GetPlayers()) do
-			local nameLower = plr.Name:lower()
-			local displayNameLower = plr.DisplayName:lower()
-			if nameLower:sub(1, #targetName) == targetName or displayNameLower:sub(1, #targetName) == targetName then
-				if reason then
-					plr:Kick("[Vecxo Lite]: Kicked by " .. sender.Name .. ": " .. reason)
-					notifyv2(sender, "[Vecxo Lite]", "Kicked " .. plr.Name)
-				else
-					plr:Destroy()
-					notifyv2(sender, "[Vecxo Lite]", "Kicked " .. plr.Name)
-				end
-				return
+		local reason = msg:match("^!kick%s+%S+%s+(.+)$")
+		local targets = GetPlayers(args[2], sender)
+		if #targets == 0 then
+			notifyv2(sender, "[Vecxo Lite]", "Player(s) '" .. args[2] .. "' not found.")
+			return
+		end
+		for _, targetPlayer in ipairs(targets) do
+			if reason then
+				targetPlayer:Kick("[Vecxo Lite]: Kicked by " .. sender.Name .. ": " .. reason)
+				notifyv2(sender, "[Vecxo Lite]", "Kicked " .. targetPlayer.Name)
+			else
+				targetPlayer:Destroy()
+				notifyv2(sender, "[Vecxo Lite]", "Kicked " .. targetPlayer.Name)
 			end
 		end
 
 	elseif cmd == "!ban" and args[2] then
-		local targetName = args[2]:lower()
 		local reason = msg:match("^!ban%s+%S+%s+(.+)$")
-
-		for _, plr in ipairs(Players:GetPlayers()) do
-			local nameLower = plr.Name:lower()
-			local displayNameLower = plr.DisplayName:lower()
-			if nameLower:sub(1, #targetName) == targetName or displayNameLower:sub(1, #targetName) == targetName then
-				bannedPlayers[plr.UserId] = true
-				if reason then
-					plr:Kick("[Vecxo Lite]: Banned by " .. sender.Name .. ": " .. reason)
-					notifyv2(sender, "[Vecxo Lite]", "Banned " .. plr.Name)
-				else
-					plr:Destroy()
-					notifyv2(sender, "[Vecxo Lite]", "Banned " .. plr.Name)
-				end
-				return
+		local targets = GetPlayers(args[2], sender)
+		if #targets == 0 then
+			notifyv2(sender, "[Vecxo Lite]", "Player(s) '" .. args[2] .. "' not found.")
+			return
+		end
+		for _, targetPlayer in ipairs(targets) do
+			bannedPlayers[targetPlayer.UserId] = true
+			if reason then
+				targetPlayer:Kick("[Vecxo Lite]: Banned by " .. sender.Name .. ": " .. reason)
+				notifyv2(sender, "[Vecxo Lite]", "Banned " .. targetPlayer.Name)
+			else
+				targetPlayer:Destroy()
+				notifyv2(sender, "[Vecxo Lite]", "Banned " .. targetPlayer.Name)
 			end
 		end
 
 	elseif cmd == "!rj" and args[2] then
-		local targetName = args[2]:lower()
-		local targetPlayer = nil
-		for _, plr in pairs(game.Players:GetPlayers()) do
-			local nameLower = plr.Name:lower()
-			local displayNameLower = plr.DisplayName:lower()
-			if nameLower:sub(1, #targetName) == targetName or displayNameLower:sub(1, #targetName) == targetName then
-				targetPlayer = plr
-				break
-			end
+		local targets = GetPlayers(args[2], sender)
+		if #targets == 0 then
+			notifyv2(sender, "[Vecxo Lite]", "Player(s) '" .. args[2] .. "' not found.")
+			return
 		end
-		if targetPlayer then
+		local TeleportService = game:GetService("TeleportService")
+		local placeId = game.PlaceId
+		local jobId = game.JobId
+		for _, targetPlayer in ipairs(targets) do
 			notifyv2(sender, "[Vecxo Lite]", "Rejoining " .. targetPlayer.DisplayName)
-			local TeleportService = game:GetService("TeleportService")
-			local placeId = game.PlaceId
-			local jobId = game.JobId
 			TeleportService:TeleportToPlaceInstance(placeId, jobId, targetPlayer)
-		else
-			print("Player '" .. args[2] .. "' not found.")
-			notify(sender, "[Vecxo Lite]", args[2].." was not found.")
 		end
 
 	elseif cmd == "!h" then
