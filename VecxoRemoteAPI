@@ -3,7 +3,7 @@ local Players = game:GetService("Players")
 
 local COMMAND_URL = "https://quick-namely-cicada.ngrok-free.app/latest-command"
 local REGISTER_URL = "https://quick-namely-cicada.ngrok-free.app/register-server"
-local local REPORT_URL = "https://quick-namely-cicada.ngrok-free.app/report-players"
+local REPORT_URL = "https://quick-namely-cicada.ngrok-free.app/report-players"
 
 local banned = {}
 local serverId = game.JobId
