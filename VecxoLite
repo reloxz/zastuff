@@ -379,8 +379,11 @@ local function showCommandGui(player)
 		"20 - !clr - Cleans the server of junk",
 		"21 - !shutdown - Shuts the server down",
 		"22 - !wls - View whitelisted users in current server",
-		"23 - !bans - View banned players from the current server"
-		--"10 - !restart"
+		"23 - !bans - View banned players from the current server",
+		"24 - !backupmap - Backups the current map parts and stores them for later use",
+		"25 - !restoremap - Generates what was stored into !backupmap",
+		"26 - !restart - Attempts to restart the server"
+		
 	}
 
 	for _, text in ipairs(commands) do
@@ -666,7 +669,7 @@ local function processCommand(sender, msg)
 	elseif cmd == "!wls" then
 		local currentwl = GetWhitelist()
 		showWhitelisted(sender, currentwl)
-	--[[elseif cmd == "!restart" then
+	elseif cmd == "!restart" then
 		local message = Instance.new("Message", workspace)
 		local dots = 0
 		local running = true
@@ -681,19 +684,45 @@ local function processCommand(sender, msg)
 			repeat task.wait() until v and v.Character
 			v:Kick("[Vecxo Lite]: This server was closed because someone triggered a new server creation.")
 		end)
-		local teleportService = game:GetService("TeleportService")
-		local code = teleportService:ReserveServer(game.PlaceId)
+		local TeleportService = game:GetService("TeleportService")
+		local placeId = game.PlaceId
+		local allPlayers = game.Players:GetPlayers()
 
-		teleportService:TeleportToPrivateServer(game.PlaceId, code, game.Players:GetPlayers(), nil, {
-			softshutdowned = true,
-			vecxo = true
-		})
+		local success, err = pcall(function()
+			TeleportService:TeleportAsync(placeId, allPlayers)
+		end)
 		task.wait(7.5)
 		running = false
 		message:Destroy()
 		for _, v in ipairs(game.Players:GetPlayers()) do
 			v:Kick("[Vecxo Lite]: Failed to teleport you to the restarted server. Please rejoin manually, sorry :-(")
-		end]]
+		end
+	elseif cmd == "!hideobby" then
+		for i, v in pairs(game.workspace:GetDescendants()) do
+			if v.Name == "Tabby" then
+				for z, x in pairs(v:GetDescendants()) do
+					if x.Name == "Jump" or x.Name == "Jump1" or x.Name == "Jump2" or x.Name == "Jump3" or x.Name == "Jump4" or x.Name == "Jump5" or x.Name == "Jump6" or x.Name == "Jump7" or x.Name == "Jump8" or x.Name == "Jump9" or x.Name == "Barrier" and x:IsA("Part") then
+						x.CanCollide = false
+						x.CanTouch = false
+						x.Transparency = 1
+					end
+				end
+			end
+		end
+		notify(sender, "[Vecxo Lite]", "✅ The obby is hidden successfully")
+	elseif cmd == "!unhideobby" then
+		for i, v in pairs(game.workspace:GetDescendants()) do
+			if v.Name == "Tabby" then
+				for z, x in pairs(v:GetDescendants()) do
+					if x.Name == "Jump" or x.Name == "Jump1" or x.Name == "Jump2" or x.Name == "Jump3" or x.Name == "Jump4" or x.Name == "Jump5" or x.Name == "Jump6" or x.Name == "Jump7" or x.Name == "Jump8" or x.Name == "Jump9" or x.Name == "Barrier" and x:IsA("Part") then
+						x.CanCollide = true
+						x.CanTouch = true
+						x.Transparency = 0
+					end
+				end
+			end
+		end
+		notify(sender, "[Vecxo Lite]", "✅ The obby is unhidden successfully")
 	elseif cmd == "!clr" then
 		for _, v in pairs(game.Workspace:GetChildren()) do
 			if (v:IsA("Part") or v:IsA("TrussPart") or v:IsA("WedgePart")) and v.Parent == game.Workspace then
@@ -720,21 +749,21 @@ local function processCommand(sender, msg)
 				cloned.Parent = mapBackup
 			end
 		end
-
 		notifyv2(sender, "[Vecxo Lite]", "✅ Map has been backed up.")
-		
 	elseif cmd == "!restoremap" then
 		for _, item in ipairs(workspace:GetChildren()) do
 			if not item:IsA("Terrain") and not item:IsA("Camera") and not Players:GetPlayerFromCharacter(item) then
 				item:Destroy()
 			end
 		end
-
 		for _, backupItem in ipairs(mapBackup:GetChildren()) do
 			local clone = backupItem:Clone()
 			clone.Parent = workspace
 		end
-
+		task.wait(0.5)
+		for i, v in pairs(game.Players:GetPlayers()) do
+			v:LoadCharacter()
+		end
 		notifyv2(sender, "[Vecxo Lite]", "✅ Map has been restored from backup.")
 	elseif cmd == "!s" then
 		local code = msg:sub(4)
