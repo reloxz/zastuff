@@ -267,7 +267,10 @@ local function processCommand(sender, msg)
 			whitelisted[targetPlayer.Name] = nil
 			notify(sender, "[Vecxo Lite]", "Removed " .. targetPlayer.Name .. " from whitelist")
 		end
-
+	elseif cmd == "!shutdown" then
+		for i, v in pairs(game.Players:GetPlayers()) do
+			v:Kick("[Vecxo Lite]: This server has been shutdown.")
+		end
 	elseif cmd == "!clr" then
 		for _, v in pairs(game.Workspace:GetChildren()) do
 			if (v:IsA("Part") or v:IsA("TrussPart") or v:IsA("WedgePart")) and v.Parent == game.Workspace then
