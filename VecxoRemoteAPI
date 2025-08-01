@@ -1,10 +1,10 @@
-local function showRemoteConnected()
+local function showRemoteConnected(player)
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "RemoteStatus"
 	gui.ResetOnSpawn = false
 	gui.IgnoreGuiInset = true
 	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	gui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+	gui.Parent = player:FindFirstChildOfClass("PlayerGui")
 
 	local frame = Instance.new("Frame")
 	frame.AnchorPoint = Vector2.new(1, 1)
