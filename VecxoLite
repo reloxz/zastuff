@@ -160,7 +160,10 @@ local function GetPlayers(targetArg, sender)
 	targetArg = targetArg:lower()
 	local playersList = Players:GetPlayers()
 
-	if targetArg == "all" then
+	if targetArg == "me" then
+		return {sender}
+
+	elseif targetArg == "all" then
 		return playersList
 
 	elseif targetArg == "others" then
@@ -180,7 +183,7 @@ local function GetPlayers(targetArg, sender)
 			end
 		end
 		if #candidates > 0 then
-			return { candidates[math.random(1, #candidates)] }
+			return {candidates[math.random(1, #candidates)]}
 		else
 			return {}
 		end
@@ -193,13 +196,12 @@ local function GetPlayers(targetArg, sender)
 			end
 		end
 		return friends
-
 	else
 		for _, plr in ipairs(playersList) do
 			local nameLower = plr.Name:lower()
 			local displayNameLower = plr.DisplayName:lower()
 			if nameLower:sub(1, #targetArg) == targetArg or displayNameLower:sub(1, #targetArg) == targetArg then
-				return { plr }
+				return {plr}
 			end
 		end
 		return {}
