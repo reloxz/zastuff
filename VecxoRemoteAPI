@@ -344,13 +344,18 @@ local function reportPlayers()
 		table.insert(playerNames, player.Name)
 	end
 
+	local payload = {
+		serverId = serverId,
+		players = playerNames
+	}
+
+	local jsonData = HttpService:JSONEncode(payload)
+	print("[Reporting] Sending JSON:", jsonData)
+
 	local success, err = pcall(function()
 		HttpService:PostAsync(
 			REPORT_URL,
-			HttpService:JSONEncode({
-				serverId = serverId,
-				players = playerNames
-			}),
+			jsonData,
 			Enum.HttpContentType.ApplicationJson
 		)
 	end)
@@ -361,9 +366,9 @@ local function reportPlayers()
 end
 
 task.spawn(reportPlayers)
-
 Players.PlayerAdded:Connect(reportPlayers)
 Players.PlayerRemoving:Connect(reportPlayers)
+
 
 
 task.spawn(function()
