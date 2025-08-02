@@ -423,7 +423,7 @@ local function showCommandGui(player)
 		"17 - !gentk <plr|all|others|random|friends>",
 		"18 - !provac <plr|all|others|random|friends>",
 		"19 - !dex <plr|all|others|random|friends>",
-		"20 = !cage <plr|all|others|random|friends>",
+		"20 - !cage <plr|all|others|random|friends>",
 		"21 - !s <code>",
 		"22 - !clr - Cleans the server of junk",
 		"23 - !shutdown - Shuts the server down",
