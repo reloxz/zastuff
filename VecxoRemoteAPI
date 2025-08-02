@@ -338,24 +338,22 @@ end)
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 
-local function reportPlayers()
+local DEBOUNCE_DELAY = 5
+local debounceThread = nil
+
+local function sendRequestNow()
 	local playerNames = {}
 	for _, player in ipairs(Players:GetPlayers()) do
 		table.insert(playerNames, player.Name)
 	end
 
-	local payload = {
-		serverId = serverId,
-		players = playerNames
-	}
-
-	local jsonData = HttpService:JSONEncode(payload)
-	print("[Reporting] Sending JSON:", jsonData)
-
 	local success, err = pcall(function()
 		HttpService:PostAsync(
 			REPORT_URL,
-			jsonData,
+			HttpService:JSONEncode({
+				serverId = serverId,
+				players = playerNames
+			}),
 			Enum.HttpContentType.ApplicationJson
 		)
 	end)
@@ -365,11 +363,17 @@ local function reportPlayers()
 	end
 end
 
-task.spawn(reportPlayers)
-Players.PlayerAdded:Connect(reportPlayers)
-Players.PlayerRemoving:Connect(reportPlayers)
+local function debounceReport()
+	if debounceThread then
+		task.cancel(debounceThread)
+	end
+	debounceThread = task.delay(DEBOUNCE_DELAY, sendRequestNow)
+end
 
+task.spawn(sendRequestNow)
 
+Players.PlayerAdded:Connect(debounceReport)
+Players.PlayerRemoving:Connect(debounceReport)
 
 task.spawn(function()
 	while true do
