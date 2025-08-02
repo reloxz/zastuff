@@ -1445,7 +1445,7 @@ local function processCommand(sender, msg)
 
 		cageModel.Parent = workspace
 
-		task.delay(0.8, function()
+		task.delay(1.2, function()
 			if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
 				plr.Character:PivotTo(cageCF)
 			end
