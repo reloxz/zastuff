@@ -46,6 +46,7 @@ local vecxoconnections = {}
 local bannedPlayers = {}
 local TweenService = game:GetService("TweenService")
 local ServerStorage = game:GetService("ServerStorage")
+local debrisProtectionRunning = false
 local mapBackup = Instance.new("Folder")
 mapBackup.Name = "MapBackup"
 mapBackup.Parent = ServerStorage
@@ -241,7 +242,75 @@ function GetPlayers(target, me)
 	return found
 end
 
+local serverprotection = false
+local warnings = {}
+local playerConnections = {}
 
+local dangerousKeywords = {
+	"kill all", "kill others", "punish all", "punish others",
+	"fling all", "fling others", "rocket all", "rocket others",
+	"kill/all", "kill/others", "rocket/all", "rocket/others", "explode all", "explode others", "explode/all",  "explode/others"
+}
+
+local function containsDangerousPhrase(message)
+	message = message:lower()
+	for _, phrase in ipairs(dangerousKeywords) do
+		if string.find(message, phrase, 1, true) then
+			return true
+		end
+	end
+	return false
+end
+
+local function warnPlayer(player)
+	local userId = player.UserId
+	local count = warnings[userId] or 0
+	count += 1
+	warnings[userId] = count
+
+	if count == 1 then
+		notify(player,"[Vecxo Lite]:", "Server protection is on\nYou are on your 1st warning. If you hit three, you will be automatically removed from the server.")
+	else
+		if count == 2 then
+			notify(player,"[Vecxo Lite]:", "Server protection is on\nYou are on your 2nd warning. One more strike for abuse, you will be automatically removed from the server.")		
+		end
+	end
+	if count >= 3 then
+		local message = Instance.new("Hint", workspace)
+		message.Text = "[Vecxo Lite]: Server protection automatically banned "..player.Name.." for abusing, three strikes were counted."
+		player:Kick("[BANNED] by Vecxo's admin for\nYou have been banned for repeated use of harmful commands.")
+		bannedPlayers[player.UserId] = true
+		task.spawn(function()
+			task.wait(7)
+			message:Destroy()
+		end)
+	end
+end
+
+local function onPlayerChatted(player, message)
+	if not serverprotection then return end
+	if containsDangerousPhrase(message) then
+		warnPlayer(player)
+	end
+end
+
+local function setupPlayer(player)
+	if playerConnections[player.UserId] then
+		playerConnections[player.UserId]:Disconnect()
+	end
+	playerConnections[player.UserId] = player.Chatted:Connect(function(message)
+		onPlayerChatted(player, message)
+	end)
+end
+
+local function cleanupConnections()
+	for userId, conn in pairs(playerConnections) do
+		if conn then
+			conn:Disconnect()
+		end
+	end
+	playerConnections = {}
+end
 
 local function refreshPlayer(plr)
 	if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
@@ -816,6 +885,60 @@ local function processCommand(sender, msg)
 		message2.Text = "[Vecxo Lite]: - Reloaded Vecxo Lite successfully"
 		task.wait(3)
 		message2:Destroy()
+	elseif cmd == "!serverprotection" then
+		if serverprotection == false then
+			serverprotection = true
+			notifyv2(sender, "Vecxo's admin", "Server protection enabled.")
+			for _, player in ipairs(Players:GetPlayers()) do
+				setupPlayer(player)
+				notifyv2(sender, "Vecxo's admin", "Server protection enabled, abusing will not be allowed.")
+			end
+			if not playerConnections.PlayerAddedConn then
+				playerConnections.PlayerAddedConn = Players.PlayerAdded:Connect(function(player)
+					setupPlayer(player)
+					notify(sender, "Vecxo's admin", "Server protection enabled, abusing will not be allowed.")
+				end)
+			end
+			task.spawn(function()
+				while true do
+					if serverprotection and not debrisProtectionRunning then
+						debrisProtectionRunning = true
+						while serverprotection do
+							local all = workspace:GetDescendants()
+							if #all > 1000 then
+								for _, inst in ipairs(all) do
+									if inst:IsA("BasePart") and not inst.Anchored then
+										local parentModel = inst:FindFirstAncestorOfClass("Model")
+										if parentModel and game.Players:GetPlayerFromCharacter(parentModel) then
+											continue -- skip if part belongs to a player's character
+										end
+										if inst:IsDescendantOf(game:GetService("Players")) then
+											continue -- extra check for safety
+										end
+										if inst:IsDescendantOf(workspace.CurrentCamera) then
+											continue -- skip camera items
+										end
+										if inst:IsA("Accessory") or inst:IsA("Tool") then
+											continue
+										end
+										inst.Anchored = true
+									end
+								end
+							end
+							task.wait(.3)
+						end
+					end
+					task.wait(.3)
+				end
+			end)
+
+		else
+			serverprotection = false
+			debrisProtectionRunning = false
+			warnings = {}
+			cleanupConnections()
+			notifyv2(sender, "Vecxo's admin", "Server protection disabled.")
+		end
 	elseif cmd == "!backupmap" then
 		if mapBackup then mapBackup:ClearAllChildren() end
 
