@@ -212,7 +212,7 @@ function notifyv2(player, title, message)
 	end)()
 end
 
-function GetTarget(target, me)
+function GetPlayers(target, me)
 	local ps = game.Players:GetPlayers()
 	local found = {}
 
