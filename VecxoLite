@@ -753,6 +753,68 @@ local function processCommand(sender, msg)
 		whitelisted = {}
 		bannedPlayers = {}
 		vecxoconnections = {}
+	elseif cmd == "!reloadscript" then
+		local h = Instance.new("Hint", workspace)
+		for i = 3, 1, -1 do
+			h.Text = "[Vecxo Lite]: - Reloading in [ ".. i .." ] seconds"
+			task.wait(1)
+		end
+		h:Destroy()
+		for i,v in pairs(vecxoconnections) do
+			if typeof(v) ~= "function" then
+				v:Disconnect()
+			end
+			vecxoconnections[i] = nil
+		end
+		for i,v in pairs(game.Players:GetPlayers()) do
+			if v.PlayerGui then 
+				if v.PlayerGui:FindFirstChild("VecxoCmds") then
+					v.PlayerGui:FindFirstChild("VecxoCmds"):Destroy()
+				end
+				if v.PlayerGui:FindFirstChild("VecxoWhitelisted") then
+					v.PlayerGui:FindFirstChild("VecxoWhitelisted"):Destroy()
+				end
+				if v.PlayerGui:FindFirstChild("VecxoBanned") then
+					v.PlayerGui:FindFirstChild("VecxoBanned"):Destroy()
+				end
+			end
+		end
+		whitelisted = {}
+		bannedPlayers = {}
+		vecxoconnections = {}
+		local h2 = Instance.new("Hint", workspace)
+		h2.Text = "[Vecxo Lite]: - Unloaded successfully"
+		task.wait(1)
+		h2:Destroy()
+		local message = Instance.new("Hint", workspace)
+		local dots = 0
+		local running = true
+		local check = false
+		task.spawn(function()
+			while running do
+				dots = (dots % 3) + 1
+				message.Text = "[Vecxo Lite]: - Attempting to automatically reload" .. string.rep(".", dots)
+				task.wait(0.3)
+			end
+		end)
+		task.wait(.7)
+		local httpService = game:GetService("HttpService")
+		local source = httpService:GetAsync("https://raw.githubusercontent.com/reloxz/zastuff/refs/heads/main/VecxoLite")
+		local func = loadstring(source)
+		if not func then
+			message:Destroy()
+			local message2 = Instance.new("Hint", workspace)
+			message2.Text = "[Vecxo Lite]: - Could not reload Vecxo Lite, HTTP 404 timed out"
+			task.wait(3)
+			message2:Destroy()
+			return
+		end
+		task.spawn(func)
+		message:Destroy()
+		local message2 = Instance.new("Hint", workspace)
+		message2.Text = "[Vecxo Lite]: - Reloaded Vecxo Lite successfully"
+		task.wait(3)
+		message2:Destroy()
 	elseif cmd == "!backupmap" then
 		if mapBackup then mapBackup:ClearAllChildren() end
 
