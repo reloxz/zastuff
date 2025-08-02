@@ -215,7 +215,10 @@ end
 function GetPlayers(target, me)
 	local ps = game.Players:GetPlayers()
 	local found = {}
-	if target:lower() == "me" or target:lower() == "" then
+	if not target or target == "" then
+		found = {me}
+	end
+	if target:lower() == "me"  then
 		found = {me}
 	elseif target:lower() == "others" then
 		for i, player in ipairs(ps) do
