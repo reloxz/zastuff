@@ -335,32 +335,40 @@ Players.PlayerAdded:Connect(function(player)
 	end
 end)
 
-task.spawn(function()
-	while true do
-		task.wait(20)
-		local playerNames = {}
-		for _, player in ipairs(Players:GetPlayers()) do
-			table.insert(playerNames, player.Name)
-		end
-		local success, err = pcall(function()
-			HttpService:PostAsync(
-				REPORT_URL,
-				HttpService:JSONEncode({
-					serverId = serverId,
-					players = playerNames
-				}),
-				Enum.HttpContentType.ApplicationJson
-			)
-		end)
-		if not success then
-			warn("[Vecxo Remote API] Failed to auto-report players:", err)
-		end
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+
+local function reportPlayers()
+	local playerNames = {}
+	for _, player in ipairs(Players:GetPlayers()) do
+		table.insert(playerNames, player.Name)
 	end
-end)
+
+	local success, err = pcall(function()
+		HttpService:PostAsync(
+			REPORT_URL,
+			HttpService:JSONEncode({
+				serverId = serverId,
+				players = playerNames
+			}),
+			Enum.HttpContentType.ApplicationJson
+		)
+	end)
+
+	if not success then
+		warn("[Vecxo Remote API] Failed to auto-report players:", err)
+	end
+end
+
+task.spawn(reportPlayers)
+
+Players.PlayerAdded:Connect(reportPlayers)
+Players.PlayerRemoving:Connect(reportPlayers)
+
 
 task.spawn(function()
 	while true do
-		task.wait(1.5)
+		task.wait(2.5)
 		local success, response = pcall(function()
 			local url = COMMAND_URL .. "?serverId=" .. HttpService:UrlEncode(serverId)
 			return HttpService:GetAsync(url)
