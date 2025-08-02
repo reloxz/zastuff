@@ -674,7 +674,18 @@ local function processCommand(sender, msg)
 		end
 		game:Shutdown()
 	elseif cmd == "!wls" then
-		local currentwl = GetWhitelist()
+		local currentwl = {}
+
+		for _, plr in ipairs(Players:GetPlayers()) do
+			if whitelisted[tostring(plr.UserId)] then
+				table.insert(currentwl, plr.Name .. " (" .. plr.DisplayName .. ")")
+			end
+		end
+
+		if #currentwl == 0 then
+			table.insert(currentwl, "No whitelisted players are currently in-game.")
+		end
+
 		showWhitelisted(sender, currentwl)
 	--[[elseif cmd == "!restart" then
 		local message = Instance.new("Message", workspace)
