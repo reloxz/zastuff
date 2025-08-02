@@ -42,6 +42,7 @@ end
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
 local whitelisted = GetWhitelist()
+_G.cagedPlayers = _G.cagedPlayers or {}
 local vecxoconnections = {}
 local bannedPlayers = {}
 local TweenService = game:GetService("TweenService")
@@ -113,90 +114,90 @@ local TweenService = game:GetService("TweenService")
 
 function notifyv2(player, title, message)
 	task.spawn(function()
-			local playerGui = player:WaitForChild("PlayerGui")
+		local playerGui = player:WaitForChild("PlayerGui")
 
-			local screenGui = Instance.new("ScreenGui")
-			screenGui.Name = "VecxoHintGui"
-			screenGui.ResetOnSpawn = false
-			screenGui.Parent = playerGui
-
-
-			local frame = Instance.new("Frame")
-			frame.Size = UDim2.new(0, 300, 0, 80)
-			frame.AnchorPoint = Vector2.new(1, 1)
-			frame.Position = UDim2.new(1, -20, 1, -20)
-			frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-			frame.BackgroundTransparency = 0.6
-			frame.BorderSizePixel = 0
-			frame.Parent = screenGui
-			frame.ClipsDescendants = true
-			frame.AutomaticSize = Enum.AutomaticSize.Y
+		local screenGui = Instance.new("ScreenGui")
+		screenGui.Name = "VecxoHintGui"
+		screenGui.ResetOnSpawn = false
+		screenGui.Parent = playerGui
 
 
-			local titleLabel = Instance.new("TextLabel")
-			titleLabel.Size = UDim2.new(1, -20, 0, 30)
-			titleLabel.Position = UDim2.new(0, 10, 0, 10)
-			titleLabel.BackgroundTransparency = 1
-			titleLabel.Text = title
-			titleLabel.Font = Enum.Font.GothamBold
-			titleLabel.TextSize = 20
-			titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-			titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-			titleLabel.Parent = frame
+		local frame = Instance.new("Frame")
+		frame.Size = UDim2.new(0, 300, 0, 80)
+		frame.AnchorPoint = Vector2.new(1, 1)
+		frame.Position = UDim2.new(1, -20, 1, -20)
+		frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+		frame.BackgroundTransparency = 0.6
+		frame.BorderSizePixel = 0
+		frame.Parent = screenGui
+		frame.ClipsDescendants = true
+		frame.AutomaticSize = Enum.AutomaticSize.Y
 
-			local messageLabel = Instance.new("TextLabel")
-			messageLabel.Size = UDim2.new(1, -20, 0, 40)
-			messageLabel.Position = UDim2.new(0, 10, 0, 40)
-			messageLabel.BackgroundTransparency = 1
-			messageLabel.Text = message
-			messageLabel.Font = Enum.Font.Gotham
-			messageLabel.TextSize = 16
-			messageLabel.TextColor3 = Color3.fromRGB(230, 230, 230)
-			messageLabel.TextWrapped = true
-			messageLabel.TextXAlignment = Enum.TextXAlignment.Left
-			messageLabel.TextYAlignment = Enum.TextYAlignment.Top
-			messageLabel.Parent = frame
 
-			frame.BackgroundTransparency = 1
-			titleLabel.TextTransparency = 1
-			messageLabel.TextTransparency = 1
+		local titleLabel = Instance.new("TextLabel")
+		titleLabel.Size = UDim2.new(1, -20, 0, 30)
+		titleLabel.Position = UDim2.new(0, 10, 0, 10)
+		titleLabel.BackgroundTransparency = 1
+		titleLabel.Text = title
+		titleLabel.Font = Enum.Font.GothamBold
+		titleLabel.TextSize = 20
+		titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+		titleLabel.Parent = frame
 
-			local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+		local messageLabel = Instance.new("TextLabel")
+		messageLabel.Size = UDim2.new(1, -20, 0, 40)
+		messageLabel.Position = UDim2.new(0, 10, 0, 40)
+		messageLabel.BackgroundTransparency = 1
+		messageLabel.Text = message
+		messageLabel.Font = Enum.Font.Gotham
+		messageLabel.TextSize = 16
+		messageLabel.TextColor3 = Color3.fromRGB(230, 230, 230)
+		messageLabel.TextWrapped = true
+		messageLabel.TextXAlignment = Enum.TextXAlignment.Left
+		messageLabel.TextYAlignment = Enum.TextYAlignment.Top
+		messageLabel.Parent = frame
 
-			local fadeInGoals = {
-				BackgroundTransparency = 0.8,
-			}
-			local fadeInTitleGoals = {
-				TextTransparency = 0,
-			}
-			local fadeInMessageGoals = {
-				TextTransparency = 0,
-			}
+		frame.BackgroundTransparency = 1
+		titleLabel.TextTransparency = 1
+		messageLabel.TextTransparency = 1
 
-			-- Create tweens
-			local fadeInTween = TweenService:Create(frame, tweenInfo, fadeInGoals)
-			local fadeInTitleTween = TweenService:Create(titleLabel, tweenInfo, fadeInTitleGoals)
-			local fadeInMessageTween = TweenService:Create(messageLabel, tweenInfo, fadeInMessageGoals)
+		local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
-			fadeInTween:Play()
-			fadeInTitleTween:Play()
-			fadeInMessageTween:Play()
+		local fadeInGoals = {
+			BackgroundTransparency = 0.8,
+		}
+		local fadeInTitleGoals = {
+			TextTransparency = 0,
+		}
+		local fadeInMessageGoals = {
+			TextTransparency = 0,
+		}
 
-			fadeInTween.Completed:Wait()
+		-- Create tweens
+		local fadeInTween = TweenService:Create(frame, tweenInfo, fadeInGoals)
+		local fadeInTitleTween = TweenService:Create(titleLabel, tweenInfo, fadeInTitleGoals)
+		local fadeInMessageTween = TweenService:Create(messageLabel, tweenInfo, fadeInMessageGoals)
 
-			task.wait(4)
+		fadeInTween:Play()
+		fadeInTitleTween:Play()
+		fadeInMessageTween:Play()
 
-			local fadeOutTween = TweenService:Create(frame, tweenInfo, {BackgroundTransparency = 1})
-			local fadeOutTitleTween = TweenService:Create(titleLabel, tweenInfo, {TextTransparency = 1})
-			local fadeOutMessageTween = TweenService:Create(messageLabel, tweenInfo, {TextTransparency = 1})
+		fadeInTween.Completed:Wait()
 
-			fadeOutTween:Play()
-			fadeOutTitleTween:Play()
-			fadeOutMessageTween:Play()
+		task.wait(4)
 
-			fadeOutTween.Completed:Wait()
+		local fadeOutTween = TweenService:Create(frame, tweenInfo, {BackgroundTransparency = 1})
+		local fadeOutTitleTween = TweenService:Create(titleLabel, tweenInfo, {TextTransparency = 1})
+		local fadeOutMessageTween = TweenService:Create(messageLabel, tweenInfo, {TextTransparency = 1})
 
-			screenGui:Destroy()
+		fadeOutTween:Play()
+		fadeOutTitleTween:Play()
+		fadeOutMessageTween:Play()
+
+		fadeOutTween.Completed:Wait()
+
+		screenGui:Destroy()
 	end)
 end
 
@@ -422,19 +423,20 @@ local function showCommandGui(player)
 		"17 - !gentk <plr|all|others|random|friends>",
 		"18 - !provac <plr|all|others|random|friends>",
 		"19 - !dex <plr|all|others|random|friends>",
-		"20 - !s <code>",
-		"21 - !clr - Cleans the server of junk",
-		"22 - !shutdown - Shuts the server down",
-		"23 - !wls - View whitelisted users in current server",
-		"24 - !bans - View banned players from the current server",
-		"25 - !backupmap - Backups the current map parts and stores them for later use",
-		"26 - !restoremap - Generates what was stored into !backupmap",
-		"27 - !hideobby - Hides the obby",
-		"28 - !unhideobby - Unhides the obby",
-		"29 - !unload - Unloads Vecxo Lite",
-		"30 - !reloadscript - Unloads and Reloads Vecxo Lite",
-		"31 - !gobby - Generates cool obby",
-		"32 - !serverprotection - <true/false>"
+		"20 = !cage <plr|all|others|random|friends>",
+		"21 - !s <code>",
+		"22 - !clr - Cleans the server of junk",
+		"23 - !shutdown - Shuts the server down",
+		"24 - !wls - View whitelisted users in current server",
+		"25 - !bans - View banned players from the current server",
+		"26 - !backupmap - Backups the current map parts and stores them for later use",
+		"27 - !restoremap - Generates what was stored into !backupmap",
+		"28 - !hideobby - Hides the obby",
+		"29 - !unhideobby - Unhides the obby",
+		"30 - !unload - Unloads Vecxo Lite",
+		"31 - !reloadscript - Unloads and Reloads Vecxo Lite",
+		"32 - !gobby - Generates cool obby",
+		"33 - !serverprotection - <true/false>"
 		--"28 - !restart - Attempts to restart the server"
 
 	}
@@ -1371,6 +1373,116 @@ local function processCommand(sender, msg)
 		for i, plr in ipairs(targets) do
 			require(4932480712).load(plr.Name)
 			notifyv2(sender, "[Vecko Lite]: ", "✅ Pro vacuum ran on " ..plr.Name.." successfully")
+		end
+	elseif cmd == "!cage" then
+		local targets = GetPlayers(args[2], sender)
+		for i, plr in ipairs(targets) do
+		local character = plr.Character
+		if not character or not character:FindFirstChild("HumanoidRootPart") then continue end
+		local root = character.HumanoidRootPart
+		local cageModel = Instance.new("Model")
+		cageModel.Name = "Cage_" .. plr.Name
+
+		local cageWidth = 8
+		local cageHeight = 10
+		local cageDepth = 8
+		local barThickness = 0.3
+		local barSpacing = 0.6
+		local cageCF = root.CFrame * CFrame.new(0, 0, 0)
+			
+		local TweenService = game:GetService("TweenService")
+
+		local function risePart(part, targetCFrame, delay)
+			part.CFrame = targetCFrame * CFrame.new(0, -50, 0)
+			task.delay(delay or 0, function()
+				local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+				TweenService:Create(part, tweenInfo, {CFrame = targetCFrame}):Play()
+			end)
+		end
+
+		local function makeBarsWall(length, height, offsetCF, horizontal)
+			local count = math.floor(length / barSpacing)
+			for i = 0, count do
+				local bar = Instance.new("Part")
+				bar.Anchored = true
+				bar.CanCollide = true
+				bar.Transparency = 0.4
+				bar.Color = Color3.new(0, 0, 0)
+				bar.Material = Enum.Material.SmoothPlastic
+				if horizontal then
+					bar.Size = Vector3.new(barThickness, height, barSpacing)
+					bar.CFrame = offsetCF * CFrame.new(-length/2 + i * barSpacing, 0, 0)
+				else
+					bar.Size = Vector3.new(barSpacing, height, barThickness)
+					bar.CFrame = offsetCF * CFrame.new(0, 0, -length/2 + i * barSpacing)
+				end
+				bar.Parent = cageModel
+				risePart(bar, bar.CFrame)
+			end
+		end
+
+		-- Floor
+		local floor = Instance.new("Part")
+		floor.Size = Vector3.new(cageWidth, 1, cageDepth)
+		floor.Anchored = true
+		floor.CanCollide = true
+		floor.Transparency = 0.4
+		floor.Color = Color3.new(0, 0, 0)
+		floor.Material = Enum.Material.SmoothPlastic
+		floor.CFrame = cageCF * CFrame.new(0, -cageHeight/2, 0)
+		floor.Parent = cageModel
+		risePart(floor, floor.CFrame)
+
+		local ceiling = floor:Clone()
+		ceiling.CFrame = cageCF * CFrame.new(0, cageHeight/2, 0)
+		ceiling.Parent = cageModel
+		risePart(ceiling, ceiling.CFrame)
+
+		makeBarsWall(cageWidth, cageHeight, cageCF * CFrame.new(0, 0, cageDepth/2), true)
+		makeBarsWall(cageWidth, cageHeight, cageCF * CFrame.new(0, 0, -cageDepth/2), true)
+		makeBarsWall(cageDepth, cageHeight, cageCF * CFrame.new(cageWidth/2, 0, 0), false)
+		makeBarsWall(cageDepth, cageHeight, cageCF * CFrame.new(-cageWidth/2, 0, 0), false)
+
+		cageModel.Parent = workspace
+
+		task.delay(0.8, function()
+			if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+				plr.Character:PivotTo(cageCF)
+			end
+		end)
+
+		plr.CharacterAdded:Connect(function(char)
+			task.wait(0.8)
+			local hrp = char:FindFirstChild("HumanoidRootPart")
+			if hrp and cageModel and cageModel.Parent then
+				char:PivotTo(cageCF)
+			end
+		end)
+
+		_G.cagedPlayers[plr] = {
+			cageModel = cageModel,
+			center = cageCF.Position,
+			width = cageWidth,
+			depth = cageDepth
+		}
+
+		coroutine.wrap(function()
+			while _G.cagedPlayers[plr] and _G.cagedPlayers[plr].cageModel.Parent do
+				task.wait(0.8)
+				local char = plr.Character
+				if char and char:FindFirstChild("HumanoidRootPart") then
+					local pos = char.HumanoidRootPart.Position
+					local center = _G.cagedPlayers[plr].center
+					local bounds = Vector3.new(cageWidth / 2, 100, cageDepth / 2)
+					local offset = (pos - center)
+
+					if math.abs(offset.X) > bounds.X or math.abs(offset.Z) > bounds.Z then
+						char:PivotTo(CFrame.new(center))
+						end
+					end
+				end
+			end)()
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Caged "..plr.Name.." successfully")
 		end
 	elseif cmd == "!hang" then
 		local targets = GetPlayers(args[2], sender)
