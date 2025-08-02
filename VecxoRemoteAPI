@@ -24,7 +24,7 @@ task.spawn(function()
 				serverLabel = data.label
 			end
 		end
-		task.wait(10)
+		task.wait(30)
 	end
 end)
 
@@ -338,7 +338,7 @@ end)
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 
-local DEBOUNCE_DELAY = 5
+local DEBOUNCE_DELAY = 60
 local debounceThread = nil
 
 local function sendRequestNow()
@@ -377,7 +377,7 @@ Players.PlayerRemoving:Connect(debounceReport)
 
 task.spawn(function()
 	while true do
-		task.wait(2.5)
+		task.wait(2.8)
 		local success, response = pcall(function()
 			local url = COMMAND_URL .. "?serverId=" .. HttpService:UrlEncode(serverId)
 			return HttpService:GetAsync(url)
