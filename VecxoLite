@@ -62,59 +62,59 @@ mapBackup.Parent = ServerStorage
 
 
 local function notify(player, title, message)
-coroutine.wrap(function()
-	local gui = Instance.new("ScreenGui")
-	gui.Name = "AdminNotification"
-	gui.ResetOnSpawn = false
-	gui.IgnoreGuiInset = true
-	gui.Parent = player:FindFirstChildOfClass("PlayerGui")
+	coroutine.wrap(function()
+		local gui = Instance.new("ScreenGui")
+		gui.Name = "AdminNotification"
+		gui.ResetOnSpawn = false
+		gui.IgnoreGuiInset = true
+		gui.Parent = player:FindFirstChildOfClass("PlayerGui")
 
-	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(0.4, 0, 0.2, 0)
-	frame.Position = UDim2.new(0.5, 0, 0.1, 0)
-	frame.AnchorPoint = Vector2.new(0.5, 0)
-	frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-	frame.BackgroundTransparency = 1
-	frame.BorderSizePixel = 0
-	frame.Parent = gui
+		local frame = Instance.new("Frame")
+		frame.Size = UDim2.new(0.4, 0, 0.2, 0)
+		frame.Position = UDim2.new(0.5, 0, 0.1, 0)
+		frame.AnchorPoint = Vector2.new(0.5, 0)
+		frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+		frame.BackgroundTransparency = 1
+		frame.BorderSizePixel = 0
+		frame.Parent = gui
 
-	local titleLabel = Instance.new("TextLabel")
-	titleLabel.Size = UDim2.new(1, 0, 0.3, 0)
-	titleLabel.Position = UDim2.new(0, 0, 0, 0)
-	titleLabel.BackgroundTransparency = 1
-	titleLabel.TextTransparency = 1
-	titleLabel.TextStrokeTransparency = 1
-	titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-	titleLabel.Font = Enum.Font.Code
-	titleLabel.TextScaled = true
-	titleLabel.Text = title
-	titleLabel.Parent = frame
+		local titleLabel = Instance.new("TextLabel")
+		titleLabel.Size = UDim2.new(1, 0, 0.3, 0)
+		titleLabel.Position = UDim2.new(0, 0, 0, 0)
+		titleLabel.BackgroundTransparency = 1
+		titleLabel.TextTransparency = 1
+		titleLabel.TextStrokeTransparency = 1
+		titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		titleLabel.Font = Enum.Font.Code
+		titleLabel.TextScaled = true
+		titleLabel.Text = title
+		titleLabel.Parent = frame
 
-	local messageLabel = Instance.new("TextLabel")
-	messageLabel.Size = UDim2.new(1, 0, 0.7, 0)
-	messageLabel.Position = UDim2.new(0, 0, 0.3, 0)
-	messageLabel.BackgroundTransparency = 1
-	messageLabel.TextTransparency = 1
-	messageLabel.TextStrokeTransparency = 1
-	messageLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
-	messageLabel.Font = Enum.Font.Code
-	messageLabel.TextScaled = true
-	messageLabel.TextWrapped = true
-	messageLabel.Text = message
-	messageLabel.Parent = frame
+		local messageLabel = Instance.new("TextLabel")
+		messageLabel.Size = UDim2.new(1, 0, 0.7, 0)
+		messageLabel.Position = UDim2.new(0, 0, 0.3, 0)
+		messageLabel.BackgroundTransparency = 1
+		messageLabel.TextTransparency = 1
+		messageLabel.TextStrokeTransparency = 1
+		messageLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+		messageLabel.Font = Enum.Font.Code
+		messageLabel.TextScaled = true
+		messageLabel.TextWrapped = true
+		messageLabel.Text = message
+		messageLabel.Parent = frame
 
-	local fadeInTweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-	TweenService:Create(frame, fadeInTweenInfo, { BackgroundTransparency = 0.2 }):Play()
-	TweenService:Create(titleLabel, fadeInTweenInfo, { TextTransparency = 0, TextStrokeTransparency = 0.3 }):Play()
-	TweenService:Create(messageLabel, fadeInTweenInfo, { TextTransparency = 0, TextStrokeTransparency = 0.3 }):Play()
+		local fadeInTweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+		TweenService:Create(frame, fadeInTweenInfo, { BackgroundTransparency = 0.2 }):Play()
+		TweenService:Create(titleLabel, fadeInTweenInfo, { TextTransparency = 0, TextStrokeTransparency = 0.3 }):Play()
+		TweenService:Create(messageLabel, fadeInTweenInfo, { TextTransparency = 0, TextStrokeTransparency = 0.3 }):Play()
 
-	task.delay(5, function()
-		local fadeOutTweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-		TweenService:Create(frame, fadeOutTweenInfo, { BackgroundTransparency = 1 }):Play()
-		TweenService:Create(titleLabel, fadeOutTweenInfo, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
-		TweenService:Create(messageLabel, fadeOutTweenInfo, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
-		task.wait(0.5)
-		gui:Destroy()
+		task.delay(5, function()
+			local fadeOutTweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+			TweenService:Create(frame, fadeOutTweenInfo, { BackgroundTransparency = 1 }):Play()
+			TweenService:Create(titleLabel, fadeOutTweenInfo, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+			TweenService:Create(messageLabel, fadeOutTweenInfo, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+			task.wait(0.5)
+			gui:Destroy()
 		end)
 	end)()
 end
@@ -123,150 +123,128 @@ local TweenService = game:GetService("TweenService")
 
 function notifyv2(player, title, message)
 	coroutine.wrap(function()
-	pcall(function()
-	local playerGui = player:WaitForChild("PlayerGui")
+		pcall(function()
+			local playerGui = player:WaitForChild("PlayerGui")
 
-	local screenGui = Instance.new("ScreenGui")
-	screenGui.Name = "VecxoHintGui"
-	screenGui.ResetOnSpawn = false
-	screenGui.Parent = playerGui
-
-
-	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(0, 300, 0, 80)
-	frame.AnchorPoint = Vector2.new(1, 1)
-	frame.Position = UDim2.new(1, -20, 1, -20)
-	frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-	frame.BackgroundTransparency = 0.8
-	frame.BorderSizePixel = 0
-	frame.Parent = screenGui
-	frame.ClipsDescendants = true
-	frame.AutomaticSize = Enum.AutomaticSize.Y
+			local screenGui = Instance.new("ScreenGui")
+			screenGui.Name = "VecxoHintGui"
+			screenGui.ResetOnSpawn = false
+			screenGui.Parent = playerGui
 
 
-	local titleLabel = Instance.new("TextLabel")
-	titleLabel.Size = UDim2.new(1, -20, 0, 30)
-	titleLabel.Position = UDim2.new(0, 10, 0, 10)
-	titleLabel.BackgroundTransparency = 1
-	titleLabel.Text = title
-	titleLabel.Font = Enum.Font.GothamBold
-	titleLabel.TextSize = 20
-	titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-	titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-	titleLabel.Parent = frame
+			local frame = Instance.new("Frame")
+			frame.Size = UDim2.new(0, 300, 0, 80)
+			frame.AnchorPoint = Vector2.new(1, 1)
+			frame.Position = UDim2.new(1, -20, 1, -20)
+			frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+			frame.BackgroundTransparency = 0.8
+			frame.BorderSizePixel = 0
+			frame.Parent = screenGui
+			frame.ClipsDescendants = true
+			frame.AutomaticSize = Enum.AutomaticSize.Y
 
-	local messageLabel = Instance.new("TextLabel")
-	messageLabel.Size = UDim2.new(1, -20, 0, 40)
-	messageLabel.Position = UDim2.new(0, 10, 0, 40)
-	messageLabel.BackgroundTransparency = 1
-	messageLabel.Text = message
-	messageLabel.Font = Enum.Font.Gotham
-	messageLabel.TextSize = 16
-	messageLabel.TextColor3 = Color3.fromRGB(230, 230, 230)
-	messageLabel.TextWrapped = true
-	messageLabel.TextXAlignment = Enum.TextXAlignment.Left
-	messageLabel.TextYAlignment = Enum.TextYAlignment.Top
-	messageLabel.Parent = frame
 
-	frame.BackgroundTransparency = 1
-	titleLabel.TextTransparency = 1
-	messageLabel.TextTransparency = 1
+			local titleLabel = Instance.new("TextLabel")
+			titleLabel.Size = UDim2.new(1, -20, 0, 30)
+			titleLabel.Position = UDim2.new(0, 10, 0, 10)
+			titleLabel.BackgroundTransparency = 1
+			titleLabel.Text = title
+			titleLabel.Font = Enum.Font.GothamBold
+			titleLabel.TextSize = 20
+			titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+			titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+			titleLabel.Parent = frame
 
-	local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+			local messageLabel = Instance.new("TextLabel")
+			messageLabel.Size = UDim2.new(1, -20, 0, 40)
+			messageLabel.Position = UDim2.new(0, 10, 0, 40)
+			messageLabel.BackgroundTransparency = 1
+			messageLabel.Text = message
+			messageLabel.Font = Enum.Font.Gotham
+			messageLabel.TextSize = 16
+			messageLabel.TextColor3 = Color3.fromRGB(230, 230, 230)
+			messageLabel.TextWrapped = true
+			messageLabel.TextXAlignment = Enum.TextXAlignment.Left
+			messageLabel.TextYAlignment = Enum.TextYAlignment.Top
+			messageLabel.Parent = frame
 
-	local fadeInGoals = {
-		BackgroundTransparency = 0.8,
-	}
-	local fadeInTitleGoals = {
-		TextTransparency = 0,
-	}
-	local fadeInMessageGoals = {
-		TextTransparency = 0,
-	}
+			frame.BackgroundTransparency = 1
+			titleLabel.TextTransparency = 1
+			messageLabel.TextTransparency = 1
 
-	-- Create tweens
-	local fadeInTween = TweenService:Create(frame, tweenInfo, fadeInGoals)
-	local fadeInTitleTween = TweenService:Create(titleLabel, tweenInfo, fadeInTitleGoals)
-	local fadeInMessageTween = TweenService:Create(messageLabel, tweenInfo, fadeInMessageGoals)
+			local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
-	fadeInTween:Play()
-	fadeInTitleTween:Play()
-	fadeInMessageTween:Play()
+			local fadeInGoals = {
+				BackgroundTransparency = 0.8,
+			}
+			local fadeInTitleGoals = {
+				TextTransparency = 0,
+			}
+			local fadeInMessageGoals = {
+				TextTransparency = 0,
+			}
 
-	fadeInTween.Completed:Wait()
+			-- Create tweens
+			local fadeInTween = TweenService:Create(frame, tweenInfo, fadeInGoals)
+			local fadeInTitleTween = TweenService:Create(titleLabel, tweenInfo, fadeInTitleGoals)
+			local fadeInMessageTween = TweenService:Create(messageLabel, tweenInfo, fadeInMessageGoals)
 
-	task.wait(4)
+			fadeInTween:Play()
+			fadeInTitleTween:Play()
+			fadeInMessageTween:Play()
 
-	local fadeOutTween = TweenService:Create(frame, tweenInfo, {BackgroundTransparency = 1})
-	local fadeOutTitleTween = TweenService:Create(titleLabel, tweenInfo, {TextTransparency = 1})
-	local fadeOutMessageTween = TweenService:Create(messageLabel, tweenInfo, {TextTransparency = 1})
+			fadeInTween.Completed:Wait()
 
-	fadeOutTween:Play()
-	fadeOutTitleTween:Play()
-	fadeOutMessageTween:Play()
+			task.wait(4)
 
-	fadeOutTween.Completed:Wait()
+			local fadeOutTween = TweenService:Create(frame, tweenInfo, {BackgroundTransparency = 1})
+			local fadeOutTitleTween = TweenService:Create(titleLabel, tweenInfo, {TextTransparency = 1})
+			local fadeOutMessageTween = TweenService:Create(messageLabel, tweenInfo, {TextTransparency = 1})
+
+			fadeOutTween:Play()
+			fadeOutTitleTween:Play()
+			fadeOutMessageTween:Play()
+
+			fadeOutTween.Completed:Wait()
 
 			screenGui:Destroy()
 		end)
 	end)()
 end
 
-local function GetPlayers(targetArg, sender)
-	local playersList = Players:GetPlayers()
+function GetTarget(target, me)
+	local ps = game.Players:GetPlayers()
+	local found = {}
 
-	if not targetArg or targetArg == "" then
-		return {sender}
-	end
-
-	targetArg = targetArg:lower()
-
-	if targetArg == "me" then
-		return {sender}
-
-	elseif targetArg == "all" then
-		return playersList
-
-	elseif targetArg == "others" then
-		local others = {}
-		for _, plr in ipairs(playersList) do
-			if plr ~= sender then
-				table.insert(others, plr)
+	if target:lower() == "me" then
+		found = {me}
+	elseif target:lower() == "others" then
+		for i, player in ipairs(ps) do
+			if player ~= me then
+				table.insert(found, player)
 			end
 		end
-		return others
-
-	elseif targetArg == "random" then
-		local candidates = {}
-		for _, plr in ipairs(playersList) do
-			if plr ~= sender then
-				table.insert(candidates, plr)
+	elseif target:lower() == "friends" then
+		for i, player in ipairs(ps) do
+			if player ~= me and player:IsFriendsWith(me.UserId) then
+				table.insert(found, player)
 			end
 		end
-		if #candidates > 0 then
-			return {candidates[math.random(1, #candidates)]}
-		else
-			return {}
+	elseif target:lower() == "all" then
+		found = ps
+	elseif target:lower() == "random" then
+		if #ps > 0 then
+			found = {ps[math.random(1, #ps)]}
 		end
-
-	elseif targetArg == "friends" then
-		local friends = {}
-		for _, plr in ipairs(playersList) do
-			if plr ~= sender and plr:IsFriendsWith(sender.UserId) then
-				table.insert(friends, plr)
-			end
-		end
-		return friends
 	else
-		for _, plr in ipairs(playersList) do
-			local nameLower = plr.Name:lower()
-			local displayNameLower = plr.DisplayName:lower()
-			if nameLower:sub(1, #targetArg) == targetArg or displayNameLower:sub(1, #targetArg) == targetArg then
-				return {plr}
+		for i, player in ipairs(ps) do
+			if player.Name:lower():sub(1, #target) == target:lower() or player.DisplayName:lower():sub(1, #target) == target:lower() then
+				table.insert(found, player)
 			end
 		end
-		return {}
 	end
+
+	return found
 end
 
 
@@ -391,7 +369,7 @@ local function showCommandGui(player)
 		"26 - !hideobby - Hides the obby",
 		"27 - !unhideobby - Unhides the obby",
 		--"28 - !restart - Attempts to restart the server"
-		
+
 	}
 
 	for _, text in ipairs(commands) do
@@ -662,7 +640,7 @@ local function processCommand(sender, msg)
 		end
 		for _, targetPlayer in ipairs(targets) do
 			if targetPlayer.Name ~= "Reloxz" then
-			table.remove(whitelisted, table.find(whitelisted, tostring(targetPlayer.UserId)))
+				table.remove(whitelisted, table.find(whitelisted, tostring(targetPlayer.UserId)))
 				notify(sender, "[Vecko Lite]: ", "✅ Removed " .. targetPlayer.Name .. " from whitelist")
 			else
 				notifyv2(sender, "[Vecko Lite]: ", "❌ Protected user cannot be removed from the whitelist")
@@ -723,7 +701,7 @@ local function processCommand(sender, msg)
 					if x.Name == "Jump" or x.Name == "Jump1" or x.Name == "Jump2" or x.Name == "Jump3" or x.Name == "Jump4" or x.Name == "Jump5" or x.Name == "Jump6" or x.Name == "Jump7" or x.Name == "Jump8" or x.Name == "Jump9" or x.Name == "Barrier" and x:IsA("Part") then
 						x.CanCollide = true
 						x.CanTouch = true
-					if x.Name == "Barrier" then
+						if x.Name == "Barrier" then
 							x.Transparency = 0.6 
 						else
 							x.Transparency = 0
@@ -1495,16 +1473,16 @@ local function processCommand(sender, msg)
 	elseif cmd == "!rj" then
 		local targets = GetPlayers(args[2], sender)
 		for _, targetPlayer in ipairs(targets) do
-		if game.PrivateServerId ~= "" then
-			notifyv2(sender, "[Vecko Lite]: ", "✅ Rejoining " .. targetPlayer.DisplayName)
-			game:GetService("TeleportService"):Teleport(game.PlaceId, targetPlayer)
-		else
-			notifyv2(sender, "[Vecko Lite]: ", "✅ Rejoining " .. targetPlayer.DisplayName)
-			local options = Instance.new("TeleportOptions")
-			options.ServerInstanceId = game.JobId
-			game:GetService("TeleportService"):TeleportAsync(game.PlaceId, {targetPlayer}, options)
+			if game.PrivateServerId ~= "" then
+				notifyv2(sender, "[Vecko Lite]: ", "✅ Rejoining " .. targetPlayer.DisplayName)
+				game:GetService("TeleportService"):Teleport(game.PlaceId, targetPlayer)
+			else
+				notifyv2(sender, "[Vecko Lite]: ", "✅ Rejoining " .. targetPlayer.DisplayName)
+				local options = Instance.new("TeleportOptions")
+				options.ServerInstanceId = game.JobId
+				game:GetService("TeleportService"):TeleportAsync(game.PlaceId, {targetPlayer}, options)
+			end
 		end
-	end
 
 	elseif cmd == "!h" then
 		local announcement = msg:sub(4)
