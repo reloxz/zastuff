@@ -498,7 +498,13 @@ local function showWhitelisted(player, whitelistIds)
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
 	layout.Parent = scrollingFrame
 
-	local inGameWhitelist = whitelistIds
+	local inGameWhitelist = {}
+
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if table.find(whitelistIds, plr.UserId) or table.find(whitelistIds, tostring(plr.UserId)) then
+			table.insert(inGameWhitelist, plr)
+		end
+	end
 
 	if #inGameWhitelist == 0 then
 		local label = Instance.new("TextLabel")
@@ -668,15 +674,7 @@ local function processCommand(sender, msg)
 		end
 		game:Shutdown()
 	elseif cmd == "!wls" then
-		local currentwl = {}
-
-		for i, plr in ipairs(game.Players:GetPlayers()) do
-			if table.find(whitelisted, tostring(plr.UserId)) then
-				table.insert(currentwl, plr.Name .. " (" .. plr.DisplayName .. ")")
-			end
-		end
-		task.wait(0.5)
-		showWhitelisted(sender, currentwl)
+		showWhitelisted(sender, whitelisted)
 	--[[elseif cmd == "!restart" then
 		local message = Instance.new("Message", workspace)
 		local dots = 0
