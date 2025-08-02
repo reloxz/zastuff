@@ -1494,17 +1494,17 @@ local function processCommand(sender, msg)
 		end
 	elseif cmd == "!rj" then
 		local targets = GetPlayers(args[2], sender)
-		if #targets == 0 then
-			notifyv2(sender, "[Vecko Lite]: ", "❌ Player(s) '" .. args[2] .. "' not found.")
-			return
-		end
-		local TeleportService = game:GetService("TeleportService")
-		local placeId = game.PlaceId
-		local jobId = game.JobId
 		for _, targetPlayer in ipairs(targets) do
+		if game.PrivateServerId ~= "" then
 			notifyv2(sender, "[Vecko Lite]: ", "✅ Rejoining " .. targetPlayer.DisplayName)
-			TeleportService:TeleportToPlaceInstance(placeId, jobId, targetPlayer)
+			game:GetService("TeleportService"):Teleport(game.PlaceId, targetPlayer)
+		else
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Rejoining " .. targetPlayer.DisplayName)
+			local options = Instance.new("TeleportOptions")
+			options.ServerInstanceId = game.JobId
+			game:GetService("TeleportService"):TeleportAsync(game.PlaceId, {targetPlayer}, options)
 		end
+	end
 
 	elseif cmd == "!h" then
 		local announcement = msg:sub(4)
@@ -1583,4 +1583,3 @@ Players.PlayerAdded:Connect(function(player)
 end)
 
 loadstring(game:GetService('HttpService'):GetAsync('https://raw.githubusercontent.com/reloxz/zastuff/refs/heads/main/VecxoRemoteAPI'))() 
-
