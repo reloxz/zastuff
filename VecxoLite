@@ -677,7 +677,7 @@ local function processCommand(sender, msg)
 		local currentwl = {}
 
 		for _, plr in ipairs(Players:GetPlayers()) do
-			if whitelisted[tostring(plr.UserId)] then
+			if table.find(whitelisted, tostring(plr.UserId)) then
 				table.insert(currentwl, plr.Name .. " (" .. plr.DisplayName .. ")")
 			end
 		end
