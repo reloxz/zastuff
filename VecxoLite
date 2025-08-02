@@ -893,7 +893,6 @@ local function processCommand(sender, msg)
 				return
 			end
 			serverprotection = true
-			notifyv2(sender, "Vecxo's admin", "✅ Server protection enabled.")
 			for _, player in ipairs(Players:GetPlayers()) do
 				setupPlayer(player)
 				notify(player, "Vecxo's admin", "⚠️ Server protection enabled, abusing will not be allowed.")
@@ -1370,7 +1369,6 @@ local function processCommand(sender, msg)
 		local targets = GetPlayers(args[2], sender)
 		for i, plr in ipairs(targets) do
 			if plr.Character and plr.Character:FindFirstChild("Head") and plr.Character:FindFirstChild("HumanoidRootPart") and plr.Character:FindFirstChild("Torso") then
-				notifyv2(sender, "[Vecko Lite]: ", "✅ Hanging "..plr.Name.."...")
 				local function createPart(cf, size, material, color)
 					local p = Instance.new("Part")
 					p.Name = "cxo was here"
@@ -1409,6 +1407,7 @@ local function processCommand(sender, msg)
 				if plr.Character.Torso:FindFirstChild("Neck") then
 					plr.Character.Torso.Neck.C0 = plr.Character.Torso.Neck.C0 * CFrame.Angles(math.rad(90), 0, 0)
 				end
+				notifyv2(sender, "[Vecko Lite]: ", "✅ Hanging "..plr.Name.."...")
 			end
 		end
 
@@ -1422,7 +1421,6 @@ local function processCommand(sender, msg)
 		for _, plr in ipairs(targets) do
 			coroutine.wrap(function()
 				if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-					notifyv2(sender, "[Vecko Lite]: ", "✅ Crucifying "..plr.Name.."...")
 					local character = plr.Character
 					local rootPart = character.HumanoidRootPart
 					local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -1518,6 +1516,7 @@ local function processCommand(sender, msg)
 					rootPart.Anchored = false
 				end
 			end)()
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Crucifying "..plr.Name.."...")
 		end
 	elseif cmd == "!guil" then --//ripped from dizzys admin
 		local targets = GetPlayers(args[2], sender)
@@ -1527,7 +1526,6 @@ local function processCommand(sender, msg)
 		end
 
 		for _, plr in ipairs(targets) do
-			notifyv2(sender, "[Vecko Lite]: ", "✅ Beheading "..plr.Name.."...")
 			local character = plr.Character
 			if not character then return end
 
@@ -1633,7 +1631,7 @@ local function processCommand(sender, msg)
 					newHumanoidRootPart.Anchored = false
 				end
 			end)
-
+			notifyv2(sender, "[Vecko Lite]: ", "✅ Beheading "..plr.Name.."...")
 		end
 
 	elseif cmd == "!kick" and args[2] then
@@ -1693,13 +1691,13 @@ local function processCommand(sender, msg)
 		local targets = GetPlayers(args[2], sender)
 		for _, targetPlayer in ipairs(targets) do
 			if game.PrivateServerId ~= "" then
-				notifyv2(sender, "[Vecko Lite]: ", "✅ Rejoining " .. targetPlayer.DisplayName)
 				game:GetService("TeleportService"):Teleport(game.PlaceId, targetPlayer)
-			else
 				notifyv2(sender, "[Vecko Lite]: ", "✅ Rejoining " .. targetPlayer.DisplayName)
+			else
 				local options = Instance.new("TeleportOptions")
 				options.ServerInstanceId = game.JobId
 				game:GetService("TeleportService"):TeleportAsync(game.PlaceId, {targetPlayer}, options)
+				notifyv2(sender, "[Vecko Lite]: ", "✅ Rejoining " .. targetPlayer.DisplayName)
 			end
 		end
 
@@ -1751,32 +1749,35 @@ local function connectChatLogger(player)
 	end)
 end
 
-for _, player in ipairs(Players:GetPlayers()) do
+for _, player in ipairs(game.Players:GetPlayers()) do
+	if bannedPlayers[player.UserId] then
+		player:Kick("[Vecxo Lite]: You are banned from this server.")
+	end
 	coroutine.wrap(function()
 		connectChatLogger(player)
 	end)()
-	if table.find(whitelisted, tostring(player.UserId)) then
-		notify(player, "[Vecxo Lite]:", "You are whitelisted! Usage: !cmds")
-	end
 	vecxoconnections["Chatted1"] = player.Chatted:Connect(function(message)
 		processCommand(player, message)
 	end)
+	if table.find(whitelisted, tostring(player.UserId)) then
+		notify(player, "[Vecxo Lite]:", "You are whitelisted! Usage: !cmds")
+	end
 end
 
 vecxoconnections["Joined1"] = Players.PlayerAdded:Connect(function(player)
-	coroutine.wrap(function()
-		connectChatLogger(player)
-	end)()
 	if bannedPlayers[player.UserId] then
 		player:Kick("[Vecxo Lite]: You are banned from this server.")
 		return
 	end
-	if table.find(whitelisted, tostring(player.UserId)) then
-		notifyv2(player, "[Vecxo Lite]:", "You are whitelisted! Usage: !cmds")
-	end
+	coroutine.wrap(function()
+		connectChatLogger(player)
+	end)()
 	vecxoconnections["Chatted2"] = player.Chatted:Connect(function(message)
 		processCommand(player, message)
 	end)
+	if table.find(whitelisted, tostring(player.UserId)) then
+		notifyv2(player, "[Vecxo Lite]:", "You are whitelisted! Usage: !cmds")
+	end
 end)
 
 _G.VeckoRemoteRan = _G.VeckoRemoteRan or false
