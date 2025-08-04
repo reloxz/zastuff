@@ -1,0 +1,59 @@
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Remove existing command bar GUI if it exists
+local existing = playerGui:FindFirstChild("VecxoCommandBar")
+if existing then
+	existing:Destroy()
+end
+
+-- GUI setup
+local gui = Instance.new("ScreenGui")
+gui.Name = "VecxoCommandBar"
+gui.ResetOnSpawn = false
+gui.Parent = playerGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 400, 0, 80)
+frame.Position = UDim2.new(0.5, -200, 1, -100)
+frame.AnchorPoint = Vector2.new(0.5, 1)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+frame.BorderSizePixel = 0
+frame.Parent = gui
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Text = "[Vecxo Lite]:"
+title.Size = UDim2.new(1, -10, 0, 25)
+title.Position = UDim2.new(0, 5, 0, 5)
+title.BackgroundTransparency = 1
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 20
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = frame
+
+-- Command TextBox
+local textBox = Instance.new("TextBox")
+textBox.PlaceholderText = "Enter here..."
+textBox.Size = UDim2.new(1, -20, 0, 30)
+textBox.Position = UDim2.new(0, 10, 0, 40)
+textBox.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+textBox.TextColor3 = Color3.new(1, 1, 1)
+textBox.Font = Enum.Font.SourceSans
+textBox.TextSize = 18
+textBox.ClearTextOnFocus = false
+textBox.Parent = frame
+
+-- RemoteEvent for sending commands to the server
+local cmdEvent = Instance.new("RemoteEvent")
+cmdEvent.Name = "VecxoCommandEvent"
+cmdEvent.Parent = game.ReplicatedStorage
+
+-- When player presses Enter
+textBox.FocusLost:Connect(function(enterPressed)
+	if enterPressed and textBox.Text ~= "" then
+		cmdEvent:FireServer(textBox.Text)
+		textBox.Text = ""
+	end
+end)
