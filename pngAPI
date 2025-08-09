@@ -1,0 +1,27 @@
+local ImageURL = "{IMAGEURL}"
+local HoldTime = {HOLDTIME}  
+
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local gui = Instance.new("ScreenGui")
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local img = Instance.new("ImageLabel")
+img.Size = UDim2.new(1, 0, 1, 0)
+img.BackgroundTransparency = 1
+img.Image = ImageURL
+img.ImageTransparency = 1
+img.Parent = gui
+
+TweenService:Create(img, TweenInfo.new(0.15), {ImageTransparency = 0}):Play()
+
+task.delay(HoldTime, function()
+	TweenService:Create(img, TweenInfo.new(0.3), {ImageTransparency = 1}):Play()
+	task.delay(0.35, function()
+		gui:Destroy()
+	end)
+end)
