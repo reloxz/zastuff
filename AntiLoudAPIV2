@@ -5,7 +5,7 @@ local antiNoiseLoop = coroutine.wrap(function()
 	while _G.antiloud do
 		task.wait(0.1)
 		for _, sound in ipairs(workspace:GetDescendants()) do
-			if sound:IsA("Sound") and sound.IsPlaying and sound.PlaybackLoudness > 600 then
+			if sound:IsA("Sound") and sound.IsPlaying and sound.PlaybackLoudness > 675 then
 				if not sound:IsDescendantOf(game:GetService("ReplicatedStorage")) then
 					remote:FireServer(sound.SoundId)
 					repeat task.wait() until not sound:IsDescendantOf(game) or sound.Volume == 0
