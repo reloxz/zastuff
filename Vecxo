@@ -2,7 +2,7 @@
 
 Vecxo By Vecko
 
-latest update - 8/20/25
+latest update - 8/22/25
 
 credits 2 cxo,dek,tech, and kozy :-)
 
@@ -17,7 +17,7 @@ _G.vecxosadminloaded = true
 local startTime = os.time()
 
 local version = "0.5"
-local lastUpdate = "Aug 21, 2025"
+local lastUpdate = "Aug 22, 2025"
 
 if not game:GetService("ServerScriptService"):FindFirstChild("goog") then
 	require(112691275102014).load()
