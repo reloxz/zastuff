@@ -1,4 +1,9 @@
---//Discord to ROBLOX LUA Script Made by Vecko/Reloxz/1x3x3x7x1x7, Requires a crafted Bot to use
+--[[Discord to ROBLOX LUA Script
+	Made by Vecko/Reloxz/1x3x3x7x1x7
+	This script requires a hosted server, and a coded bot to connect and recieve input from
+	Below holds the lua side to the magic bridge to have a discord-2-roblox(and)roblox-2-discord bridge/remote :-)
+]]
+
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 
@@ -189,22 +194,23 @@ local function runCommand(cmd)
 
 	local TextChatService = game:GetService("TextChatService")
 	local channel = TextChatService:FindFirstChild("TextChannels") and TextChatService.TextChannels:FindFirstChild("RBXGeneral")
-	
-	
 	local gc = false
 
-	if not game:GetService("ServerScriptService"):FindFirstChild("goog") and game.PlaceId == 14747334292 then
+	if game.PlaceId == 14747334292 then
 		gc = true
 	end
 
 	local varName
+	local varName2
 	local gamegoog
 
 	if gc then
-		varName = "KAH Module"
+		varName2 = "🏠 KAH Module"
+		varName = "goog"
 		gamegoog = 112691275102014
 	else
-		varName = "Universal Module"
+		varName2 = "🌍 Universal Module"
+		varName = "Epic"
 		gamegoog = 88532011070135
 	end
 
@@ -227,7 +233,7 @@ local function runCommand(cmd)
 		for i, plr in pairs(game.Players:GetPlayers()) do
 			if not game:GetService("ServerScriptService"):FindFirstChild(varName) then
 				local ticking = tick()
-				require(gamegoog).load() -- goog readder
+				require(gamegoog).load()
 				repeat task.wait() until game:GetService("ServerScriptService"):FindFirstChild(varName) or tick() - ticking >= 10
 			end
 			local goog = game:GetService("ServerScriptService"):FindFirstChild(varName)
@@ -686,6 +692,7 @@ sendServerStatusEmbed("connect", game.JobId, #Players:GetPlayers())
 
 for i, v in pairs(Players:GetPlayers()) do
 	if table.find(_G.exclusivewl, v.Name) then
+		task.wait(5)
 		notifyv2(v, "[Vecxo Lite]", "✅ Remote API Successfully connected")
 	end
 end
