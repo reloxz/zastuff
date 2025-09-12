@@ -1,0 +1,112 @@
+-- LocalScript (place in StarterPlayerScripts)
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local rootPart = character:WaitForChild("HumanoidRootPart")
+local flying = false
+local speed = 50 -- Adjust fly speed
+local bodyVelocity, bodyGyro
+
+-- Function to start flying
+local function startFlying()
+    flying = true
+    bodyVelocity = Instance.new("BodyVelocity")
+    bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+    bodyVelocity.Parent = rootPart
+    
+    bodyGyro = Instance.new("BodyGyro")
+    bodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+    bodyGyro.CFrame = rootPart.CFrame
+    bodyGyro.Parent = rootPart
+    
+    humanoid.PlatformStand = true -- Prevent walking animation
+end
+
+-- Function to stop flying
+local function stopFlying()
+    flying = false
+    if bodyVelocity then bodyVelocity:Destroy() end
+    if bodyGyro then bodyGyro:Destroy() end
+    humanoid.PlatformStand = false
+end
+
+-- Toggle flying
+local function toggleFly()
+    if flying then
+        stopFlying()
+    else
+        startFlying()
+    end
+end
+
+-- Handle input for flying direction
+local function updateFlight()
+    if not flying then return end
+    local camera = workspace.CurrentCamera
+    local direction = Vector3.new(0, 0, 0)
+    
+    -- PC/Console input
+    if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+        direction += camera.CFrame.LookVector
+    end
+    if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+        direction -= camera.CFrame.LookVector
+    end
+    if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+        direction -= camera.CFrame.RightVector
+    end
+    if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+        direction += camera.CFrame.RightVector
+    end
+    if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+        direction += Vector3.new(0, 1, 0)
+    end
+    if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+        direction -= Vector3.new(0, 1, 0)
+    end
+    
+    bodyVelocity.Velocity = direction * speed
+    bodyGyro.CFrame = camera.CFrame
+end
+
+-- Bind toggle to 'F' key for PC
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.F then
+        toggleFly()
+    end
+end)
+
+-- Create UI for mobile/console
+local function createFlyButton()
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Parent = player:WaitForChild("PlayerGui")
+    local FlyButton = Instance.new("TextButton")
+    FlyButton.Size = UDim2.new(0, 100, 0, 50)
+    FlyButton.Position = UDim2.new(0.8, 0, 0.9, 0)
+    FlyButton.Text = "Toggle Fly"
+    FlyButton.Parent = ScreenGui
+    
+    FlyButton.MouseButton1Click:Connect(toggleFly)
+end
+
+-- Support mobile/console input
+if UserInputService.TouchEnabled or UserInputService.GamepadEnabled then
+    createFlyButton()
+end
+
+-- Update flight every frame
+game:GetService("RunService").RenderStepped:Connect(updateFlight)
+
+-- Handle character respawn
+player.CharacterAdded:Connect(function(newCharacter)
+    character = newCharacter
+    humanoid = character:WaitForChild("Humanoid")
+    rootPart = character:WaitForChild("HumanoidRootPart")
+    if flying then
+        startFlying()
+    end
+end)
