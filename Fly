@@ -1,0 +1,119 @@
+-- LocalScript for flying in Roblox (place in StarterPlayerScripts)
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local rootPart = character:WaitForChild("HumanoidRootPart")
+
+local flying = false
+local bodyVelocity = nil
+local bodyGyro = nil
+local speed = 50
+local maxSpeed = 100
+local controlSpeed = 50
+
+local function startFlying()
+	if flying then return end
+	flying = true
+	
+	bodyVelocity = Instance.new("BodyVelocity")
+	bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+	bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+	bodyVelocity.Parent = rootPart
+	
+	bodyGyro = Instance.new("BodyGyro")
+	bodyGyro.MaxTorque = Vector3.new(400000, 400000, 400000)
+	bodyGyro.P = 3000
+	bodyGyro.D = 500
+	bodyGyro.Parent = rootPart
+	
+	humanoid.PlatformStand = true
+end
+
+-- Function to stop flying
+local function stopFlying()
+	if not flying then return end
+	flying = false
+	
+	-- Remove BodyVelocity and BodyGyro
+	if bodyVelocity then
+		bodyVelocity:Destroy()
+		bodyVelocity = nil
+	end
+	if bodyGyro then
+		bodyGyro:Destroy()
+		bodyGyro = nil
+	end
+	humanoid.PlatformStand = false
+end
+
+-- Toggle flying when pressing E
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+	if input.KeyCode == Enum.KeyCode.E then
+		if flying then
+			stopFlying()
+		else
+			startFlying()
+		end
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input, gameProcessed)
+	if not flying or gameProcessed then return end
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		-- Update BodyGyro to face mouse direction
+		local camera = workspace.CurrentCamera
+		bodyGyro.CFrame = camera.CFrame
+	end
+end)
+
+local function updateMovement()
+	while flying do
+		local moveDirection = Vector3.new(0, 0, 0)
+		local camera = workspace.CurrentCamera
+		
+		-- Get input states
+		if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+			moveDirection = moveDirection + camera.CFrame.LookVector
+		end
+		if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+			moveDirection = moveDirection - camera.CFrame.LookVector
+		end
+		if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+			moveDirection = moveDirection - camera.CFrame.RightVector
+		end
+		if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+			moveDirection = moveDirection + camera.CFrame.RightVector
+		end
+		if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+			moveDirection = moveDirection + Vector3.new(0, 1, 0)
+		end
+		if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+			moveDirection = moveDirection - Vector3.new(0, 1, 0)
+		end
+		
+		-- Normalize and apply speed
+		if moveDirection.Magnitude > 0 then
+			moveDirection = moveDirection.Unit * speed
+		end
+		bodyVelocity.Velocity = moveDirection
+		
+		wait()
+	end
+end
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if input.KeyCode == Enum.KeyCode.E and not gameProcessed and flying then
+		coroutine.wrap(updateMovement)()
+	end
+end)
+
+player.CharacterAdded:Connect(function(newCharacter)
+	character = newCharacter
+	humanoid = character:WaitForChild("Humanoid")
+	rootPart = character:WaitForChild("HumanoidRootPart")
+	stopFlying() -- Ensure flying is reset
+end)
