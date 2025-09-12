@@ -1,0 +1,86 @@
+-- fly.lua (client-side)
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+-- Fly settings
+local flying = true
+local speed = 50
+local boostSpeed = 100
+local camera = workspace.CurrentCamera
+
+-- Control table
+local controls = {
+	Forward = 0,
+	Backward = 0,
+	Left = 0,
+	Right = 0,
+	Up = 0,
+	Down = 0
+}
+
+-- Capture key inputs
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+	if input.KeyCode == Enum.KeyCode.W then controls.Forward = 1 end
+	if input.KeyCode == Enum.KeyCode.S then controls.Backward = 1 end
+	if input.KeyCode == Enum.KeyCode.A then controls.Left = 1 end
+	if input.KeyCode == Enum.KeyCode.D then controls.Right = 1 end
+	if input.KeyCode == Enum.KeyCode.Space then controls.Up = 1 end
+	if input.KeyCode == Enum.KeyCode.LeftControl then controls.Down = 1 end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.KeyCode == Enum.KeyCode.W then controls.Forward = 0 end
+	if input.KeyCode == Enum.KeyCode.S then controls.Backward = 0 end
+	if input.KeyCode == Enum.KeyCode.A then controls.Left = 0 end
+	if input.KeyCode == Enum.KeyCode.D then controls.Right = 0 end
+	if input.KeyCode == Enum.KeyCode.Space then controls.Up = 0 end
+	if input.KeyCode == Enum.KeyCode.LeftControl then controls.Down = 0 end
+end)
+
+-- Body movers
+local bodyGyro = Instance.new("BodyGyro")
+bodyGyro.P = 9e4
+bodyGyro.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+bodyGyro.CFrame = humanoidRootPart.CFrame
+bodyGyro.Parent = humanoidRootPart
+
+local bodyVelocity = Instance.new("BodyVelocity")
+bodyVelocity.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+bodyVelocity.Velocity = Vector3.zero
+bodyVelocity.Parent = humanoidRootPart
+
+-- Fly loop
+RunService.RenderStepped:Connect(function()
+	if not flying then return end
+
+	local camCF = camera.CFrame
+	local moveDirection = Vector3.new(
+		controls.Right - controls.Left,
+		controls.Up - controls.Down,
+		controls.Forward - controls.Backward
+	)
+
+	if moveDirection.Magnitude > 0 then
+		moveDirection = moveDirection.Unit
+	end
+
+	local currentSpeed = UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) and boostSpeed or speed
+	local velocity = (camCF.RightVector * moveDirection.X + camCF.UpVector * moveDirection.Y + camCF.LookVector * moveDirection.Z) * currentSpeed
+
+	bodyGyro.CFrame = CFrame.new(humanoidRootPart.Position, humanoidRootPart.Position + camCF.LookVector)
+	bodyVelocity.Velocity = velocity
+end)
+
+-- Disable character physics (optional)
+if character:FindFirstChild("Humanoid") then
+	character.Humanoid.PlatformStand = true
+end
+
+print("[Client Fly]: Fly enabled")
