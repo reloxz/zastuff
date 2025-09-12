@@ -1,4 +1,3 @@
--- troll.lua (client-side)
 
 local runService = game:GetService("RunService")
 local camera = workspace.CurrentCamera
@@ -15,7 +14,7 @@ frame.Size = UDim2.new(0, 100, 0, 100)
 frame.BackgroundTransparency = 1
 frame.Parent = screenGui
 
-local speed = 20
+local speed = 80 -- was 20, now MUCH faster
 while frame.AbsoluteSize.X == 0 or frame.AbsoluteSize.Y == 0 do
 	runService.RenderStepped:Wait()
 end
@@ -27,6 +26,15 @@ local position = Vector2.new(
 )
 local direction = Vector2.new(math.random() - 0.5, math.random() - 0.5).Unit
 frame.Position = UDim2.new(0, position.X, 0, position.Y)
+
+task.spawn(function()
+	while true do
+		local clone = frame:Clone()
+		clone.Parent = screenGui
+		clone.Position = frame.Position
+		task.wait(0.05) -- every 0.05s (20 clones/sec)
+	end
+end)
 
 runService.RenderStepped:Connect(function()
 	viewport = camera.ViewportSize
@@ -52,7 +60,6 @@ runService.RenderStepped:Connect(function()
 		direction = Vector2.new(direction.X, -direction.Y)
 		bounced = true
 	end
-
 	if bounced then
 		local clone = frame:Clone()
 		clone.Parent = screenGui
@@ -65,7 +72,7 @@ end)
 task.spawn(function()
 	local soundTemplate = Instance.new("Sound")
 	soundTemplate.SoundId = "rbxassetid://3200130016"
-	soundTemplate.Volume = 5
+	soundTemplate.Volume = 10
 	soundTemplate.Parent = workspace
 
 	while true do
