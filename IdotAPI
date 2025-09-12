@@ -32,7 +32,7 @@ task.spawn(function()
 		local clone = frame:Clone()
 		clone.Parent = screenGui
 		clone.Position = frame.Position
-		task.wait(0.05) -- every 0.05s (20 clones/sec)
+		task.wait(0.01)
 	end
 end)
 
