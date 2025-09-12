@@ -1,0 +1,72 @@
+-- VFlyy (client-side)
+-- Simple fly using Humanoid.MoveDirection, toggleable with E
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local rootPart = character:WaitForChild("HumanoidRootPart")
+local camera = workspace.CurrentCamera
+
+-- Fly state
+local flying = false
+local speed = 50
+local boostSpeed = 100
+local vertical = 0
+
+-- Toggle fly function
+local function setFlyState(state)
+	flying = state
+	if flying then
+		humanoid.PlatformStand = false
+		humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+	else
+		humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
+	end
+end
+
+-- Toggle with E
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+	if input.KeyCode == Enum.KeyCode.E then
+		setFlyState(not flying)
+	end
+	if input.KeyCode == Enum.KeyCode.Space then vertical = 1 end
+	if input.KeyCode == Enum.KeyCode.LeftControl then vertical = -1 end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.KeyCode == Enum.KeyCode.Space or input.KeyCode == Enum.KeyCode.LeftControl then
+		vertical = 0
+	end
+end)
+
+-- Fly loop using MoveDirection
+RunService.RenderStepped:Connect(function(dt)
+	if not flying then return end
+
+	local currentSpeed = UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) and boostSpeed or speed
+	local moveDir = Vector3.zero
+
+	-- Get horizontal input from Humanoid.MoveDirection
+	moveDir = humanoid.MoveDirection * currentSpeed
+
+	-- Apply vertical input manually
+	if vertical ~= 0 then
+		moveDir = moveDir + Vector3.new(0, vertical * currentSpeed, 0)
+	end
+
+	-- Move character
+	rootPart.Velocity = moveDir
+end)
+
+-- Allow !unfly to disable from server
+getgenv().DisableFly = function()
+	setFlyState(false)
+	rootPart.Velocity = Vector3.zero
+end
+
+print("[Client Fly]: Loaded. Press E to toggle fly.")
