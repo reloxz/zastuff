@@ -87,5 +87,6 @@ task.spawn(function()
 end)
 
 task.wait(5)
-
+task.spawn(function()
 while true do end
+end)
