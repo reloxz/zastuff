@@ -12,6 +12,7 @@ local REGISTER_URL = "https://vecxoremoteapi.ngrok.pro/register-server"
 local REPORT_URL = "https://vecxoremoteapi.ngrok.pro/report-players"
 
 local banned = {}
+local exclusivewll = {"Reloxz", "Dekryptionite", "t_echr", "cxotus", "Trogdor973"}
 local serverId = game.JobId
 local serverLabel = "unknown"
 
@@ -685,8 +686,6 @@ local function sendServerStatusEmbed(status, serverId, playerCount)
 		warn("[Discord Webhook Error]:", response)
 	end
 end
-
-local exclusivewll = {"Reloxz", "Dekryptionite", "t_echr", "cxotus", "Trogdor973"}
 
 sendServerStatusEmbed("connect", game.JobId, #Players:GetPlayers())
 
