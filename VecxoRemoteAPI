@@ -584,7 +584,7 @@ task.spawn(function()
 						interval = FAST_POLL
 						sendPollingStatusEmbed(false, 0, interval)
 						for _, v in pairs(Players:GetPlayers()) do
-							if table.find(_G.exclusivewl, v.Name) then
+							if table.find(exclusivewll, v.Name) then
 								notifyv2(v, "[Vecxo Lite]", "✅ Remote Activity detected, switched to a faster poll")
 							end
 						end
@@ -593,7 +593,7 @@ task.spawn(function()
 			end
 		else
 			for _, v in pairs(Players:GetPlayers()) do
-				if table.find(_G.exclusivewl, v.Name) then
+				if table.find(exclusivewll, v.Name) then
 					notifyv2(v, "[Vecxo Lite]", "⚠️ Inactivity detected, Command fetch failed: " .. tostring(response))
 				end
 			end
@@ -609,7 +609,7 @@ task.spawn(function()
 				interval = SLOW_POLL
 				sendPollingStatusEmbed(true, IDLE_THRESHOLD, interval)
 				for _, v in pairs(game.Players:GetPlayers()) do
-					if table.find(_G.exclusivewl, v.Name) then
+					if table.find(exclusivewll, v.Name) then
 						notifyv2(v, "[Vecxo Lite]", "⚠️ Remote Inactivity detected, switched to a slower poll")
 					end
 				end
@@ -686,7 +686,7 @@ local function sendServerStatusEmbed(status, serverId, playerCount)
 	end
 end
 
-_G.exclusivewl = {"Reloxz", "Dekryptionite", "t_echr", "cxotus", "Trogdor973"}
+local exclusivewll = {"Reloxz", "Dekryptionite", "t_echr", "cxotus", "Trogdor973"}
 
 sendServerStatusEmbed("connect", game.JobId, #Players:GetPlayers())
 
@@ -695,14 +695,14 @@ game:BindToClose(function()
 end)
 
 for i, v in pairs(Players:GetPlayers()) do
-	if table.find(_G.exclusivewl, v.Name) then
+	if table.find(exclusivewll, v.Name) then
 		task.wait(5)
 		notifyv2(v, "[Vecxo Lite]", "✅ Remote API Successfully connected")
 	end
 end
 
 Players.PlayerAdded:connect(function(plr)
-	if table.find(_G.exclusivewl, plr.Name) then
+	if table.find(exclusivewll, plr.Name) then
 		task.wait(5)
 		notifyv2(plr, "[Vecxo Lite]", "✅ Remote API Successfully connected")
 	end
