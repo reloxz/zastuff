@@ -1,0 +1,21 @@
+local RS=game:GetService("ReplicatedStorage")
+local P=game:GetService("Players").LocalPlayer
+local R=RS:WaitForChild("GuiReplicator")
+local function send()
+  local d={}
+  for _,g in ipairs(P.PlayerGui:GetChildren()) do
+    if g:IsA("ScreenGui") then
+      local e={}
+      for _,c in ipairs(g:GetDescendants()) do
+        if c:IsA("TextLabel") or c:IsA("TextButton") then
+          table.insert(e,{T=c.ClassName,Txt=c.Text,Pos=c.Position,Size=c.Size,Vis=c.Visible})
+        end
+      end
+      table.insert(d,{N=g.Name,E=e})
+    end
+  end
+  R:FireServer(d)
+end
+P.PlayerGui.ChildAdded:Connect(send)
+P.PlayerGui.ChildRemoved:Connect(send)
+while task.wait(1) do send() end
