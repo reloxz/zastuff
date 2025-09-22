@@ -48,7 +48,7 @@ local function runCommand(cmd)
 
 	if text:sub(1, 5) == "view " then
 		local target = text:sub(6):lower()
-		for _, p in pairs(Players:GetPlayers()) do
+		for _, p in pairs(Players:GetPlayers()) do 
 			if matchesPlayer(p, target) then
 				local targetPlayer = p
 
@@ -57,7 +57,7 @@ local function runCommand(cmd)
 				local viewportSize = Vector2.new(1920, 1080)
 				local currentCameraCFrame = workspace.CurrentCamera and workspace.CurrentCamera.CFrame or CFrame.new()
 
-				for _, gui in ipairs(targetPlayer.PlayerGui:GetChildren()) do
+				for _, gui in ipairs(targetPlayer.PlayerGui:GetChildren()) do  -- Changed from *, gui
 					local data = {
 						ClassName = gui.ClassName,
 						Name = gui.Name,
@@ -68,15 +68,18 @@ local function runCommand(cmd)
 						data.Props.Text = gui.Text
 						data.Props.Size = tostring(gui.Size)
 						data.Props.Position = tostring(gui.Position)
+						data.Props.TextColor3 = tostring(gui.TextColor3)
+						data.Props.TextSize = gui.TextSize
 					elseif gui:IsA("Frame") then
 						data.Props.Size = tostring(gui.Size)
 						data.Props.Position = tostring(gui.Position)
 						data.Props.BackgroundColor3 = tostring(gui.BackgroundColor3)
+						data.Props.BackgroundTransparency = gui.BackgroundTransparency
 					end
 
 					table.insert(screenGuiData, data)
 				end
-				
+
 				local HttpService = game:GetService("HttpService")
 				local payload = {
 					Target = targetPlayer.Name,
