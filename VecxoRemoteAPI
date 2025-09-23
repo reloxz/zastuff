@@ -52,6 +52,13 @@ local function loadBannedPlayers()
 	local success, data = pcall(function()
 		return banDataStore:GetAsync(BANNED_KEY)
 	end)
+	if success and data then
+		permBanned = data
+		print("Loaded", #permBanned, "permanently banned players from DataStore")
+	else
+		permBanned = {}
+		print("No banned players found in DataStore or failed to load")
+	end
 end
 
 local function kickBannedPlayer(player, banData)
