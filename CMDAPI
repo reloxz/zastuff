@@ -1,0 +1,37 @@
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local gui = player.PlayerGui:WaitForChild("VecxoCmds")
+local frame = gui:WaitForChild("Frame")
+local searchContainer = frame:WaitForChild("SearchContainer")
+local searchBox = searchContainer:WaitForChild("TextBox")
+local darkContainer = frame:WaitForChild("DarkContainer")
+local scrollingFrame = darkContainer:WaitForChild("ScrollingFrame")
+local layout = scrollingFrame:WaitForChild("UIListLayout")
+
+local function updateSearch()
+    local searchTerm = searchBox.Text:lower()
+    local visibleCount = 0
+    for _, child in pairs(scrollingFrame:GetChildren()) do
+        if child:IsA("TextLabel") then
+            local text = child.Text:lower()
+            local isHeader = text:match("^%-%-//") ~= nil
+            
+            if searchTerm == "" then
+                child.Visible = true
+                visibleCount = visibleCount + 1
+            elseif isHeader then
+                child.Visible = true
+                visibleCount = visibleCount + 1
+            elseif text:find(searchTerm, 1, true) then
+                child.Visible = true
+                visibleCount = visibleCount + 1
+            else
+                child.Visible = false
+            end
+        end
+    end
+    task.wait()
+    scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+end
+searchBox:GetPropertyChangedSignal("Text"):Connect(updateSearch)
