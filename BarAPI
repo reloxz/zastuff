@@ -55,8 +55,9 @@ task.spawn(function()
                 end
             end
             maxLoudness = tonumber(maxLoudness) or 0
-            debugPrint(string.format("Firing MusicVisEvent: SoundId: %s, Loudness: %.2f, Position: %s", activeSoundId or "none", maxLoudness, tostring(char.HumanoidRootPart.Position)))
-            MusicVisEvent:FireServer(player, activeSoundId, maxLoudness, char.HumanoidRootPart.Position)
+            debugPrint(string.format("Firing MusicVisEvent: SoundId: %s, Loudness: %.2f, Position: %s", 
+             activeSoundId or "none", maxLoudness, tostring(char.HumanoidRootPart.Position)))
+            MusicVisEvent:FireServer(activeSoundId, maxLoudness, char.HumanoidRootPart.Position)
             if tick() - lastLoudnessUpdate > 1 then
                 if foundAnySound then
                     debugPrint(string.format("Sending loudness: %.2f from sound: %s", maxLoudness, activeSoundId))
@@ -69,6 +70,7 @@ task.spawn(function()
         task.wait(0.03)
     end
 end)
+
 local function onDescendantAdded(descendant)
     if descendant:IsA("Sound") then
         debugPrint("New sound detected: " .. (descendant.Name or "Unknown"))
