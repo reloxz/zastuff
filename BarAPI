@@ -22,13 +22,13 @@ task.spawn(function()
                 if sound:IsA("Sound") and sound.IsPlaying then
                     foundAnySound = true
                     foundSounds[sound] = true
-                    if sound.PlaybackLoudness > maxLoudness then
+                    if sound.PlaybackLoudness and sound.PlaybackLoudness > maxLoudness then
                         maxLoudness = sound.PlaybackLoudness
                         activeSoundId = sound.SoundId
                     end
-                    if tick() - lastLoudnessUpdate > 1 then -- Every second
-                        debugPrint(string.format("Found sound: %s, Loudness: %.2f, Playing: %s", 
-                            sound.Name or "Unknown", sound.PlaybackLoudness, tostring(sound.IsPlaying)))
+                    if tick() - lastLoudnessUpdate > 1 then
+                        debugPrint(string.format("Workspace sound: %s, Loudness: %.2f, Playing: %s", 
+                        sound.Name or "Unknown", sound.PlaybackLoudness or 0, tostring(sound.IsPlaying)))
                     end
                 end
             end
@@ -36,8 +36,7 @@ task.spawn(function()
                 if sound:IsA("Sound") and sound.IsPlaying then
                     foundAnySound = true
                     foundSounds[sound] = true
-                    
-                    if sound.PlaybackLoudness > maxLoudness then
+                    if sound.PlaybackLoudness and sound.PlaybackLoudness > maxLoudness then
                         maxLoudness = sound.PlaybackLoudness
                         activeSoundId = sound.SoundId
                     end
@@ -48,14 +47,15 @@ task.spawn(function()
                     if sound:IsA("Sound") and sound.IsPlaying then
                         foundAnySound = true
                         foundSounds[sound] = true
-                        
-                        if sound.PlaybackLoudness > maxLoudness then
+                        if sound.PlaybackLoudness and sound.PlaybackLoudness > maxLoudness then
                             maxLoudness = sound.PlaybackLoudness
                             activeSoundId = sound.SoundId
                         end
                     end
                 end
             end
+            maxLoudness = tonumber(maxLoudness) or 0
+            debugPrint(string.format("Firing MusicVisEvent: SoundId: %s, Loudness: %.2f, Position: %s", activeSoundId or "none", maxLoudness, tostring(char.HumanoidRootPart.Position)))
             MusicVisEvent:FireServer(player, activeSoundId, maxLoudness, char.HumanoidRootPart.Position)
             if tick() - lastLoudnessUpdate > 1 then
                 if foundAnySound then
