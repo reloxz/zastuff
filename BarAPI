@@ -1,0 +1,13 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local event = ReplicatedStorage:WaitForChild("MusicVisEvent")
+local function trackSounds()
+	while true do
+		for _, sound in ipairs(workspace:GetDescendants()) do
+			if sound:IsA("Sound") and sound.IsPlaying then
+				event:FireServer(sound.SoundId, sound.PlaybackLoudness)
+			end
+		end
+		task.wait(0.05)
+	end
+end
+task.spawn(trackSounds)
