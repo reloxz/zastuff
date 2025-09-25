@@ -26,10 +26,6 @@ task.spawn(function()
                         maxLoudness = sound.PlaybackLoudness
                         activeSoundId = sound.SoundId
                     end
-                    if tick() - lastLoudnessUpdate > 1 then
-                        debugPrint(string.format("Workspace sound: %s, Loudness: %.2f, Playing: %s", 
-                        sound.Name or "Unknown", sound.PlaybackLoudness or 0, tostring(sound.IsPlaying)))
-                    end
                 end
             end
             for _, sound in ipairs(SoundService:GetDescendants()) do
@@ -55,25 +51,18 @@ task.spawn(function()
                 end
             end
             maxLoudness = tonumber(maxLoudness) or 0
-            debugPrint(string.format("Firing MusicVisEvent: SoundId: %s, Loudness: %.2f, Position: %s", 
-             activeSoundId or "none", maxLoudness, tostring(char.HumanoidRootPart.Position)))
             MusicVisEvent:FireServer(activeSoundId, maxLoudness, char.HumanoidRootPart.Position)
             if tick() - lastLoudnessUpdate > 1 then
-                if foundAnySound then
-                    debugPrint(string.format("Sending loudness: %.2f from sound: %s", maxLoudness, activeSoundId))
-                else
-                    debugPrint("No sounds found - sending 0 loudness")
-                end
                 lastLoudnessUpdate = tick()
             end
         end
-        task.wait(0.03)
+        task.wait(0.02)
     end
 end)
 
 local function onDescendantAdded(descendant)
     if descendant:IsA("Sound") then
-        debugPrint("New sound detected: " .. (descendant.Name or "Unknown"))
+        task.wait(0.01)
     end
 end
 
