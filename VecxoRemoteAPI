@@ -961,7 +961,7 @@ task.spawn(function()
 						sendPollingStatusEmbed(false, 0, interval)
 						for _, v in pairs(Players:GetPlayers()) do
 							if table.find(exclusivewll, v.Name) then
-								notifyv2(v, "[Vecxo Lite]: ", "✅ Remote Activity detected, switched to a faster poll")
+								notifyv2(v, "[Vecxo]: ", "✅ Remote Activity detected, switched to a faster poll")
 							end
 						end
 					end
@@ -970,7 +970,7 @@ task.spawn(function()
 		else
 			for _, v in pairs(Players:GetPlayers()) do
 				if table.find(exclusivewll, v.Name) then
-					notifyv2(v, "[Vecxo Lite]: ", "⚠️ Inactivity detected, Command fetch failed: " .. tostring(response))
+					notifyv2(v, "[Vecxo]: ", "⚠️ Inactivity detected, Command fetch failed: " .. tostring(response))
 				end
 			end
 			if interval ~= SLOW_POLL then
@@ -985,7 +985,7 @@ task.spawn(function()
 				sendPollingStatusEmbed(true, IDLE_THRESHOLD, interval)
 				for _, v in pairs(game.Players:GetPlayers()) do
 					if table.find(exclusivewll, v.Name) then
-						notifyv2(v, "[Vecxo Lite]: ", "⚠️ Remote Inactivity detected, switched to a slower poll")
+						notifyv2(v, "[Vecxo]: ", "⚠️ Remote Inactivity detected, switched to a slower poll")
 					end
 				end
 			end
@@ -1066,12 +1066,12 @@ loadBannedPlayers()
 for i, v in pairs(Players:GetPlayers()) do
 	if table.find(exclusivewll, v.Name) then
 		task.wait(5)
-		notifyv2(v, "[Vecxo Lite]:", "✅ Remote API Successfully connected")
+		notifyv2(v, "[Vecxo]:", "✅ Remote API Successfully connected")
 	end
 end
 Players.PlayerAdded:connect(function(plr)
 	if table.find(exclusivewll, plr.Name) then
 		task.wait(5)
-		notifyv2(plr, "[Vecxo Lite]: ", "✅ Remote API Successfully connected")
+		notifyv2(plr, "[Vecxo]: ", "✅ Remote API Successfully connected")
 	end
 end)
