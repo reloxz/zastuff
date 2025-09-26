@@ -56,14 +56,14 @@ task.spawn(function()
                 lastLoudnessUpdate = tick()
             end
         end
-        task.wait(0.02)
+        task.wait(0.03)
     end
 end)
 
 local function onDescendantAdded(descendant)
-    if descendant:IsA("Sound") then
+   --[[ if descendant:IsA("Sound") then
         task.wait(0.01)
-    end
+    end]]
 end
 
 workspace.DescendantAdded:Connect(onDescendantAdded)
