@@ -866,7 +866,7 @@ Players.PlayerRemoving:Connect(debounceReport)
 local HttpService = game:GetService("HttpService")
 
 local FAST_POLL = 3
-local SLOW_POLL = 10
+local SLOW_POLL = 5
 local IDLE_THRESHOLD = 30
 
 local interval = FAST_POLL
