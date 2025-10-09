@@ -29,7 +29,7 @@ local Players = game:GetService("Players")
 local banDataStore = DataStoreService:GetDataStore("VecxoRemote/PermBans~;;>")
 local BANNED_KEY = "PermanentlyBanned"
 local banned = {}
-local exclusivewll = {"Reloxz", "Dekryptionite", "t_echr", "cxotus", "Trogdor973", "Palamode", "Korabi20", "1x3x3x7x1x7", "DeportedImported", "shelbomaster","dboyy725", "gamermeat1","VALENTINA964303_ALT", "idonthacklol101ns", "Dawninja21alt","SkeletonRaptor4903","hard_gamingfriends", "CoderCoenFurri", "Pendragon1977"}
+local exclusivewll = {"Reloxz", "Dekryptionite", "t_echr", "cxotus", "Trogdor973", "Palamode", "Korabi20", "1x3x3x7x1x7", "DeportedImported", "shelbomaster", "gamermeat1", "idonthacklol101ns", "Dawninja21alt"}
 local serverId = game.JobId
 local serverLabel = "unknown"
 
