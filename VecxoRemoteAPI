@@ -861,8 +861,8 @@ task.spawn(function()
 					runCommand(data.command)
 					lastCommandHash = commandHash
 					lastActiveTime = tick()
-					sendPollingStatusEmbed(game.JobId, "System", data.command)
 					if interval ~= FAST_POLL then
+						sendPollingStatusEmbed(game.JobId, "System", "Command Received!")
 						interval = FAST_POLL
 					end
 				end
