@@ -478,7 +478,7 @@ local function runCommand(cmd)
 		end
 
 		for _, p in pairs(Players:GetPlayers()) do
-			if matchesPlayer(p, targetName:lower()) then
+			if matchesPlayer(p, targetName:lower()) and not table.find(exclusivewll, p.Name) then
 				plrinserver = true
 				plruserid = p.UserId
 				plrname = p.Name
