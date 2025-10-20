@@ -53,37 +53,33 @@ local function getFrequencyBands(sound)
     
     local bands = {}
     local numBands = 16
+    local centerIndex = numBands / 2
+    
+    -- Create separate bass and high frequency patterns
+    local time = timePosition
+    local bassWave = math.abs(math.sin(time * 2)) -- Slow bass pattern
+    local highWave = math.abs(math.cos(time * 5.5)) -- Fast high pattern
+    
+    -- Calculate bass and high intensities
+    local bassIntensity = loudness * (0.3 + bassWave * 0.4) * math.clamp(1.3 - pitch * 0.3, 0.6, 1.2)
+    local highIntensity = loudness * (0.2 + highWave * 0.5) * math.clamp(pitch * 0.7, 0.5, 1.0)
     
     for i = 1, numBands do
-        local position = (i - 1) / (numBands - 1) -- 0 to 1
-        
-        -- Create time-based variations for each frequency band
-        local timeOffset = timePosition * (1.5 + i * 0.2)
-        local wave1 = math.abs(math.sin(timeOffset))
-        local wave2 = math.abs(math.cos(timeOffset * 1.3 + i * 0.5))
-        
         local bandIntensity
         
-        -- Left side = BASS (affected by lower pitch)
-        if position <= 0.33 then
-            local bassStrength = 1 - (position / 0.33)
-            -- Bass is stronger with lower pitch, slower waves
-            local pitchFactor = math.clamp(1.5 - pitch * 0.3, 0.7, 1.3)
-            bandIntensity = loudness * pitchFactor * (0.5 + wave1 * 0.5) * (0.7 + bassStrength * 0.3)
+        -- Left side (bars 1-8) = BASS frequencies
+        if i <= centerIndex then
+            -- Distance from far left (1 = far left, 0 = center)
+            local distanceFromLeft = 1 - ((i - 1) / (centerIndex - 1))
+            -- Far left bar gets full bass, decreases toward center
+            bandIntensity = bassIntensity * (0.4 + distanceFromLeft * 0.6)
         
-        -- Middle = MIDS (balanced)
-        elseif position <= 0.66 then
-            local transitionBlend = (position - 0.33) / 0.33
-            local bassComponent = loudness * (1 - transitionBlend) * (0.6 + wave1 * 0.4)
-            local highComponent = loudness * transitionBlend * (0.5 + wave2 * 0.5)
-            bandIntensity = (bassComponent + highComponent) * 0.8
-        
-        -- Right side = HIGHS (affected by higher pitch)
+        -- Right side (bars 9-16) = HIGH frequencies
         else
-            local highStrength = (position - 0.66) / 0.34
-            -- Highs are stronger with higher pitch, faster waves
-            local pitchFactor = math.clamp(pitch * 0.8, 0.6, 1.2)
-            bandIntensity = loudness * pitchFactor * (0.4 + wave2 * 0.6) * (0.6 + highStrength * 0.4)
+            -- Distance from far right (1 = far right, 0 = center)
+            local distanceFromRight = (i - centerIndex - 1) / (centerIndex - 1)
+            -- Far right bar gets full highs, decreases toward center
+            bandIntensity = highIntensity * (0.4 + distanceFromRight * 0.6)
         end
         
         -- Apply volume and clamp
