@@ -58,35 +58,37 @@ local function getFrequencyBands(sound)
         local position = (i - 1) / (numBands - 1) -- 0 to 1
         
         -- Create time-based variations for each frequency band
-        local timeOffset = timePosition * (2 + i * 0.3)
+        local timeOffset = timePosition * (1.5 + i * 0.2)
         local wave1 = math.abs(math.sin(timeOffset))
-        local wave2 = math.abs(math.cos(timeOffset * 1.7 + i))
+        local wave2 = math.abs(math.cos(timeOffset * 1.3 + i * 0.5))
         
         local bandIntensity
         
         -- Left side = BASS (affected by lower pitch)
         if position <= 0.33 then
             local bassStrength = 1 - (position / 0.33)
-            -- Bass is stronger with lower pitch
-            local pitchFactor = math.clamp(2 - pitch, 0.5, 1.5)
-            bandIntensity = loudness * pitchFactor * (0.6 + wave1 * 0.4) * (0.8 + bassStrength * 0.2)
+            -- Bass is stronger with lower pitch, slower waves
+            local pitchFactor = math.clamp(1.5 - pitch * 0.3, 0.7, 1.3)
+            bandIntensity = loudness * pitchFactor * (0.5 + wave1 * 0.5) * (0.7 + bassStrength * 0.3)
         
         -- Middle = MIDS (balanced)
         elseif position <= 0.66 then
             local transitionBlend = (position - 0.33) / 0.33
-            local bassComponent = loudness * (1 - transitionBlend) * (0.7 + wave1 * 0.3)
-            local highComponent = loudness * transitionBlend * (0.6 + wave2 * 0.4)
-            bandIntensity = bassComponent + highComponent
+            local bassComponent = loudness * (1 - transitionBlend) * (0.6 + wave1 * 0.4)
+            local highComponent = loudness * transitionBlend * (0.5 + wave2 * 0.5)
+            bandIntensity = (bassComponent + highComponent) * 0.8
         
         -- Right side = HIGHS (affected by higher pitch)
         else
             local highStrength = (position - 0.66) / 0.34
-            -- Highs are stronger with higher pitch
-            local pitchFactor = math.clamp(pitch, 0.7, 1.5)
-            bandIntensity = loudness * pitchFactor * (0.5 + wave2 * 0.5) * (0.7 + highStrength * 0.3)
+            -- Highs are stronger with higher pitch, faster waves
+            local pitchFactor = math.clamp(pitch * 0.8, 0.6, 1.2)
+            bandIntensity = loudness * pitchFactor * (0.4 + wave2 * 0.6) * (0.6 + highStrength * 0.4)
         end
         
-        table.insert(bands, bandIntensity * volume)
+        -- Apply volume and clamp
+        bandIntensity = math.clamp(bandIntensity * volume, 0, 100)
+        table.insert(bands, bandIntensity)
     end
     
     return bands
