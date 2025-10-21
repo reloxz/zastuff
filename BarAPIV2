@@ -68,7 +68,7 @@ local function getAllSounds()
 	-- Get sounds from character
 	for _, obj in ipairs(char:GetDescendants()) do
 		if obj:IsA("Sound") and obj.IsPlaying then
-			table.insert(sounds, obj)
+			table.insert(sounds, {sound = obj, position = hrp.Position})
 		end
 	end
 	
@@ -80,15 +80,60 @@ local function getAllSounds()
 			if soundParent and soundParent:IsA("BasePart") then
 				local distance = (soundParent.Position - hrp.Position).Magnitude
 				if distance < 100 then
-					table.insert(sounds, obj)
+					table.insert(sounds, {sound = obj, position = soundParent.Position})
 				end
 			else
-				table.insert(sounds, obj)
+				table.insert(sounds, {sound = obj, position = hrp.Position})
 			end
 		end
 	end
 	
 	return sounds
+end
+
+-- Calculate stereo panning based on sound position relative to player
+local function getStereoInfo(soundPosition)
+	local relativePos = hrp.CFrame:PointToObjectSpace(soundPosition)
+	
+	-- X is left/right (-X is left, +X is right)
+	-- Z is front/back (-Z is front, +Z is back)
+	
+	local leftRightBalance = math.clamp(relativePos.X / 20, -1, 1) -- -1 = left, 1 = right, 0 = center
+	local frontBackBalance = math.clamp(-relativePos.Z / 20, -1, 1) -- 1 = front, -1 = back
+	
+	return leftRightBalance, frontBackBalance
+end
+
+-- Apply stereo effect to frequency bands
+local function applyStereoEffect(bands, leftRightBalance, frontBackBalance)
+	local stereoBands = {}
+	local numBands = #bands
+	
+	for i = 1, numBands do
+		local normalizedPos = (i - 1) / (numBands - 1) -- 0 to 1 (left to right)
+		local barPosition = (normalizedPos * 2) - 1 -- -1 to 1 (left to right)
+		
+		-- Calculate how much this bar should respond based on stereo position
+		local stereoInfluence
+		if leftRightBalance < 0 then
+			-- Sound is on the left, boost left bars
+			stereoInfluence = 1 - math.abs(barPosition - leftRightBalance) * 0.7
+		elseif leftRightBalance > 0 then
+			-- Sound is on the right, boost right bars
+			stereoInfluence = 1 - math.abs(barPosition - leftRightBalance) * 0.7
+		else
+			-- Sound is centered
+			stereoInfluence = 1
+		end
+		
+		-- Front/back influence (frontal sounds are fuller)
+		local depthInfluence = 0.5 + (frontBackBalance * 0.5)
+		
+		-- Apply stereo effect with higher max to allow bars to go higher
+		stereoBands[i] = bands[i] * stereoInfluence * depthInfluence * 1.8 -- Increased multiplier
+	end
+	
+	return stereoBands
 end
 
 -- Smooth interpolation between values
