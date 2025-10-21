@@ -16,6 +16,18 @@ local function setupAudioAnalyzer(sound)
 	if not analyzer then
 		analyzer = Instance.new("AudioAnalyzer")
 		analyzer.Parent = sound
+		analyzer.SpectrumEnabled = true -- CRITICAL: Enable spectrum analysis
+		
+		-- Create Wire to connect Sound to AudioAnalyzer
+		local wire = Instance.new("Wire")
+		wire.SourceInstance = sound
+		wire.TargetInstance = analyzer
+		wire.TargetName = "Input"
+		wire.Parent = sound
+		
+		print("[MusicVis] Created AudioAnalyzer and Wire for sound:", sound.Name)
+	else
+		analyzer.SpectrumEnabled = true
 	end
 	return analyzer
 end
@@ -58,13 +70,38 @@ local function getFrequencyBands(sound)
 	local spectrum = analyzer:GetSpectrum()
 	
 	if not spectrum or #spectrum == 0 then
-		-- Fallback if spectrum not available
-		local emptyBands = {}
-		for i = 1, 16 do
-			table.insert(emptyBands, 0)
+		-- Fallback: Use PlaybackLoudness with better frequency simulation
+		print("[MusicVis] AudioAnalyzer spectrum not available, using fallback")
+		local loudness = sound.PlaybackLoudness
+		local time = sound.TimePosition
+		local pitch = sound.Pitch or 1
+		
+		local bands = {}
+		
+		-- Create bass pattern (left 8 bars)
+		local bassWave = math.abs(math.sin(time * 2.5))
+		local bassIntensity = loudness * (0.4 + bassWave * 0.6)
+		
+		for i = 1, 8 do
+			local distanceFromLeft = 1 - ((i - 1) / 7)
+			local bandValue = bassIntensity * (0.5 + distanceFromLeft * 0.5) * math.clamp(1.5 - pitch * 0.3, 0.7, 1.2)
+			table.insert(bands, math.clamp(bandValue, 0, 100))
 		end
-		return emptyBands
+		
+		-- Create high pattern (right 8 bars)
+		local highWave = math.abs(math.cos(time * 6.5))
+		local highIntensity = loudness * (0.3 + highWave * 0.7)
+		
+		for i = 1, 8 do
+			local distanceFromRight = (i - 1) / 7
+			local bandValue = highIntensity * (0.5 + distanceFromRight * 0.5) * math.clamp(pitch * 0.8, 0.6, 1.1)
+			table.insert(bands, math.clamp(bandValue, 0, 100))
+		end
+		
+		return bands
 	end
+	
+	print("[MusicVis] Using AudioAnalyzer spectrum, length:", #spectrum)
 	
 	-- Map spectrum to 16 bands (8 bass, 8 highs)
 	local bands = {}
