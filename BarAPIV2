@@ -1,3 +1,4 @@
+-- Client-Side Music Visualizer with AudioAnalyzer (Real FFT)
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -8,9 +9,12 @@ local hrp = char:WaitForChild("HumanoidRootPart")
 
 local MusicVisEvent = ReplicatedStorage:WaitForChild("MusicVisEvent")
 
+-- Store analyzers to prevent recreation
 local soundAnalyzers = {}
 
+-- Create AudioAnalyzer for real frequency analysis
 local function setupAudioAnalyzer(sound)
+	-- Check if we already have an analyzer for this sound
 	if soundAnalyzers[sound] then
 		local analyzer = soundAnalyzers[sound]
 		if analyzer and analyzer.Parent then
@@ -19,6 +23,7 @@ local function setupAudioAnalyzer(sound)
 		end
 	end
 	
+	-- Check if AudioAnalyzer already exists in sound
 	local analyzer = sound:FindFirstChild("AudioAnalyzer")
 	if not analyzer then
 		analyzer = Instance.new("AudioAnalyzer")
@@ -26,6 +31,7 @@ local function setupAudioAnalyzer(sound)
 		analyzer.Parent = sound
 		analyzer.SpectrumEnabled = true
 		
+		-- Create Wire to connect Sound to AudioAnalyzer
 		local wire = sound:FindFirstChild("AnalyzerWire")
 		if not wire then
 			wire = Instance.new("Wire")
@@ -39,6 +45,7 @@ local function setupAudioAnalyzer(sound)
 		print("[MusicVis] Created AudioAnalyzer and Wire for sound:", sound.Name)
 	else
 		analyzer.SpectrumEnabled = true
+		-- Check if wire exists
 		local wire = sound:FindFirstChild("AnalyzerWire")
 		if not wire then
 			wire = Instance.new("Wire")
@@ -54,15 +61,21 @@ local function setupAudioAnalyzer(sound)
 	return analyzer
 end
 
+-- Find all sounds in the workspace and character
 local function getAllSounds()
 	local sounds = {}
+	
+	-- Get sounds from character
 	for _, obj in ipairs(char:GetDescendants()) do
 		if obj:IsA("Sound") and obj.IsPlaying then
 			table.insert(sounds, obj)
 		end
 	end
+	
+	-- Get sounds from workspace
 	for _, obj in ipairs(workspace:GetDescendants()) do
 		if obj:IsA("Sound") and obj.IsPlaying then
+			-- Only include sounds within reasonable distance
 			local soundParent = obj.Parent
 			if soundParent and soundParent:IsA("BasePart") then
 				local distance = (soundParent.Position - hrp.Position).Magnitude
@@ -74,13 +87,17 @@ local function getAllSounds()
 			end
 		end
 	end
+	
 	return sounds
 end
 
+-- Get real frequency bands using AudioAnalyzer
 local function getFrequencyBands(sound)
 	local success, analyzer = pcall(setupAudioAnalyzer, sound)
+	
 	if not success or not analyzer then
 		print("[MusicVis] Failed to setup AudioAnalyzer:", analyzer)
+		-- Use fallback
 		analyzer = nil
 	end
 	
@@ -97,26 +114,32 @@ local function getFrequencyBands(sound)
 	end
 	
 	if not spectrum or #spectrum == 0 then
+		-- Fallback: Use PlaybackLoudness with better frequency simulation
 		local loudness = sound.PlaybackLoudness
 		local time = sound.TimePosition
 		local pitch = sound.Pitch or 1
 		
 		local bands = {}
+		
+		-- Create bass pattern (left 8 bars)
 		local bassWave = math.abs(math.sin(time * 2.5))
 		local bassIntensity = loudness * (0.3 + bassWave * 0.5)
 		
 		for i = 1, 8 do
 			local distanceFromLeft = 1 - ((i - 1) / 7)
+			-- Smooth transition in the middle
 			local smoothFactor = i <= 6 and 1.0 or (1.0 - (i - 6) * 0.15)
 			local bandValue = bassIntensity * (0.4 + distanceFromLeft * 0.4) * smoothFactor * math.clamp(1.3 - pitch * 0.2, 0.7, 1.1)
 			table.insert(bands, math.clamp(bandValue, 0, 100))
 		end
 		
+		-- Create high pattern (right 8 bars)
 		local highWave = math.abs(math.cos(time * 6.5))
 		local highIntensity = loudness * (0.25 + highWave * 0.55)
 		
 		for i = 1, 8 do
 			local distanceFromRight = (i - 1) / 7
+			-- Smooth transition in the middle
 			local smoothFactor = i >= 3 and 1.0 or (1.0 - (3 - i) * 0.15)
 			local bandValue = highIntensity * (0.4 + distanceFromRight * 0.4) * smoothFactor * math.clamp(pitch * 0.7, 0.6, 1.0)
 			table.insert(bands, math.clamp(bandValue, 0, 100))
@@ -125,15 +148,21 @@ local function getFrequencyBands(sound)
 		return bands
 	end
 	
+	-- AudioAnalyzer is working!
 	local bands = {}
 	local numBands = 16
 	local spectrumLength = #spectrum
-	local bassRange = math.floor(spectrumLength * 0.15)
-	local highStart = math.floor(spectrumLength * 0.3)
 	
+	-- Split spectrum into bass (low frequencies) and highs (high frequencies)
+	local bassRange = math.floor(spectrumLength * 0.15) -- First 15% is bass
+	local highStart = math.floor(spectrumLength * 0.3) -- Skip mids, take upper frequencies
+	
+	-- Get 8 bass bands from low frequencies
 	for i = 1, 8 do
 		local startIdx = math.floor((i - 1) / 8 * bassRange) + 1
 		local endIdx = math.floor(i / 8 * bassRange)
+		
+		-- Average the spectrum values in this range
 		local sum = 0
 		local count = 0
 		for j = startIdx, endIdx do
@@ -142,14 +171,19 @@ local function getFrequencyBands(sound)
 				count = count + 1
 			end
 		end
+		
 		local avgIntensity = count > 0 and (sum / count) or 0
+		-- Boost bass slightly for visibility and convert to 0-100 scale
 		table.insert(bands, math.clamp(avgIntensity * 150, 0, 100))
 	end
 	
+	-- Get 8 high bands from high frequencies
 	local highRange = spectrumLength - highStart
 	for i = 1, 8 do
 		local startIdx = highStart + math.floor((i - 1) / 8 * highRange)
 		local endIdx = highStart + math.floor(i / 8 * highRange)
+		
+		-- Average the spectrum values in this range
 		local sum = 0
 		local count = 0
 		for j = startIdx, endIdx do
@@ -158,15 +192,18 @@ local function getFrequencyBands(sound)
 				count = count + 1
 			end
 		end
+		
 		local avgIntensity = count > 0 and (sum / count) or 0
+		-- Convert to 0-100 scale
 		table.insert(bands, math.clamp(avgIntensity * 120, 0, 100))
 	end
 	
 	return bands
 end
 
+-- Main update loop
 local lastUpdate = 0
-local updateRate = 1/30
+local updateRate = 1/30 -- 30 times per second
 local lastPrimarySound = nil
 
 RunService.RenderStepped:Connect(function()
@@ -177,6 +214,7 @@ RunService.RenderStepped:Connect(function()
 	local sounds = getAllSounds()
 	
 	if #sounds > 0 then
+		-- Get the loudest sound
 		local primarySound = sounds[1]
 		local maxLoudness = primarySound.PlaybackLoudness
 		
@@ -187,13 +225,16 @@ RunService.RenderStepped:Connect(function()
 			end
 		end
 		
+		-- Check if sound changed
 		if primarySound ~= lastPrimarySound then
 			print("[MusicVis] Primary sound changed to:", primarySound.Name, "SoundId:", primarySound.SoundId)
 			lastPrimarySound = primarySound
 		end
 		
+		-- Get REAL frequency bands using AudioAnalyzer
 		local frequencyBands = getFrequencyBands(primarySound)
 		
+		-- Send to server
 		MusicVisEvent:FireServer(
 			primarySound.SoundId,
 			maxLoudness,
@@ -201,6 +242,7 @@ RunService.RenderStepped:Connect(function()
 			frequencyBands
 		)
 	else
+		-- No sound playing, send zeros
 		if lastPrimarySound then
 			print("[MusicVis] No sounds playing")
 			lastPrimarySound = nil
