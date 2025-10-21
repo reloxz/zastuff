@@ -91,13 +91,48 @@ local function getAllSounds()
 	return sounds
 end
 
+-- Smooth interpolation between values
+local function smoothInterpolate(bands)
+	local smoothed = {}
+	for i = 1, #bands do
+		if i == 1 then
+			smoothed[i] = (bands[i] + bands[i + 1]) / 2
+		elseif i == #bands then
+			smoothed[i] = (bands[i - 1] + bands[i]) / 2
+		else
+			-- Average with neighbors for smooth distribution
+			smoothed[i] = (bands[i - 1] * 0.25 + bands[i] * 0.5 + bands[i + 1] * 0.25)
+		end
+	end
+	return smoothed
+end
+
+-- Create distribution curve effect (like normal/skewed distribution)
+local function applyDistributionCurve(bands, centerPeak)
+	local numBands = #bands
+	local center = centerPeak or (numBands / 2)
+	local curved = {}
+	
+	for i = 1, numBands do
+		-- Distance from center (normalized)
+		local distFromCenter = math.abs(i - center) / (numBands / 2)
+		
+		-- Apply gaussian-like curve
+		local curveFactor = math.exp(-distFromCenter * distFromCenter * 2)
+		
+		-- Combine original intensity with curve
+		curved[i] = bands[i] * (0.4 + curveFactor * 0.6)
+	end
+	
+	return curved
+end
+
 -- Get real frequency bands using AudioAnalyzer
 local function getFrequencyBands(sound)
 	local success, analyzer = pcall(setupAudioAnalyzer, sound)
 	
 	if not success or not analyzer then
 		print("[MusicVis] Failed to setup AudioAnalyzer:", analyzer)
-		-- Use fallback
 		analyzer = nil
 	end
 	
@@ -114,58 +149,58 @@ local function getFrequencyBands(sound)
 	end
 	
 	if not spectrum or #spectrum == 0 then
-		-- Fallback: Use PlaybackLoudness with better frequency simulation
+		-- Fallback: Use PlaybackLoudness with distribution curves
 		local loudness = sound.PlaybackLoudness
 		local time = sound.TimePosition
 		local pitch = sound.Pitch or 1
 		
 		local bands = {}
 		
-		-- Create bass pattern (left 8 bars)
-		local bassWave = math.abs(math.sin(time * 2.5))
-		local bassIntensity = loudness * (0.3 + bassWave * 0.5)
-		
-		for i = 1, 8 do
-			local distanceFromLeft = 1 - ((i - 1) / 7)
-			-- Smooth transition in the middle
-			local smoothFactor = i <= 6 and 1.0 or (1.0 - (i - 6) * 0.15)
-			local bandValue = bassIntensity * (0.4 + distanceFromLeft * 0.4) * smoothFactor * math.clamp(1.3 - pitch * 0.2, 0.7, 1.1)
-			table.insert(bands, math.clamp(bandValue, 0, 100))
+		-- Create wave-like patterns across all 16 bars
+		for i = 1, 16 do
+			local normalized = (i - 1) / 15 -- 0 to 1
+			
+			-- Multiple wave frequencies for richness
+			local wave1 = math.sin(time * 2.5 + normalized * math.pi * 2)
+			local wave2 = math.cos(time * 4.0 + normalized * math.pi * 3)
+			local wave3 = math.sin(time * 6.5 + normalized * math.pi)
+			
+			-- Combine waves with different weights
+			local combined = (wave1 * 0.5 + wave2 * 0.3 + wave3 * 0.2)
+			
+			-- Add loudness influence
+			local intensity = loudness * (0.3 + math.abs(combined) * 0.7)
+			
+			table.insert(bands, math.clamp(intensity, 0, 100))
 		end
 		
-		-- Create high pattern (right 8 bars)
-		local highWave = math.abs(math.cos(time * 6.5))
-		local highIntensity = loudness * (0.25 + highWave * 0.55)
+		-- Apply distribution curve for peak in middle
+		bands = applyDistributionCurve(bands, 8 + math.sin(time * 0.5) * 3)
 		
-		for i = 1, 8 do
-			local distanceFromRight = (i - 1) / 7
-			-- Smooth transition in the middle
-			local smoothFactor = i >= 3 and 1.0 or (1.0 - (3 - i) * 0.15)
-			local bandValue = highIntensity * (0.4 + distanceFromRight * 0.4) * smoothFactor * math.clamp(pitch * 0.7, 0.6, 1.0)
-			table.insert(bands, math.clamp(bandValue, 0, 100))
-		end
+		-- Smooth the bands
+		bands = smoothInterpolate(bands)
 		
 		return bands
 	end
 	
 	-- AudioAnalyzer is working!
-	local bands = {}
+	local rawBands = {}
 	local numBands = 16
 	local spectrumLength = #spectrum
 	
-	-- Split spectrum into bass (low frequencies) and highs (high frequencies)
-	local bassRange = math.floor(spectrumLength * 0.15) -- First 15% is bass
-	local highStart = math.floor(spectrumLength * 0.3) -- Skip mids, take upper frequencies
-	
-	-- Get 8 bass bands from low frequencies
-	for i = 1, 8 do
-		local startIdx = math.floor((i - 1) / 8 * bassRange) + 1
-		local endIdx = math.floor(i / 8 * bassRange)
+	-- Sample across entire spectrum with logarithmic spacing
+	for i = 1, numBands do
+		-- Logarithmic distribution (more resolution in bass)
+		local logPos = math.pow(i / numBands, 1.5)
+		local spectrumIdx = math.floor(logPos * spectrumLength) + 1
+		spectrumIdx = math.clamp(spectrumIdx, 1, spectrumLength)
 		
-		-- Average the spectrum values in this range
+		-- Get intensity with some averaging
 		local sum = 0
 		local count = 0
-		for j = startIdx, endIdx do
+		local range = math.max(1, math.floor(spectrumLength / (numBands * 2)))
+		
+		for j = math.max(1, spectrumIdx - range), math.min(spectrumLength, spectrumIdx + range) do
 			if spectrum[j] then
 				sum = sum + spectrum[j]
 				count = count + 1
@@ -173,32 +208,36 @@ local function getFrequencyBands(sound)
 		end
 		
 		local avgIntensity = count > 0 and (sum / count) or 0
-		-- Boost bass slightly for visibility and convert to 0-100 scale
-		table.insert(bands, math.clamp(avgIntensity * 150, 0, 100))
-	end
-	
-	-- Get 8 high bands from high frequencies
-	local highRange = spectrumLength - highStart
-	for i = 1, 8 do
-		local startIdx = highStart + math.floor((i - 1) / 8 * highRange)
-		local endIdx = highStart + math.floor(i / 8 * highRange)
 		
-		-- Average the spectrum values in this range
-		local sum = 0
-		local count = 0
-		for j = startIdx, endIdx do
-			if spectrum[j] then
-				sum = sum + spectrum[j]
-				count = count + 1
-			end
+		-- Scale based on position (boost bass and treble differently)
+		local positionScale
+		if i <= 6 then
+			positionScale = 180 -- Bass boost
+		elseif i >= 11 then
+			positionScale = 140 -- Treble boost
+		else
+			positionScale = 120 -- Mid range
 		end
 		
-		local avgIntensity = count > 0 and (sum / count) or 0
-		-- Convert to 0-100 scale
-		table.insert(bands, math.clamp(avgIntensity * 120, 0, 100))
+		table.insert(rawBands, math.clamp(avgIntensity * positionScale, 0, 100))
 	end
 	
-	return bands
+	-- Apply smooth interpolation
+	rawBands = smoothInterpolate(rawBands)
+	
+	-- Apply distribution curve with dynamic center
+	local dominantFreq = 1
+	local maxIntensity = 0
+	for i, v in ipairs(rawBands) do
+		if v > maxIntensity then
+			maxIntensity = v
+			dominantFreq = i
+		end
+	end
+	
+	rawBands = applyDistributionCurve(rawBands, dominantFreq)
+	
+	return rawBands
 end
 
 -- Main update loop
@@ -231,7 +270,7 @@ RunService.RenderStepped:Connect(function()
 			lastPrimarySound = primarySound
 		end
 		
-		-- Get REAL frequency bands using AudioAnalyzer
+		-- Get REAL frequency bands using AudioAnalyzer with distribution curves
 		local frequencyBands = getFrequencyBands(primarySound)
 		
 		-- Send to server
