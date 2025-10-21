@@ -9,26 +9,55 @@ local hrp = char:WaitForChild("HumanoidRootPart")
 
 local MusicVisEvent = ReplicatedStorage:WaitForChild("MusicVisEvent")
 
+-- Store analyzers to prevent recreation
+local soundAnalyzers = {}
+
 -- Create AudioAnalyzer for real frequency analysis
 local function setupAudioAnalyzer(sound)
-	-- Check if AudioAnalyzer already exists
+	-- Check if we already have an analyzer for this sound
+	if soundAnalyzers[sound] then
+		local analyzer = soundAnalyzers[sound]
+		if analyzer and analyzer.Parent then
+			analyzer.SpectrumEnabled = true
+			return analyzer
+		end
+	end
+	
+	-- Check if AudioAnalyzer already exists in sound
 	local analyzer = sound:FindFirstChild("AudioAnalyzer")
 	if not analyzer then
 		analyzer = Instance.new("AudioAnalyzer")
+		analyzer.Name = "AudioAnalyzer"
 		analyzer.Parent = sound
-		analyzer.SpectrumEnabled = true -- CRITICAL: Enable spectrum analysis
+		analyzer.SpectrumEnabled = true
 		
 		-- Create Wire to connect Sound to AudioAnalyzer
-		local wire = Instance.new("Wire")
-		wire.SourceInstance = sound
-		wire.TargetInstance = analyzer
-		wire.TargetName = "Input"
-		wire.Parent = sound
+		local wire = sound:FindFirstChild("AnalyzerWire")
+		if not wire then
+			wire = Instance.new("Wire")
+			wire.Name = "AnalyzerWire"
+			wire.SourceInstance = sound
+			wire.TargetInstance = analyzer
+			wire.TargetName = "Input"
+			wire.Parent = sound
+		end
 		
 		print("[MusicVis] Created AudioAnalyzer and Wire for sound:", sound.Name)
 	else
 		analyzer.SpectrumEnabled = true
+		-- Check if wire exists
+		local wire = sound:FindFirstChild("AnalyzerWire")
+		if not wire then
+			wire = Instance.new("Wire")
+			wire.Name = "AnalyzerWire"
+			wire.SourceInstance = sound
+			wire.TargetInstance = analyzer
+			wire.TargetName = "Input"
+			wire.Parent = sound
+		end
 	end
+	
+	soundAnalyzers[sound] = analyzer
 	return analyzer
 end
 
@@ -64,10 +93,25 @@ end
 
 -- Get real frequency bands using AudioAnalyzer
 local function getFrequencyBands(sound)
-	local analyzer = setupAudioAnalyzer(sound)
+	local success, analyzer = pcall(setupAudioAnalyzer, sound)
 	
-	-- GetSpectrum returns an array of frequency intensities
-	local spectrum = analyzer:GetSpectrum()
+	if not success or not analyzer then
+		print("[MusicVis] Failed to setup AudioAnalyzer:", analyzer)
+		-- Use fallback
+		analyzer = nil
+	end
+	
+	local spectrum = nil
+	if analyzer then
+		local specSuccess, specResult = pcall(function()
+			return analyzer:GetSpectrum()
+		end)
+		if specSuccess then
+			spectrum = specResult
+		else
+			print("[MusicVis] GetSpectrum failed:", specResult)
+		end
+	end
 	
 	if not spectrum or #spectrum == 0 then
 		-- Fallback: Use PlaybackLoudness with better frequency simulation
