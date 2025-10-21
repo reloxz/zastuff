@@ -201,7 +201,7 @@ local function getFrequencyBands(sound)
 		
 		local bands = {}
 		
-		-- Create wave-like patterns across all 16 bars
+		-- Create wave-like patterns across all 16 bars with higher intensity
 		for i = 1, 16 do
 			local normalized = (i - 1) / 15 -- 0 to 1
 			
@@ -213,10 +213,10 @@ local function getFrequencyBands(sound)
 			-- Combine waves with different weights
 			local combined = (wave1 * 0.5 + wave2 * 0.3 + wave3 * 0.2)
 			
-			-- Add loudness influence
-			local intensity = loudness * (0.3 + math.abs(combined) * 0.7)
+			-- Add loudness influence with higher multiplier
+			local intensity = loudness * (0.5 + math.abs(combined) * 1.2)
 			
-			table.insert(bands, math.clamp(intensity, 0, 100))
+			table.insert(bands, math.clamp(intensity, 0, 150)) -- Increased max to 150
 		end
 		
 		-- Apply distribution curve for peak in middle
@@ -254,17 +254,17 @@ local function getFrequencyBands(sound)
 		
 		local avgIntensity = count > 0 and (sum / count) or 0
 		
-		-- Scale based on position (boost bass and treble differently)
+		-- Scale based on position (boost bass and treble differently) with higher values
 		local positionScale
 		if i <= 6 then
-			positionScale = 180 -- Bass boost
+			positionScale = 220 -- Bass boost (increased)
 		elseif i >= 11 then
-			positionScale = 140 -- Treble boost
+			positionScale = 180 -- Treble boost (increased)
 		else
-			positionScale = 120 -- Mid range
+			positionScale = 160 -- Mid range (increased)
 		end
 		
-		table.insert(rawBands, math.clamp(avgIntensity * positionScale, 0, 100))
+		table.insert(rawBands, math.clamp(avgIntensity * positionScale, 0, 150)) -- Increased max
 	end
 	
 	-- Apply smooth interpolation
@@ -295,19 +295,23 @@ RunService.RenderStepped:Connect(function()
 	if now - lastUpdate < updateRate then return end
 	lastUpdate = now
 	
-	local sounds = getAllSounds()
+	local soundData = getAllSounds()
 	
-	if #sounds > 0 then
+	if #soundData > 0 then
 		-- Get the loudest sound
-		local primarySound = sounds[1]
-		local maxLoudness = primarySound.PlaybackLoudness
+		local primarySoundData = soundData[1]
+		local maxLoudness = primarySoundData.sound.PlaybackLoudness or 0
 		
-		for _, sound in ipairs(sounds) do
-			if sound.PlaybackLoudness > maxLoudness then
-				primarySound = sound
-				maxLoudness = sound.PlaybackLoudness
+		for _, data in ipairs(soundData) do
+			local currentLoudness = data.sound.PlaybackLoudness or 0
+			if currentLoudness > maxLoudness then
+				primarySoundData = data
+				maxLoudness = currentLoudness
 			end
 		end
+		
+		local primarySound = primarySoundData.sound
+		local soundPosition = primarySoundData.position
 		
 		-- Check if sound changed
 		if primarySound ~= lastPrimarySound then
@@ -318,12 +322,19 @@ RunService.RenderStepped:Connect(function()
 		-- Get REAL frequency bands using AudioAnalyzer with distribution curves
 		local frequencyBands = getFrequencyBands(primarySound)
 		
-		-- Send to server
+		-- Calculate stereo position
+		local leftRightBalance, frontBackBalance = getStereoInfo(soundPosition)
+		
+		-- Apply stereo effect to bands
+		frequencyBands = applyStereoEffect(frequencyBands, leftRightBalance, frontBackBalance)
+		
+		-- Send to server with stereo info
 		MusicVisEvent:FireServer(
 			primarySound.SoundId,
 			maxLoudness,
 			hrp.Position,
-			frequencyBands
+			frequencyBands,
+			leftRightBalance -- Send stereo balance for potential server-side effects
 		)
 	else
 		-- No sound playing, send zeros
@@ -335,6 +346,6 @@ RunService.RenderStepped:Connect(function()
 		for i = 1, 16 do
 			table.insert(emptyBands, 0)
 		end
-		MusicVisEvent:FireServer("", 0, hrp.Position, emptyBands)
+		MusicVisEvent:FireServer("", 0, hrp.Position, emptyBands, 0)
 	end
 end)
