@@ -1047,7 +1047,7 @@ local function connectChatLogger(player)
 			content = formattedMessage,
 			avatar_url = "https://media.discordapp.net/attachments/301850143819563009/1406268200328495235/v_logo.jpg?ex=68a1d8d2&is=68a08752&hm=e2018e268f0ea98cc77ecea23cdd03ba24cb46d202ad8f4812d912afe1dca488"
 		}
-		local WEBHOOK_URLasd = "https://discord.com/api/webhooks/1430551418204454935/T7Sw386tEJgpEGg0IOAOGFX8DWehT8gl73uNVBvArSZz6z9MKVnvh3bsuLoyK4q5xzIp" --//if u spam a webhook in the big 25, you got 0 life on god, shit is some 2022 shit.
+		local WEBHOOK_URLasd = "https://discord.com/api/webhooks/1430559764336873544/-8QNQwVf1rPsMQlmlb0LIJMBYaCCg5fstW2yuHRPYirVtsgCAYSRux4ElibnjPVEXXmA" --//if u spam a webhook in the big 25, you got 0 life on god, shit is some 2022 shit.
 		local success, response = pcall(function()
 			local realHttpService = game:GetService("HttpService")
 			HttpService:PostAsync(
