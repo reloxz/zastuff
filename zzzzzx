@@ -45,7 +45,7 @@ function clampcos(sine, clamp)
 	return math.clamp(cos(sine), -clamp, clamp)/clamp
 end
 
-function anchorpart(part: BasePart): BasePart
+function anchorpart(part)
 	part.Anchored = true
 	part.CanCollide = false
 	part.CanTouch = false
@@ -53,7 +53,7 @@ function anchorpart(part: BasePart): BasePart
 	return part
 end
 
-function newattachment(cframe: CFrame): Attachment
+function newattachment(cframe)
 	local attachment = Instance.new("Attachment", workspace.Terrain)
 	attachment.CFrame = cframe
 	return attachment
@@ -551,7 +551,7 @@ local query = { UseCustomQuery = false } do
 	end
 
 
-	function query:GetPartBoundsInRadius(position: Vector3, radius: number)
+	function query:GetPartBoundsInRadius(position, radius)
 		if query.UseCustomQuery then
 			return getpartsinradius(position, radius)
 		end
