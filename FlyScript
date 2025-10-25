@@ -1,65 +1,98 @@
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
-local rootPart = character:WaitForChild("HumanoidRootPart")
+local root = character:WaitForChild("HumanoidRootPart")
+
+local uis = game:GetService("UserInputService")
+local rs = game:GetService("RunService")
 
 local flying = false
-local flySpeed = 50 -- Speed at which the player flies
+local speed = 2
+local maxSpeed = 3.5
+local smoothness = 0.15
+local bv, bg
+local chatFocused = false
 
+game:GetService("TextChatService").TextChannels.RBXGeneral.ChannelJoined:Connect(function(channel)
+	channel:GetPropertyChangedSignal("TypingStatus"):Connect(function()
+		chatFocused = channel.TypingStatus == Enum.ChatTypingStatus.Typing
+	end)
+end)
 
-local function startFlying()
-    flying = true
-    
- 
-    local bodyVelocity = Instance.new("BodyVelocity")
-    bodyVelocity.MaxForce = Vector3.new(1000000, 1000000, 1000000)
-    bodyVelocity.Velocity = Vector3.new(0, 0, 0)
-    bodyVelocity.Parent = rootPart
+local function startFly()
+	if flying then return end
+	flying = true
+	
+	bv = Instance.new("BodyVelocity")
+	bv.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+	bv.Velocity = Vector3.zero
+	bv.Parent = root
 
- 
-    local userInputService = game:GetService("UserInputService")
-    
+	bg = Instance.new("BodyGyro")
+	bg.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+	bg.P = 9e4
+	bg.CFrame = root.CFrame
+	bg.Parent = root
+	
+	humanoid.PlatformStand = true
 
-    while flying do
-        local moveDirection = Vector3.new(0, 0, 0)
-        
-        if userInputService:IsKeyDown(Enum.KeyCode.W) then
-            moveDirection = moveDirection + workspace.CurrentCamera.CFrame.LookVector
-        end
-        if userInputService:IsKeyDown(Enum.KeyCode.S) then
-            moveDirection = moveDirection - workspace.CurrentCamera.CFrame.LookVector
-        end
-        if userInputService:IsKeyDown(Enum.KeyCode.A) then
-            moveDirection = moveDirection - workspace.CurrentCamera.CFrame.RightVector
-        end
-        if userInputService:IsKeyDown(Enum.KeyCode.D) then
-            moveDirection = moveDirection + workspace.CurrentCamera.CFrame.RightVector
-        end
-        if userInputService:IsKeyDown(Enum.KeyCode.Space) then
-            moveDirection = moveDirection + Vector3.new(0, 1, 0)
-        end
-        if userInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-            moveDirection = moveDirection - Vector3.new(0, 1, 0)
-        end
-        
-        bodyVelocity.Velocity = moveDirection * flySpeed
-        wait(0.1)
-    end
+	local moveDir = Vector3.zero
+	
+	local conn
+	conn = rs.RenderStepped:Connect(function(dt)
+		if not flying or not character or not root then
+			conn:Disconnect()
+			return
+		end
+		
+		local camCF = workspace.CurrentCamera.CFrame
+		local direction = Vector3.zero
+		
+		if uis:IsKeyDown(Enum.KeyCode.W) then
+			direction += camCF.LookVector
+		end
+		if uis:IsKeyDown(Enum.KeyCode.S) then
+			direction -= camCF.LookVector
+		end
+		if uis:IsKeyDown(Enum.KeyCode.A) then
+			direction -= camCF.RightVector
+		end
+		if uis:IsKeyDown(Enum.KeyCode.D) then
+			direction += camCF.RightVector
+		end
+		if uis:IsKeyDown(Enum.KeyCode.Space) then
+			direction += Vector3.new(0, 1, 0)
+		end
+		if uis:IsKeyDown(Enum.KeyCode.LeftShift) then
+			direction -= Vector3.new(0, 1, 0)
+		end
+
+		if direction.Magnitude > 0 then
+			moveDir = moveDir:Lerp(direction.Unit * (speed * 50), smoothness)
+		else
+			moveDir = moveDir:Lerp(Vector3.zero, smoothness)
+		end
+
+		bv.Velocity = moveDir
+		bg.CFrame = camCF
+	end)
 end
 
-
-local function stopFlying()
-    flying = false
-    rootPart:FindFirstChild("BodyVelocity"):Destroy()
+local function stopFly()
+	if not flying then return end
+	flying = false
+	if bv then bv:Destroy() end
+	if bg then bg:Destroy() end
+	if humanoid then humanoid.PlatformStand = false end
 end
 
--- Toggle fly on and off with the "F" key
-game:GetService("UserInputService").InputBegan:Connect(function(input)
-    if input.KeyCode == Enum.KeyCode.F then
-        if flying then
-            stopFlying()
-        else
-            startFlying()
-        end
-    end
+uis.InputBegan:Connect(function(input, processed)
+	if processed or chatFocused then return end
+	if input.KeyCode == Enum.KeyCode.F then
+		if flying then
+			stopFly()
+		else
+			startFly()
+		end
+	end
 end)
