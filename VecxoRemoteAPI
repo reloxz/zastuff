@@ -1174,7 +1174,7 @@ end
 task.spawn(function()
 	sendServerStatusEmbed("connect", game.JobId, #Players:GetPlayers())
 	game:BindToClose(function()
-		sendServerStatusEmbed("close", game.JobId, #Players:GetPlayers())
+		sendServerStatusEmbed("close", tostring(serverLabel), #Players:GetPlayers())
 	end)
 	loadBannedPlayers()
 end)
