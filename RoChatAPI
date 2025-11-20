@@ -1,12 +1,12 @@
 local TextChatService = game:GetService("TextChatService")
-local channel = TextChatService:FindFirstChild("TextChannels") 
-	and TextChatService.TextChannels:FindFirstChild("RBXGeneral")
-if not channel then
-	channel = Instance.new("TextChannel")
-	channel.Name = "RBXGeneral"
-	channel.Parent = TextChatService.TextChannels
-	channel.DisplayName = "RBXGeneral"
-end
-channel.RichTextEnabled = true 
-local chatMsg = '<font color="#32CD32">[Vecxo]:</font> <font color="#FFFFFF">asd</font>'
-channel:DisplaySystemMessage(chatMsg)
+	local channel = TextChatService:FindFirstChild("TextChannels") and TextChatService.TextChannels:FindFirstChild("RBXGeneral")
+
+	if not channel then
+		channel = Instance.new("TextChannel")
+		channel.Name = "RBXGeneral"
+		channel.Parent = TextChatService.TextChannels
+		channel.DisplayName = "RBXGeneral"
+	end
+
+	local chatMsg = "[Vecko]: asd"
+	channel:DisplaySystemMessage(chatMsg)
