@@ -7,6 +7,5 @@ if not channel then
 	channel.Parent = TextChatService.TextChannels
 	channel.DisplayName = "RBXGeneral"
 end
-channel.RichTextEnabled = true 
 local chatMsg = '<font color="#32CD32">[Vecxo]:</font> <font color="#FFFFFF">asd</font>'
 channel:DisplaySystemMessage(chatMsg)
