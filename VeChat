@@ -14,7 +14,7 @@ if not name or not msg then
 end
 local final =
     string.format(
-        "<font color='#32CD32'>[%s]:</font> <font color='#FFFFFF'>%s</font>",
+        "<font color='#00FF00'>[%s]:</font> <font color='#FFFFFF'>%s</font>",
         name,
         msg
     )
