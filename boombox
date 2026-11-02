@@ -1,0 +1,687 @@
+-- thanks to datz for porting this for use in a no-require sb environment
+-- regular require version: require(18235853581)("name")
+
+Tool1 = Instance.new("Tool")
+Part1 = Instance.new("Part")
+SpecialMesh1 = Instance.new("SpecialMesh")
+Sound1 = Instance.new("Sound")
+RemoteEvent1 = Instance.new("RemoteEvent")
+BillboardGui1 = Instance.new("BillboardGui")
+Frame1 = Instance.new("Frame")
+UIPadding1 = Instance.new("UIPadding")
+UIListLayout1 = Instance.new("UIListLayout")
+Frame2 = Instance.new("Frame")
+UIListLayout2 = Instance.new("UIListLayout")
+ImageButton1 = Instance.new("ImageButton")
+UIStroke1 = Instance.new("UIStroke")
+UICorner1 = Instance.new("UICorner")
+ImageButton2 = Instance.new("ImageButton")
+UIStroke2 = Instance.new("UIStroke")
+UICorner2 = Instance.new("UICorner")
+Frame3 = Instance.new("Frame")
+TextLabel1 = Instance.new("TextLabel")
+TextBox1 = Instance.new("TextBox")
+UICorner3 = Instance.new("UICorner")
+UIStroke3 = Instance.new("UIStroke")
+Frame4 = Instance.new("Frame")
+TextBox2 = Instance.new("TextBox")
+UICorner4 = Instance.new("UICorner")
+UIStroke4 = Instance.new("UIStroke")
+TextLabel2 = Instance.new("TextLabel")
+UICorner5 = Instance.new("UICorner")
+Frame5 = Instance.new("Frame")
+ImageButton3 = Instance.new("ImageButton")
+Frame6 = Instance.new("Frame")
+Frame7 = Instance.new("Frame")
+TextLabel3 = Instance.new("TextLabel")
+TextBox3 = Instance.new("TextBox")
+UICorner6 = Instance.new("UICorner")
+UIStroke5 = Instance.new("UIStroke")
+TextBox4 = Instance.new("TextBox")
+UICorner7 = Instance.new("UICorner")
+UIStroke6 = Instance.new("UIStroke")
+TextLabel4 = Instance.new("TextLabel")
+UIScale1 = Instance.new("UIScale")
+UICorner8 = Instance.new("UICorner")
+Tool1.Grip = CFrame.new(1, -1.25, 0, 0, 0, -1, 0, 1, 0, 1, 0, 0)
+Tool1.Name = "SuperFlyGoldBoombox2"
+Tool1.TextureId = "http://www.roblox.com/asset/?id=212303004"
+Tool1.WorldPivot = CFrame.new(0, 6, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+Part1.BottomSurface = Enum.SurfaceType.Smooth
+Part1.CFrame = CFrame.new(0, 6, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+Part1.CanCollide = false
+Part1.Name = "Handle"
+Part1.Parent = Tool1
+Part1.Size = Vector3.new(3.2, 1.6, 1.2)
+Part1.TopSurface = Enum.SurfaceType.Smooth
+SpecialMesh1.MeshId = "http://www.roblox.com/asset/?id=212302951"
+SpecialMesh1.MeshType = Enum.MeshType.FileMesh
+SpecialMesh1.Parent = Part1
+SpecialMesh1.Scale = Vector3.new(4, 4, 4)
+SpecialMesh1.TextureId = "http://www.roblox.com/asset/?id=212303049"
+Sound1.Looped = true
+Sound1.Name = "Music"
+Sound1.Parent = Part1
+RemoteEvent1.Name = "SetSongState"
+RemoteEvent1.Parent = Tool1
+BillboardGui1.Active = true
+BillboardGui1.Adornee = Part1
+BillboardGui1.AlwaysOnTop = true
+BillboardGui1.ClipsDescendants = true
+BillboardGui1.LightInfluence = 1
+BillboardGui1.Name = "SongGui"
+BillboardGui1.Parent = Tool1
+BillboardGui1.Size = UDim2.new(0, 280, 0, 200)
+BillboardGui1.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+Frame1.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame1.AutomaticSize = Enum.AutomaticSize.Y
+Frame1.BackgroundColor3 = Color3.new(0, 0, 0)
+Frame1.BackgroundTransparency = 0.5
+Frame1.BorderColor3 = Color3.new(0, 0, 0)
+Frame1.BorderSizePixel = 0
+Frame1.Parent = BillboardGui1
+Frame1.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame1.Size = UDim2.new(0, 250, 0, 0)
+Frame1.Visible = false
+UIPadding1.PaddingBottom = UDim.new(0, 10)
+UIPadding1.PaddingLeft = UDim.new(0, 10)
+UIPadding1.PaddingRight = UDim.new(0, 10)
+UIPadding1.PaddingTop = UDim.new(0, 10)
+UIPadding1.Parent = Frame1
+UIListLayout1.Padding = UDim.new(0, 4)
+UIListLayout1.Parent = Frame1
+UIListLayout1.SortOrder = Enum.SortOrder.LayoutOrder
+Frame2.BackgroundColor3 = Color3.new(1, 1, 1)
+Frame2.BackgroundTransparency = 1
+Frame2.BorderColor3 = Color3.new(0, 0, 0)
+Frame2.BorderSizePixel = 0
+Frame2.LayoutOrder = 5
+Frame2.Name = "Controls"
+Frame2.Parent = Frame1
+Frame2.Size = UDim2.new(1, 0, 0, 20)
+UIListLayout2.FillDirection = Enum.FillDirection.Horizontal
+UIListLayout2.HorizontalAlignment = Enum.HorizontalAlignment.Center
+UIListLayout2.Padding = UDim.new(0, 10)
+UIListLayout2.Parent = Frame2
+UIListLayout2.SortOrder = Enum.SortOrder.LayoutOrder
+ImageButton1.BackgroundColor3 = Color3.new(1, 1, 1)
+ImageButton1.BackgroundTransparency = 1
+ImageButton1.BorderColor3 = Color3.new(0, 0, 0)
+ImageButton1.BorderSizePixel = 0
+ImageButton1.Image = "rbxassetid://5173558738"
+ImageButton1.Name = "Play"
+ImageButton1.Parent = Frame2
+ImageButton1.Size = UDim2.new(0, 20, 0, 20)
+UIStroke1.Color = Color3.new(0.31, 0.31, 0.31)
+UIStroke1.Parent = ImageButton1
+UICorner1.CornerRadius = UDim.new(0, 3)
+UICorner1.Parent = ImageButton1
+ImageButton2.BackgroundColor3 = Color3.new(1, 1, 1)
+ImageButton2.BackgroundTransparency = 1
+ImageButton2.BorderColor3 = Color3.new(0, 0, 0)
+ImageButton2.BorderSizePixel = 0
+ImageButton2.Image = "rbxassetid://14164389863"
+ImageButton2.LayoutOrder = 1
+ImageButton2.Name = "Stop"
+ImageButton2.Parent = Frame2
+ImageButton2.Size = UDim2.new(0, 20, 0, 20)
+UIStroke2.Color = Color3.new(0.31, 0.31, 0.31)
+UIStroke2.Parent = ImageButton2
+UICorner2.CornerRadius = UDim.new(0, 3)
+UICorner2.Parent = ImageButton2
+Frame3.BackgroundColor3 = Color3.new(1, 1, 1)
+Frame3.BackgroundTransparency = 1
+Frame3.BorderColor3 = Color3.new(0, 0, 0)
+Frame3.BorderSizePixel = 0
+Frame3.LayoutOrder = 3
+Frame3.Name = "Pitch"
+Frame3.Parent = Frame1
+Frame3.Size = UDim2.new(1, 0, 0, 15)
+TextLabel1.BackgroundColor3 = Color3.new(1, 1, 1)
+TextLabel1.BackgroundTransparency = 1
+TextLabel1.BorderColor3 = Color3.new(0, 0, 0)
+TextLabel1.BorderSizePixel = 0
+TextLabel1.FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+TextLabel1.Parent = Frame3
+TextLabel1.Size = UDim2.new(0.5, 0, 1, 0)
+TextLabel1.Text = "Pitch"
+TextLabel1.TextColor3 = Color3.new(1, 1, 1)
+TextLabel1.TextSize = 14
+TextLabel1.TextXAlignment = Enum.TextXAlignment.Left
+TextBox1.AnchorPoint = Vector2.new(1, 0)
+TextBox1.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+TextBox1.BorderColor3 = Color3.new(0, 0, 0)
+TextBox1.BorderSizePixel = 0
+TextBox1.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+TextBox1.Parent = Frame3
+TextBox1.PlaceholderColor3 = Color3.new(0.6900000000000001, 0.6900000000000001, 0.6900000000000001)
+TextBox1.PlaceholderText = "1"
+TextBox1.Position = UDim2.new(1, 0, 0, 0)
+TextBox1.Size = UDim2.new(0, 100, 1, 0)
+TextBox1.Text = ""
+TextBox1.TextColor3 = Color3.new(1, 1, 1)
+TextBox1.TextSize = 14
+UICorner3.CornerRadius = UDim.new(0, 5)
+UICorner3.Parent = TextBox1
+UIStroke3.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+UIStroke3.Color = Color3.new(0.31, 0.31, 0.31)
+UIStroke3.Parent = TextBox1
+Frame4.BackgroundColor3 = Color3.new(1, 1, 1)
+Frame4.BackgroundTransparency = 1
+Frame4.BorderColor3 = Color3.new(0, 0, 0)
+Frame4.BorderSizePixel = 0
+Frame4.LayoutOrder = 4
+Frame4.Name = "Seeker"
+Frame4.Parent = Frame1
+Frame4.Size = UDim2.new(1, 0, 0, 20)
+TextBox2.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+TextBox2.BackgroundTransparency = 1
+TextBox2.BorderColor3 = Color3.new(0, 0, 0)
+TextBox2.BorderSizePixel = 0
+TextBox2.ClearTextOnFocus = false
+TextBox2.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+TextBox2.Name = "TimePosition"
+TextBox2.Parent = Frame4
+TextBox2.PlaceholderColor3 = Color3.new(0.6900000000000001, 0.6900000000000001, 0.6900000000000001)
+TextBox2.PlaceholderText = "0:00"
+TextBox2.Size = UDim2.new(0, 30, 1, 0)
+TextBox2.Text = ""
+TextBox2.TextColor3 = Color3.new(1, 1, 1)
+TextBox2.TextSize = 14
+UICorner4.CornerRadius = UDim.new(0, 3)
+UICorner4.Parent = TextBox2
+UIStroke4.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+UIStroke4.Color = Color3.new(0.31, 0.31, 0.31)
+UIStroke4.Parent = TextBox2
+TextLabel2.Active = true
+TextLabel2.AnchorPoint = Vector2.new(1, 0)
+TextLabel2.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+TextLabel2.BackgroundTransparency = 1
+TextLabel2.BorderColor3 = Color3.new(0, 0, 0)
+TextLabel2.BorderSizePixel = 0
+TextLabel2.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+TextLabel2.Name = "TimeLength"
+TextLabel2.Parent = Frame4
+TextLabel2.Position = UDim2.new(1, 0, 0, 0)
+TextLabel2.Selectable = true
+TextLabel2.Size = UDim2.new(0, 30, 1, 0)
+TextLabel2.Text = "1:00"
+TextLabel2.TextColor3 = Color3.new(1, 1, 1)
+TextLabel2.TextSize = 14
+UICorner5.CornerRadius = UDim.new(0, 5)
+UICorner5.Parent = TextLabel2
+Frame5.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame5.BackgroundColor3 = Color3.new(1, 1, 1)
+Frame5.BorderColor3 = Color3.new(0, 0, 0)
+Frame5.BorderSizePixel = 0
+Frame5.Parent = Frame4
+Frame5.Position = UDim2.new(0.5, 0, 0.5, 0)
+Frame5.Size = UDim2.new(1, -70, 0, 2)
+ImageButton3.AnchorPoint = Vector2.new(0.5, 0.5)
+ImageButton3.BackgroundColor3 = Color3.new(1, 1, 1)
+ImageButton3.BackgroundTransparency = 1
+ImageButton3.BorderColor3 = Color3.new(0, 0, 0)
+ImageButton3.BorderSizePixel = 0
+ImageButton3.Name = "Button"
+ImageButton3.Parent = Frame5
+ImageButton3.Position = UDim2.new(0, 0, 0.5, 0)
+ImageButton3.Size = UDim2.new(0, 9, 0, 15)
+Frame6.AnchorPoint = Vector2.new(0.5, 0)
+Frame6.BackgroundColor3 = Color3.new(1, 1, 1)
+Frame6.BorderColor3 = Color3.new(0, 0, 0)
+Frame6.BorderSizePixel = 0
+Frame6.Parent = ImageButton3
+Frame6.Position = UDim2.new(0.5, 0, 0, 0)
+Frame6.Size = UDim2.new(0, 3, 1, 0)
+Frame7.BackgroundColor3 = Color3.new(1, 1, 1)
+Frame7.BackgroundTransparency = 1
+Frame7.BorderColor3 = Color3.new(0, 0, 0)
+Frame7.BorderSizePixel = 0
+Frame7.LayoutOrder = 2
+Frame7.Name = "Volume"
+Frame7.Parent = Frame1
+Frame7.Size = UDim2.new(1, 0, 0, 15)
+TextLabel3.BackgroundColor3 = Color3.new(1, 1, 1)
+TextLabel3.BackgroundTransparency = 1
+TextLabel3.BorderColor3 = Color3.new(0, 0, 0)
+TextLabel3.BorderSizePixel = 0
+TextLabel3.FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+TextLabel3.Parent = Frame7
+TextLabel3.Size = UDim2.new(0.5, 0, 1, 0)
+TextLabel3.Text = "Volume"
+TextLabel3.TextColor3 = Color3.new(1, 1, 1)
+TextLabel3.TextSize = 14
+TextLabel3.TextXAlignment = Enum.TextXAlignment.Left
+TextBox3.AnchorPoint = Vector2.new(1, 0)
+TextBox3.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+TextBox3.BorderColor3 = Color3.new(0, 0, 0)
+TextBox3.BorderSizePixel = 0
+TextBox3.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+TextBox3.Parent = Frame7
+TextBox3.PlaceholderColor3 = Color3.new(0.6900000000000001, 0.6900000000000001, 0.6900000000000001)
+TextBox3.PlaceholderText = "0.5"
+TextBox3.Position = UDim2.new(1, 0, 0, 0)
+TextBox3.Size = UDim2.new(0, 100, 1, 0)
+TextBox3.Text = ""
+TextBox3.TextColor3 = Color3.new(1, 1, 1)
+TextBox3.TextSize = 14
+UICorner6.CornerRadius = UDim.new(0, 5)
+UICorner6.Parent = TextBox3
+UIStroke5.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+UIStroke5.Color = Color3.new(0.31, 0.31, 0.31)
+UIStroke5.Parent = TextBox3
+TextBox4.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+TextBox4.BorderColor3 = Color3.new(0, 0, 0)
+TextBox4.BorderSizePixel = 0
+TextBox4.ClearTextOnFocus = false
+TextBox4.FontFace = Font.new("rbxasset://fonts/families/Inconsolata.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+TextBox4.LayoutOrder = 1
+TextBox4.Name = "SongId"
+TextBox4.Parent = Frame1
+TextBox4.PlaceholderColor3 = Color3.new(0.6900000000000001, 0.6900000000000001, 0.6900000000000001)
+TextBox4.PlaceholderText = "Song ID"
+TextBox4.Size = UDim2.new(1, 0, 0, 20)
+TextBox4.Text = ""
+TextBox4.TextColor3 = Color3.new(0.88, 0.88, 0.88)
+TextBox4.TextSize = 15
+UICorner7.CornerRadius = UDim.new(0, 5)
+UICorner7.Parent = TextBox4
+UIStroke6.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+UIStroke6.Color = Color3.new(0.31, 0.31, 0.31)
+UIStroke6.Parent = TextBox4
+TextLabel4.BackgroundColor3 = Color3.new(1, 1, 1)
+TextLabel4.BackgroundTransparency = 1
+TextLabel4.BorderColor3 = Color3.new(0, 0, 0)
+TextLabel4.BorderSizePixel = 0
+TextLabel4.FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+TextLabel4.Name = "Title"
+TextLabel4.Parent = Frame1
+TextLabel4.Size = UDim2.new(1, 0, 0, 30)
+TextLabel4.Text = "[song name]"
+TextLabel4.TextColor3 = Color3.new(1, 1, 1)
+TextLabel4.TextSize = 20
+TextLabel4.TextWrapped = true
+UIScale1.Parent = Frame1
+UICorner8.CornerRadius = UDim.new(0, 5)
+UICorner8.Parent = Frame1
+Tool1.Parent = owner:FindFirstChildOfClass("Backpack") or Instance.new("Backpack", owner)
+NS([[-- ceat_ceat
+
+local Players = game:GetService("Players")
+local MarketplaceService = game:GetService("MarketplaceService")
+
+local ALLOWED_PROPERTIES = {
+	Volume = "number",
+	Pitch = "number",
+	TimePosition = "number",
+}
+
+local tool = script.Parent
+
+local setSongState = tool.SetSongState
+local music = tool.Handle.Music
+
+local playing = false
+
+local audioNames = {}
+
+-- no owner when unequipped
+local function getOwner()
+	return Players:GetPlayerFromCharacter(tool.Parent)
+end
+
+local function setSongId(id)
+	if type(id) ~= "number" then return end
+	if audioNames[id] then
+		music.SoundId = `rbxassetid://{id}`
+		music:Play()
+		tool:SetAttribute("SongName", audioNames[id])
+		tool:SetAttribute("Error", nil)
+		return
+	end
+	local success, productInfo = pcall(function()
+		return MarketplaceService:GetProductInfo(id)
+	end)
+	local name
+	if success then
+		if productInfo.AssetTypeId ~= Enum.AssetType.Audio.Value then
+			tool:SetAttribute("Error", "Not an audio ID")
+			return
+		end
+		name = productInfo.Name
+		audioNames[id] = name
+	else
+		name = "[Failed to get Info]"
+	end
+	music.SoundId = `rbxassetid://{id}`
+	music:Play()
+	playing = true
+	tool:SetAttribute("SongName", name)
+	tool:SetAttribute("Error", nil)
+end
+
+setSongState.OnServerEvent:Connect(function(plr, method, ...)
+	if plr ~= getOwner() then return end
+	local args = {...}
+	if method == "setProperty" then
+		local property = args[1]
+		local value = args[2]
+		if not ALLOWED_PROPERTIES[property] then return end
+		if ALLOWED_PROPERTIES[property] ~= type(value) then return end
+		music[property] = value
+	elseif method == "setId" then
+		setSongId(args[1])
+	elseif method == "play" then
+		playing = true
+		music.Playing = true
+	elseif method == "pause" then
+		playing = false
+		music.Playing = false
+	elseif method == "stop" then
+		playing = false
+		music.Playing = false
+		music.TimePosition = 0
+	end
+end)
+
+tool.Equipped:Connect(function()
+	if playing then
+		music:Resume()
+	end
+end)
+
+tool.Unequipped:Connect(function()
+	music:Pause()
+end)]], Tool1).Name = "Boombox"
+NLS([[-- ceat_ceat
+-- its in the billboard and not the tool so that it can detect when the tool is dropped
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+
+local PLAY_IMG = "rbxassetid://5173558738"
+local PAUSE_IMG = "rbxassetid://14949619969"
+local ERROR_COLOR = Color3.fromRGB(255, 100, 100)
+
+local localPlayer = Players.LocalPlayer
+local playerGui = localPlayer:FindFirstChildOfClass("PlayerGui")
+local mouse = localPlayer:GetMouse()
+
+local boomboxGui = script.Parent
+local tool = boomboxGui.Parent
+
+local setSongState = tool.SetSongState
+
+local frame = boomboxGui.Frame
+
+local uiScale = frame.UIScale
+
+local songTitleLabel = frame.Title
+local songIdInput = frame.SongId
+local volumeInput = frame.Volume.TextBox
+local pitchInput = frame.Pitch.TextBox
+
+local seeker = frame.Seeker
+local timePositionInput = seeker.TimePosition
+local timeLengthLabel = seeker.TimeLength
+local seekerBar = seeker.Frame
+local seekerButton = seekerBar.Button
+
+local playButton = frame.Controls.Play
+local stopButton = frame.Controls.Stop
+
+local music = tool.Handle.Music
+
+local isOpen = false
+
+uiScale.Scale = 0
+frame.Visible = false
+
+-- create tweens every time so that they dont care for each other
+tool.Activated:Connect(function()
+	isOpen = not isOpen
+	if isOpen then
+		TweenService:Create(uiScale, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			Scale = 1
+		}):Play()
+		TweenService:Create(frame, TweenInfo.new(0), { -- to cancel that closing tween below
+			Visible = true
+		}):Play()
+	else
+		TweenService:Create(uiScale, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
+			Scale = 0
+		}):Play()
+		TweenService:Create(frame, TweenInfo.new(0.25), {
+			Visible = false
+		}):Play()
+	end
+end)
+
+frame:GetPropertyChangedSignal("Visible"):Connect(function()
+	boomboxGui.Parent = frame.Visible and playerGui or tool
+end)
+
+-- set song wow
+
+local currentId = ""
+
+local baseSongIdPlaceholder = songIdInput.PlaceholderText
+local baseSondIdPlaceholderColor = songIdInput.PlaceholderColor3
+
+songIdInput.InputBegan:Connect(function()
+	songIdInput.PlaceholderText = baseSongIdPlaceholder
+	songIdInput.PlaceholderColor3 = baseSondIdPlaceholderColor
+end)
+
+songIdInput.FocusLost:Connect(function(enter)
+	if not enter then return end
+	local id = tonumber(songIdInput.Text)
+	if not id then
+		songIdInput.Text = currentId
+		return
+	end
+	setSongState:FireServer("setId", id)
+end)
+
+tool:GetAttributeChangedSignal("SongName"):Connect(function()
+	songTitleLabel.Text = tool:GetAttribute("SongName") or songTitleLabel.Text
+end)
+
+tool:GetAttributeChangedSignal("Error"):Connect(function()
+	local err = tool:GetAttribute("Error")
+	if err then
+		songIdInput.PlaceholderText = err
+		songIdInput.PlaceholderColor3 = ERROR_COLOR
+		songIdInput.Text = ""
+	end
+end)
+
+-- seeking
+
+local isSeeking = false
+local mouseMove
+local mouseUp
+
+local function timeLengthToString(t)
+	return ("%s:%02i"):format(math.floor(t/60), math.floor(t%60))
+end
+
+local function onHeartbeat()
+	if isSeeking then return end
+	if timePositionInput:IsFocused() then return end
+	timePositionInput.Text = timeLengthToString(music.TimePosition)
+	if music.TimeLength ~= 0 then
+		seekerButton.Position = UDim2.fromScale(music.TimePosition/music.TimeLength, 0.5)
+	end
+end
+
+music:GetPropertyChangedSignal("TimeLength"):Connect(function()
+	timeLengthLabel.Text = timeLengthToString(music.TimeLength)
+end)
+
+timePositionInput.FocusLost:Connect(function(enter)
+	if not enter then return end
+	local fields = timePositionInput.Text:split(":")
+	local minutes
+	local seconds
+	if #fields == 2 then
+		minutes = tonumber(fields[1])
+		seconds = tonumber(fields[2])
+	elseif #fields == 1 then
+		minutes = 0
+		seconds = tonumber(fields[1])
+	end
+	if not minutes or not seconds then
+		timePositionInput.Text = timeLengthToString(music.TimePosition)
+		return
+	end
+	setSongState:FireServer("setProperty", "TimePosition", minutes*60 + seconds)
+end)
+
+
+seekerButton.MouseButton1Down:Connect(function()
+	if music.TimeLength == 0 then
+		return
+	end
+	isSeeking = true
+	
+	if mouseMove then
+		mouseMove:Disconnect()
+		mouseUp:Disconnect()
+	end
+	
+	local initPos = music.TimePosition/music.TimeLength * seekerBar.AbsoluteSize.X
+	local initX
+	
+	-- setting initX before the first call to this connection makes
+	-- it like 300 or so pixels off so set it in here instead
+	mouseMove = mouse.Move:Connect(function(...)
+		if not initX then
+			initX = mouse.X
+			return
+		end
+		local pos = initPos + (mouse.X - initX)
+		
+		seekerButton.Position = UDim2.new(0, math.clamp(pos, 0, seekerBar.AbsoluteSize.X), 0.5, 0)
+	end)
+	mouseUp = UserInputService.InputEnded:Connect(function(input)
+		if
+			input.UserInputType ~= Enum.UserInputType.MouseButton1 and
+			input.UserInputType ~= Enum.UserInputType.Touch
+		then
+			return
+		end
+		isSeeking = false
+		mouseMove:Disconnect()
+		mouseUp:Disconnect()
+		mouseMove = nil
+		mouseUp = nil
+		if not initX then
+			return
+		end
+		local pos = initPos + (mouse.X - initX)
+		local percentage = math.clamp(pos/seekerBar.AbsoluteSize.X, 0, 1)
+		setSongState:FireServer("setProperty", "TimePosition", percentage*music.TimeLength)
+	end)
+end)
+
+
+-- other properties
+
+local function round(n)
+	return math.round(n*1000)/1000
+end
+
+music:GetPropertyChangedSignal("Volume"):Connect(function()
+	volumeInput.Text = round(music.Volume)
+end)
+volumeInput.FocusLost:Connect(function(enter)
+	local volume = tonumber(volumeInput.Text)
+	if not volume then
+		volumeInput.Text = round(music.Volume)
+		return
+	end
+	setSongState:FireServer("setProperty", "Volume", math.clamp(volume, 0, 10))
+end)
+
+music:GetPropertyChangedSignal("Pitch"):Connect(function()
+	pitchInput.Text = round(music.Pitch)
+end)
+pitchInput.FocusLost:Connect(function(enter)
+	local pitch = tonumber(pitchInput.Text)
+	if not pitch then
+		pitchInput.Text = round(music.Pitch)
+		return
+	end
+	setSongState:FireServer("setProperty", "Pitch", pitch)
+end)
+
+-- controls
+
+music:GetPropertyChangedSignal("Playing"):Connect(function()
+	playButton.Image = music.Playing and PAUSE_IMG or PLAY_IMG
+end)
+playButton.MouseButton1Click:Connect(function()
+	if music.Playing then
+		setSongState:FireServer("pause")
+	else
+		setSongState:FireServer("play")
+	end
+end)
+stopButton.MouseButton1Click:Connect(function()
+	setSongState:FireServer("stop")
+end)
+
+--
+
+local hb
+
+tool.Equipped:Connect(function()
+	hb = RunService.Heartbeat:Connect(onHeartbeat)
+end)
+
+tool.Unequipped:Connect(function()
+	--if not isOpen then return end
+	hb:Disconnect()
+	if isSeeking then
+		mouseMove:Disconnect()
+		mouseUp:Disconnect()
+		mouseMove = nil
+		mouseUp = nil
+	end
+	boomboxGui.Parent = tool
+	isOpen = false
+	uiScale.Scale = 0
+	frame.Visible = false
+end)
+
+-- final
+
+local initId = music.SoundId:match("(%d+)$")
+if initId then
+	songIdInput.Text = initId
+end
+
+local initTitle = tool:GetAttribute("SongName")
+if initTitle then
+	songTitleLabel.Text = initTitle
+end
+
+local initErr = tool:GetAttribute("Error")
+if initErr then
+	songIdInput.PlaceholderText = initErr
+	songIdInput.PlaceholderColor3 = ERROR_COLOR
+	songIdInput.Text = ""
+end
+
+playButton.Image = music.Playing and PAUSE_IMG or PLAY_IMG
+
+volumeInput.Text = round(music.Volume)
+pitchInput.Text = round(music.Pitch)
+timePositionInput.Text = timeLengthToString(music.TimePosition)
+if music.TimeLength ~= 0 then
+	seekerButton.Position = UDim2.fromScale(music.TimePosition/music.TimeLength, 0.5)
+	timeLengthLabel.Text = timeLengthToString(music.TimeLength)
+end]], BillboardGui1).Name = "BoomboxLocal"
